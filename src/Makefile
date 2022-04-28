@@ -13,7 +13,6 @@ all: test gcov_report
 
 test: s21_string.a
 	$(CC) $(FLAGS) s21_string_test.c $(CHECK_DEPENDENCIES) -L. -ls21_string -o s21_string_test
-	
 
 gcov_report:
 
