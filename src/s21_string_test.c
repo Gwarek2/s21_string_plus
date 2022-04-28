@@ -150,6 +150,8 @@ Suite * s21_string_strerror_suite(void) {
     tcase_add_test(tc_core, test_s21_strerror_2);
     tcase_add_test(tc_core, test_s21_strerror_3);
     suite_add_tcase(s, tc_core);
+
+    return s;
 }
 
 int main() {
