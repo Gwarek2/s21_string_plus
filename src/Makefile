@@ -1,10 +1,19 @@
 CC=gcc
 FLAGS=-Wall -Werror -Wextra -std=c11
 
+UNAME = $(shell uname -s)
+ifeq ($(UNAME),Darwin)
+	CHECK_DEPENDENCIES=-lcheck -lm -lpthread
+endif
+ifeq ($(UNAME),Linux)
+	CHECK_DEPENDENCIES=-lcheck -lm -lpthread -lrt -lsubunit
+endif
+
 all: test gcov_report
 
 test: s21_string.a
-	$(CC) $(FLAGS) s21_string_test.c -lcheck -lm -lpthread -lrt -lsubunit -L. -ls21_string -o s21_string_test
+	$(CC) $(FLAGS) s21_string_test.c $(CHECK_DEPENDENCIES) -L. -ls21_string -o s21_string_test
+	
 
 gcov_report:
 
