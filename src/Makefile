@@ -4,7 +4,7 @@ FLAGS=-Wall -Werror -Wextra -std=c11
 all: test gcov_report
 
 test: s21_string.a
-	$(CC) $(FLAGS) s21_string_test.c -L. -ls21_string -o s21_string_test
+	$(CC) $(FLAGS) s21_string_test.c -lcheck -lm -lpthread -lrt -lsubunit -L. -ls21_string -o s21_string_test
 
 gcov_report:
 
