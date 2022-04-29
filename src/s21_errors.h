@@ -1,4 +1,7 @@
 #ifndef _S21_ERROR
+
+#define _S21_ERROR
+
 #ifdef __APPLE__
 const char error_descrs[107][50] = {
     "Success",

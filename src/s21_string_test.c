@@ -6,7 +6,7 @@
 
 #include "s21_string.h"
 
-
+// memchr tests
 START_TEST(test_s21_memchr_normal) {
     void *str = (void*) "Hello world";
     void *res1;
@@ -48,6 +48,7 @@ Suite * s21_string_memchr_suite(void) {
     return s;
 }
 
+// memcmp tests
 START_TEST(test_s21_memcmp_normal) {
     void *str1 = (void*) "Hello world";
     void *str2 = (void*) "Hello world";
@@ -89,6 +90,7 @@ Suite * s21_string_memcmp_suite(void) {
     return s;
 }
 
+// memcpy tests
 START_TEST(test_s21_memcpy_full) {
     const void *str = (void*) "Hello world";
     char buff1[20]; char buff2[20];
@@ -133,6 +135,11 @@ Suite * s21_string_memcpy_suite(void) {
     return s;
 }
 
+// strerror tests
+START_TEST(test_s21_strerror_code_0) {
+    ck_assert_str_eq(strerror(errno), s21_strerror(errno));
+} END_TEST
+
 START_TEST(test_s21_strerror_code_1) {
     FILE *f = fopen("non-existing-file", "r");
     ck_assert_str_eq(strerror(errno), s21_strerror(errno));
@@ -164,6 +171,7 @@ Suite * s21_string_strerror_suite(void) {
 
     s = suite_create("S21_string_strerror");
     tc_core = tcase_create("Core");
+    tcase_add_test(tc_core, test_s21_strerror_code_0);
     tcase_add_test(tc_core, test_s21_strerror_code_1);
     tcase_add_test(tc_core, test_s21_strerror_code_9);
     tcase_add_test(tc_core, test_s21_strerror_code_21);
@@ -172,6 +180,7 @@ Suite * s21_string_strerror_suite(void) {
     return s;
 }
 
+// main
 int main() {
     int number_failed;
     Suite *s_memchr;
