@@ -29,6 +29,7 @@
 *.dylib
 
 # Executables
+s21_string_test
 *.exe
 *.out
 *.app
@@ -51,4 +52,6 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-s21_string_test
+#IDE configs
+.vscode
+.idea
