@@ -28,4 +28,4 @@ char *s21_strstr(const char *haystack, const char *needle);
 char *s21_strtok(char *str, const char *delim);
 
 int s21_sprintf(char *str, const char *format, ...);
-#endif // _S21_STRING_H
+#endif  // _S21_STRING_H

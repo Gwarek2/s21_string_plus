@@ -5,11 +5,11 @@
 #define MAX_INT_LEN 100
 #define MAX_FLOAT_LEN 100
 
-#define INT_CONVERT_DEC "0123456789"
-#define INT_CONVERT_OCT "01234567"
-#define INT_CONVERT_HEX "0123456789abcdef"
+#define DEC_VALUES "0123456789"
+#define OCT_VALUES "01234567"
+#define HEX_VALUES "0123456789abcdef"
 
-enum bases {OCT=8, DEC=10, HEX=16};
+enum bases {OCT = 8, DEC = 10, HEX = 16};
 
 int itoa(int value, char* result, int base);
 int dtoa(double value, char *result, int precision);

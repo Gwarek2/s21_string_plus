@@ -250,4 +250,4 @@ const char error_descrs[134][50] = {
     "Memory page has hardware error"
 };
 #endif
-#endif // _S21_ERROR
+#endif  // _S21_ERROR

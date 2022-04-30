@@ -13,7 +13,6 @@ START_TEST(test_s21_memchr_normal) {
     void *res2;
     ck_assert_msg((res1 = s21_memchr(str, 111, 10)) == (res2 = memchr(str, 111, 10)),
                   "Result: %s. Expected: %s.", (char*) res1, (char*) res2);
-    
 } END_TEST
 
 START_TEST(test_s21_memchr_no_result) {
@@ -22,7 +21,6 @@ START_TEST(test_s21_memchr_no_result) {
     void *res2;
     ck_assert_msg((res1 = s21_memchr(str, 107, 11)) == (res2 = memchr(str, 107, 11)),
                   "Result: %s. Expected: %s.", (char*) res1, (char*) res2);
-    
 } END_TEST
 
 START_TEST(test_s21_memchr_empty_str) {
@@ -31,7 +29,6 @@ START_TEST(test_s21_memchr_empty_str) {
     void *res2;
     ck_assert_msg((res1 = s21_memchr(str, 12, 1)) == (res2 = memchr(str, 12, 1)),
                   "Result: %s. Expected: %s.", (char*) res1, (char*) res2);
-    
 } END_TEST
 
 Suite * s21_string_memchr_suite(void) {
@@ -98,7 +95,8 @@ START_TEST(test_s21_memcpy_full) {
     void *buffer2 = (void*) buff2;
     s21_memcpy(buffer1, str, 11);
     memcpy(buffer2, str, 11);
-    ck_assert_msg(memcmp(buffer1, buffer2, 11) == 0, "Result: %s. Expected: %s.", (char*) buffer1, (char*) buffer2);
+    ck_assert_msg(memcmp(buffer1, buffer2, 11) == 0,
+                    "Result: %s. Expected: %s.", (char*) buffer1, (char*) buffer2);
 } END_TEST
 
 START_TEST(test_s21_memcpy_partial) {
@@ -108,7 +106,8 @@ START_TEST(test_s21_memcpy_partial) {
     void *buffer2 = (void*) buff2;
     s21_memcpy(buffer1, str, 6);
     memcpy(buffer2, str, 6);
-    ck_assert_msg(memcmp(buffer1, buffer2, 6) == 0, "Result: %s. Expected: %s.", (char*) buffer1, (char*) buffer2);
+    ck_assert_msg(memcmp(buffer1, buffer2, 6) == 0,
+                    "Result: %s. Expected: %s.", (char*) buffer1, (char*) buffer2);
 } END_TEST
 
 START_TEST(test_s21_memcpy_empty) {
@@ -118,7 +117,8 @@ START_TEST(test_s21_memcpy_empty) {
     void *buffer2 = (void*) buff2;
     s21_memcpy(buffer1, str, 1);
     memcpy(buffer2, str, 1);
-    ck_assert_msg(memcmp(buffer1, buffer2, 1) == 0, "Result: %s. Expected: %s.", (char*) buffer1, (char*) buffer2);
+    ck_assert_msg(memcmp(buffer1, buffer2, 1) == 0,
+                    "Result: %s. Expected: %s.", (char*) buffer1, (char*) buffer2);
 } END_TEST
 
 Suite * s21_string_memcpy_suite(void) {

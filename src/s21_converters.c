@@ -7,11 +7,11 @@
 char _base_values(int i, int base) {
     char ch = '\0';
     if (base == OCT)
-        ch = INT_CONVERT_OCT[i];
+        ch = OCT_VALUES[i];
     else if (base == HEX)
-        ch = INT_CONVERT_HEX[i];
+        ch = HEX_VALUES[i];
     else
-        ch = INT_CONVERT_DEC[i];
+        ch = DEC_VALUES[i];
     return ch;
 }
 
@@ -25,6 +25,7 @@ char* _reverse(char* start, char *end) {
     return result;
 }
 
+// Returns length of resulting string
 int itoa(int value, char* result, int base) {
     char *cur = result;
     int neg = value < 0;
@@ -33,7 +34,7 @@ int itoa(int value, char* result, int base) {
         int index = value % base;
         value /= base;
         *cur++ = _base_values(index, base);
-    } while(value);
+    } while (value);
     if (neg) *cur++ = '-';
 
     _reverse(result, cur);
@@ -41,6 +42,7 @@ int itoa(int value, char* result, int base) {
     return cur - result;
 }
 
+// Returns length of resulting string
 int dtoa(double value, char *result, int precision) {
     int i = 0;
     if (isnan(value)) {
