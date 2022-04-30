@@ -17,8 +17,8 @@ test: s21_string.a
 gcov_report:
 
 s21_string.a:
-	$(CC) $(FLAGS) -c s21_converters.c s21_string.c
-	ar -rc libs21_string.a s21_string.o
+	$(CC) $(FLAGS) -c s21_string_helpers.c s21_string.c
+	ar -rc libs21_string.a s21_string_helpers.o s21_string.o
 	ranlib libs21_string.a
 
 clean:

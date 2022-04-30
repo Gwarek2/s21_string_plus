@@ -2,7 +2,7 @@
 
 #include "s21_string.h"
 #include "s21_errors.h"
-#include "s21_converters.h"
+#include "s21_string_helpers.h"
 
 void *s21_memchr(const void *str, int c, s21_size_t n) {
     void* result = S21_NULL;
@@ -84,13 +84,25 @@ void *s21_memcpy(void *dest, const void *src, s21_size_t n) {
 
 
 char *s21_strerror(int errnum) {
-    return (char*) error_descrs[errnum];
+    static char buff[100];
+    if (errnum > 0 && errnum <= ERROR_COUNT) {
+        s21_memcpy((void*) buff, error_descrs[errnum], 100);
+    } else {
+        char num[5];
+        itoa(errnum, num, 10);
+        s21_memcpy((void*) buff, UNKNOWN_ERROR, 100);
+        s21_memcpy((void*) (buff + 15), num, 5);
+    }
+    return buff;
 }
 
 
-// s21_size_t s21_strlen(const char *str) {
-//     // todo
-// }
+s21_size_t s21_strlen(const char *str) {
+    s21_size_t i = 0;
+    char *cursor = (char*) str;
+    while (*cursor++) i++;
+    return i;
+}
 
 
 // char *s21_strpbrk(const char *str1, const char *str2) {
@@ -119,41 +131,21 @@ char *s21_strerror(int errnum) {
 
 
 int s21_sprintf(char *str, const char *format, ...) {
-    int correct = 0;
+    char *start = str;
     va_list vars;
 
     va_start(vars, format);
     while (*format) {
-        if (*format == '%') {
-            format++;
-            // int step = 0;
-
-            // char flag;
-            // int width;
-            int prec = 6;
-            // int len;
-            char spec = *format;
-            if (spec == '%') {
-                *str = *format;
-            } else if (spec == 'c') {
-                *str = va_arg(vars, int);
-            } else if (spec == 'd' || spec == 'i' || spec == 'u') {
-                int n = va_arg(vars, int);
-                str += itoa(n, str, 10);
-            } else if (spec == 'f') {
-                double n = va_arg(vars, double);
-                str += dtoa(n, str, prec);
-            } else if (spec == 's') {
-                const char *arg = va_arg(vars, const char*);
-                s21_strcpy(str, arg);
-                str += s21_strlen(arg);
-            }
+        if (*format++ == '%') {
+            struct f_params params;
+            format += read_format_params(&params, format);
+            // todo
         } else {
-            *str = *format;
-            str++; format++;
+            *str++ = *format++;
         }
     }
+    *str = '\0';
     va_end(vars);
 
-    return correct;
+    return str - start;
 }

@@ -6,6 +6,14 @@ typedef long unsigned s21_size_t;
 
 #define S21_NULL ((void*) 0);
 
+struct f_params {
+    char flag;
+    int wid;
+    int prec;
+    char len;
+    char spec;
+};
+
 void *s21_memchr(const void *str, int c, s21_size_t n);
 int s21_memcmp(const void *str1, const void *str2, s21_size_t n);
 void *s21_memcpy(void *dest, const void *src, s21_size_t n);

@@ -2,8 +2,13 @@
 
 #define _S21_ERROR
 
+#define UNKNOWN_ERROR "Unknown error: "
+
 #ifdef __APPLE__
-const char error_descrs[107][50] = {
+
+#define ERROR_COUNT 107
+
+const char error_descrs[ERROR_COUNT][100] = {
     "Success",
     "Operation not permitted",
     "No such file or directory",
@@ -113,7 +118,10 @@ const char error_descrs[107][50] = {
     "Interface output queue is full"
 };
 #else
-const char error_descrs[134][50] = {
+
+#define ERROR_COUNT 134
+
+const char error_descrs[ERROR_COUNT][100] = {
     "Success",
     "Operation not permitted",
     "No such file or directory",
