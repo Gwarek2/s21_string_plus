@@ -73,20 +73,32 @@ Suite * s21_string_memcmp_suite(void) {
 
 // memcpy tests
 START_TEST(test_s21_memcpy_full) {
-    void *str1 = (void*) "Hello world";
-    void *str2 = (void*) "Hello world";
-    ck_assert_int_eq(memcmp(str1, str2, 11), 0);
+    void *template = (void*) "Hello world";
+    char buff1[50]; char buff2[50];
+    void *str1 = (void*) buff1;
+    void *str2 = (void*) buff2;
+    memcpy(str1, template, 10);
+    s21_memcpy(str2, template, 10);
+    ck_assert_int_eq(memcmp(str1, str2, 10), 0);
 } END_TEST
 
 START_TEST(test_s21_memcpy_partial) {
-    void *str1 = (void*) "Text to copy";
-    void *str2 = (void*) "Text to copy";
-    ck_assert_int_eq(memcmp(str1, str2, 6), 0);
+    void *template = (void*) "Text to copy";
+    char buff1[50]; char buff2[50];
+    void *str1 = (void*) buff1;
+    void *str2 = (void*) buff2;
+    memcpy(str1, template, 5);
+    s21_memcpy(str2, template, 5);
+    ck_assert_int_eq(memcmp(str1, str2, 5), 0);
 } END_TEST
 
 START_TEST(test_s21_memcpy_empty) {
-    void *str1 = (void*) "\0";
-    void *str2 = (void*) "\0";
+    void *template = (void*) "\0";
+    char buff1[50]; char buff2[50];
+    void *str1 = (void*) buff1;
+    void *str2 = (void*) buff2;
+    memcpy(str1, template, 1);
+    s21_memcpy(str2, template, 1);
     ck_assert_int_eq(memcmp(str1, str2, 1), 0);
 } END_TEST
 

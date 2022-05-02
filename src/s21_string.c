@@ -28,7 +28,6 @@ int s21_memcmp(const void *str1, const void *str2, s21_size_t n) {
 void *s21_memcpy(void *dest, const void *src, s21_size_t n) {
     for (s21_size_t i = 0; i < n; i++)
         ((char*) dest)[i] = ((const char*) src)[i];
-    ((char*) dest)[n] = '\0';
     return dest;
 }
 
@@ -138,8 +137,8 @@ int s21_sprintf(char *str, const char *format, ...) {
     while (*format) {
         if (*format++ == '%') {
             struct f_params params;
-            format += read_format_params(&params, format);
-            // todo
+            format += read_format_params(&params, (char*) format);
+            // long long arg = va_arg(vars, long long);
         } else {
             *str++ = *format++;
         }
