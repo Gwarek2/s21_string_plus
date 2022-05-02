@@ -13,13 +13,15 @@ START_TEST(test_s21_memchr_normal) {
 } END_TEST
 
 START_TEST(test_s21_memchr_no_result) {
-    void *str = (void*) "Hello world";
-    ck_assert_str_eq(s21_memchr(str, 107, 11), memchr(str, 107, 11));
+    void *str2 = (void*) "Hello world";
+    void *str1 = (void*) "Hello world";
+    ck_assert_ptr_eq(s21_memchr(str1, 107, 11), memchr(str2, 107, 11));
 } END_TEST
 
 START_TEST(test_s21_memchr_empty_str) {
-    void *str = (void*) "\n\0";
-    ck_assert_str_eq(s21_memchr(str, 12, 1), memchr(str, 12, 1));
+    void *str1 = (void*) "\0";
+    void *str2 = (void*) "\0";
+    ck_assert_ptr_eq(s21_memchr(str1, 12, 1), memchr(str2, 12, 1));
 } END_TEST
 
 Suite * s21_string_memchr_suite(void) {
@@ -40,19 +42,19 @@ Suite * s21_string_memchr_suite(void) {
 START_TEST(test_s21_memcmp_normal) {
     void *str1 = (void*) "Hello world";
     void *str2 = (void*) "Hello world";
-    ck_assert_str_eq(s21_memcmp(str1, str2, 11), memcmp(str1, str2, 11));
+    ck_assert_int_eq(s21_memcmp(str1, str2, 11), memcmp(str1, str2, 11));
 } END_TEST
 
 START_TEST(test_s21_memcmp_not_equal) {
     void *str1 = (void*) "Hello world";
     void *str2 = (void*) "HELLO WORLD";
-    ck_assert_str_eq(s21_memcmp(str1, str2, 11), memcmp(str1, str2, 11));
+    ck_assert_int_eq(s21_memcmp(str1, str2, 11), memcmp(str1, str2, 11));
 } END_TEST
 
 START_TEST(test_s21_memcmp_empty_str) {
     void *str1 = (void*) "\0";
     void *str2 = (void*) "\0";
-    ck_assert_str_eq(s21_memcmp(str1, str2, 1), memcmp(str1, str2, 1));
+    ck_assert_int_eq(s21_memcmp(str1, str2, 1), memcmp(str1, str2, 1));
 } END_TEST
 
 Suite * s21_string_memcmp_suite(void) {
@@ -85,7 +87,7 @@ START_TEST(test_s21_memcpy_partial) {
 START_TEST(test_s21_memcpy_empty) {
     void *str1 = (void*) "\0";
     void *str2 = (void*) "\0";
-    ck_assert_str_eq(memcmp(str1, str2, 1), 0);
+    ck_assert_int_eq(memcmp(str1, str2, 1), 0);
 } END_TEST
 
 Suite * s21_string_memcpy_suite(void) {
