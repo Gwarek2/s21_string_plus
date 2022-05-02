@@ -21,7 +21,7 @@ int read_format_params(struct f_params* params, const char *format) {
     return fmt - start;
 }
 
-int _read_f_char(char *format, char *ch, const char *values) {
+int _read_f_char(const char *format, char *ch, const char *values) {
     int len = 0;
     char *result = (char*) s21_memchr(values, *format, s21_strlen(values));
     if (result != NULL) {
