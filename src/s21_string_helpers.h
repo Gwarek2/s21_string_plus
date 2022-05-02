@@ -10,16 +10,24 @@
 #define HEX_VALUES "0123456789abcdef"
 
 #define FLAGS " +-"
-#define LENGTH "hl"
 #define SPECS "cdifsu%"
 
 enum bases {OCT = 8, DEC = 10, HEX = 16};
 
+struct f_params {
+    char flag;
+    int width;
+    int precision;
+    char type[5];
+};
+
 
 int read_format_params(struct f_params* params, char *format);
-int itoa(int value, char* result, int base);
-int dtoa(double value, char *result, int precision);
+int convert_arg(char *str, long long arg, struct f_params params);
+int itoa(long long value, char* result, int base);
+int dtoa(long double value, char *result, int precision);
 int _read_f_char(char *format, char *ch, const char *values);
+int _read_f_spec(char *format, char ch[5]);
 int _read_f_num(char *format, int *num);
 void _set_default_params(struct f_params *params);
 char _base_values(int i, int base);
