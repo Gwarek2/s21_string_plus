@@ -15,6 +15,10 @@ test: s21_string.a
 	$(CC) $(FLAGS) s21_string_test.c $(CHECK_DEPENDENCIES) -L. -ls21_string -o s21_string_test
 
 gcov_report:
+	$(CC) $(FLAGS) -c --coverage s21_string.c s21_string_helpers.c
+	$(CC) $(FLAGS) s21_string_helpers.o s21_string.o s21_string_test.c --coverage $(CHECK_DEPENDENCIES) -o s21_string_report
+	./s21_string_report
+	gcovr -r . --html --html-details -o coverage_report.html
 
 s21_string.a:
 	$(CC) $(FLAGS) -c s21_string_helpers.c s21_string.c
@@ -22,4 +26,4 @@ s21_string.a:
 	ranlib libs21_string.a
 
 clean:
-	-rm *.o *.out *.a
+	-rm *.o *.out *.a *.html *.gcno *.gcda s21_string_test s21_string_report
