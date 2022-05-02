@@ -1,22 +1,24 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
+#include <stdarg.h>
 
 #include "s21_string.h"
 #include "s21_string_helpers.h"
 
 
-int read_format_params(struct f_params* params, char *format) {
+int read_format_params(struct f_params* params, const char *format) {
     _set_default_params(params);
-    char *start = format;
-    format += _read_f_char(format, &(params->flag), FLAGS);
-    format += _read_f_num(format, &(params->width));
-    if (*format == '.') {
-        format++;
-        format += _read_f_num(format, &(params->precision));
+    char *start = (char*) format;
+    char *fmt = (char*) format;
+    fmt += _read_f_char(fmt, &(params->flag), FLAGS);
+    fmt += _read_f_num(fmt, &(params->width));
+    if (*fmt == '.') {
+        fmt++;
+        fmt += _read_f_num(fmt, &(params->precision));
     }
-    format += _read_f_spec(format, params->type);
-    return format - start;
+    fmt += _read_f_spec(fmt, params->type);
+    return fmt - start;
 }
 
 int _read_f_char(char *format, char *ch, const char *values) {
@@ -144,7 +146,7 @@ int dtoa(long double value, char *result, int precision) {
                 float_part *= 10;
                 precision--;
             }
-            float_part = float_part * pow(10, precision);
+            float_part = round(float_part * pow(10, precision));
             i += itoa((int) float_part, result + i + 1, 10) + 1;
         }
     }

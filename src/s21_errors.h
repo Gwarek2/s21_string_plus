@@ -2,11 +2,11 @@
 
 #define _S21_ERROR
 
-#define UNKNOWN_ERROR "Unknown error: "
 
 #ifdef __APPLE__
 
 #define ERROR_COUNT 107
+#define UNKNOWN_ERROR "Unknown error: "
 
 const char error_descrs[ERROR_COUNT][100] = {
     "Success",
@@ -120,6 +120,7 @@ const char error_descrs[ERROR_COUNT][100] = {
 #else
 
 #define ERROR_COUNT 134
+#define UNKNOWN_ERROR "Unknown error "
 
 const char error_descrs[ERROR_COUNT][100] = {
     "Success",

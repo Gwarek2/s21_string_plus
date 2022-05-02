@@ -12,8 +12,6 @@
 #define FLAGS " +-"
 #define SPECS "cdifsu%"
 
-enum bases {OCT = 8, DEC = 10, HEX = 16};
-
 struct f_params {
     char flag;
     int width;
@@ -21,8 +19,10 @@ struct f_params {
     char type[5];
 };
 
+enum bases {OCT = 8, DEC = 10, HEX = 16};
 
-int read_format_params(struct f_params* params, char *format);
+
+int read_format_params(struct f_params* params, const char *format);
 int convert_arg(char *str, long long arg, struct f_params params);
 int itoa(long long value, char* result, int base);
 int dtoa(long double value, char *result, int precision);

@@ -30,6 +30,7 @@
 
 # Executables
 s21_string_test
+s21_string_report
 *.exe
 *.out
 *.app
@@ -52,6 +53,15 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-#IDE configs
+# IDE configs
 .vscode
 .idea
+
+# linters
+cpplint.py
+CPPLINT.cfg
+
+# unittest files
+*.gcda
+*.gcno
+*.html

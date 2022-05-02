@@ -122,18 +122,13 @@ START_TEST(test_s21_strerror_code_0) {
 } END_TEST
 
 START_TEST(test_s21_strerror_code_1) {
-    FILE *f = fopen("non-existing-file", "r");
+    fopen("non-existing-file", "r");
     ck_assert_str_eq(strerror(errno), s21_strerror(errno));
-    if (f != NULL)
-        fclose(f);
 } END_TEST
 
 START_TEST(test_s21_strerror_code_21) {
-    FILE *f = fopen("/", "w");
-    if (f == NULL)
-        ck_assert_str_eq(strerror(errno), s21_strerror(errno));
-    else
-        fclose(f);
+    fopen("/", "w");
+    ck_assert_str_eq(strerror(errno), s21_strerror(errno));
 } END_TEST
 
 START_TEST(test_s21_strerror_wrong_code) {

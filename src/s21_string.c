@@ -90,7 +90,7 @@ char *s21_strerror(int errnum) {
         char num[5];
         itoa(errnum, num, 10);
         s21_memcpy((void*) buff, UNKNOWN_ERROR, 100);
-        s21_memcpy((void*) (buff + 15), num, 5);
+        s21_memcpy((void*) (buff + s21_strlen(UNKNOWN_ERROR)), num, 5);
     }
     return buff;
 }
