@@ -65,3 +65,8 @@ CPPLINT.cfg
 *.gcda
 *.gcno
 *.html
+*.css
+
+*.swp
+
+TODO

@@ -70,55 +70,58 @@ void _set_default_params(struct f_params *params) {
 }
 
  
-// int convert_arg(char *str, long long arg, struct f_params params) {
-//     int len = 0;
-//     if (params.specifier == 'd' || params.specifier == 'i') {
-//         if (params.length == 'l') {
-
-//         } else if (params.length == 'h') {
-
-//         } else {
-
-//         }
-//     } else if (params.specifier == 's') {
-
-//     } else if (params.specifier == 'u') {
-//         if (params.length == 'l') {
-
-//         } else if (params.length == 'h') {
-
-//         } else {
-
-//         }
-//     } else if (params.specifier == 'f') {
-//         if (params.length == 'l') {
-
-//         } else if (params.length == 'h') {
-
-//         } else {
-
-//         }
-//     } else if (params.specifier == 'c') {
-        
-//     } else if (params.specifier == '%') {
-//         *str++ = '%';
-//     } else {
-
-//     }
-//     return len;
-// }
+int convert_arg(char *str, long double arg, struct f_params params) {
+    char *start = str;
+    char buffer[100];
+    if (s21_strpbrk(params.specifier, "id") != S21_NULL) {
+        if (params.specifier[0] == 'l' && params.specifier[1] == 'l') {
+            long long value = (long long) arg;
+        } else if (params.specifier[0] == 'l') {
+            long value = (long) arg;
+        } else if (params.specifier[0] == 'h') {
+            short value = (short) arg;
+        } else {
+            int value = (int) arg;
+        }
+        itoa(value, buffer, 10)
+    } else if (s21_strchr(params.specifier, 'f') != S21_NULL) {
+        if (param.specifier[0] != 'L')
+            double value = (double) arg;
+        else
+            long double value = arg;
+        dtoa(value, buffer, params.precision));
+    } else if (s21_strchr(params.specifier, 'c') != S21_NULL) {
+        *buffer = (char) arg;
+        buffer[1] = '\0';
+    } else if (s21_strchr(params.specifier, 's') != S21_NULL) {
+        char *value = (char*) arg;
+        int arg_len = s21_strlen(arg);
+        s21_strcpy(arg, buffer, arg_len);
+    } else if (params.specifier == '%') {
+        *buffer = '%';
+        buffer[1] = '\0';
+    }
+    int padding_len = params.width - s21_strlen(buffer);
+    for (int i = 0; i < padding_len; i++)
+        str++ = ' ';
+    s21_strncpy(buffer, str, s21_strlen(buffer));
+    return str - start;
+}
 
 // Returns length of resulting string
-int itoa(long long value, char* result, int base) {
+int itoa(long long value, char* result, int base, char flag) {
     char *cur = result;
     int neg = value < 0;
     if (neg) value = -value;
     do {
-        int index = value % base;
+        long long index = value % base;
         value /= base;
         *cur++ = _base_values(index, base);
     } while (value);
-    if (neg) *cur++ = '-';
+    if (neg)
+        *cur++ = '-';
+    else if (flag == ' ' || flag == '+')
+        *cur++ == flag;
 
     _reverse(result, cur);
     *cur = '\0';
@@ -130,15 +133,16 @@ int dtoa(long double value, char *result, int precision) {
     int i = 0;
     if (isnan(value)) {
         i = 3;
-        s21_memcpy((void*) result, (void*) "nan", i);
+        s21_strcpy((void*) result, (void*) "nan", i);
     } else if (isinf(value)) {
         i = 3;
-        s21_memcpy((void*) result, (void*) "inf", i);
+        s21_strcpy(result, "inf", i);
     } else {
-        int int_part = (int) value;
+        long long int_part = (long long) value;
         i += itoa(int_part, result, 10);
 
-        long double float_part = fabsl(value - (float) int_part);
+        long double float_part = fabsl(value - (long double) int_part);
+        // printf("%Lf\n", float_part);
         if (precision > 0) {
             result[i] = '.';
             while (float_part * 10 < 1) {
@@ -147,7 +151,8 @@ int dtoa(long double value, char *result, int precision) {
                 precision--;
             }
             float_part = round(float_part * pow(10, precision));
-            i += itoa((int) float_part, result + i + 1, 10) + 1;
+            // printf("%lld\n", (long long) floor(float_part));
+            i += itoa(float_part, result + i + 1, 10) + 1;
         }
     }
     return i;
@@ -172,4 +177,21 @@ char* _reverse(char* start, char *end) {
         *start++ = tmp;
     }
     return result;
+}
+
+int main() {
+    double n1 = 127.23;
+    float n2 = 127.23;
+    char c = 'a';
+    long double k = (long double) c;
+    printf("%c\n", (char) k);
+
+    char buff1[100];
+    char buff2[100];
+
+    dtoa(n1, buff1, 19);
+    dtoa(n2, buff2, 19);
+    printf("%.30f %.30f\n%s %s\n", n1, n2, buff1, buff2);
+    printf("%u\n", sizeof(float));
+    return 0;
 }

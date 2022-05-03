@@ -6,12 +6,9 @@
 
 void *s21_memchr(const void *str, int c, s21_size_t n) {
     void* result = S21_NULL;
-    int found = 0;
-    for (s21_size_t i = 0; i < n && !found; i++) {
+    for (s21_size_t i = 0; i < n && result == S21_NULL; i++) {
         if (((char*) str)[i] == c) {
-            result = (void*) (str + i);
-            found = 1;
-        }
+            result = str + i;
     }
     return result;
 }
@@ -52,29 +49,47 @@ void *s21_memcpy(void *dest, const void *src, s21_size_t n) {
 // }
 
 
-// char *s21_strchr(const char *str, int c) {
-//     // todo
-// }
+char *s21_strchr(const char *str, int c) {
+    char *result = S21_NULL;
+    while (*str && *str != c) str++;
+    if (*str == c)
+        result = (char*) str;
+    return result;
+}
 
 
-// int s21_strcmp(const char *str1, const char *str2) {
-//     // todo
-// }
+int s21_strcmp(const char *str1, const char *str2) {
+    s21_size_t i = 0;
+    while (str1[i] == str2[i] && (str1[i] != '\0' || str2[i] != '\0'))
+        i++;
+    return str1[i] - str2[i];
+}
 
 
-// int s21_strncmp(const char *str1, const char *str2, s21_size_t n) {
-//     // todo
-// }
+int s21_strncmp(const char *str1, const char *str2, s21_size_t n) {
+    s21_size_t i = 0;
+    while (str1[i] == str2[i] && (str1[i] != '\0' || str2[i] != '\0') && i < n) {
+        i++;
+    }
+    return(str1[i] - str2[i]);
+}
 
 
-// char *s21_strcpy(char *dest, const char *src) {
-//     // todo
-// }
+char *s21_strcpy(char *dest, const char *src) {
+    char* start = dest;
+    while (*src)
+        *dest++ = *src++;
+    *dest = '\0';
+    return start;
+}
 
 
-// char *s21_strncpy(char *dest, const char *src, s21_size_t n) {
-//     // todo
-// }
+char *s21_strncpy(char *dest, const char *src, s21_size_t n) {
+    char* start = dest;
+    for (s21_size_t i = 0; i < n ; i++)
+        dest[i] = src[i];
+    return start;
+}
 
 
 // s21_size_t s21_strcspn(const char *str1, const char *str2) {
@@ -103,10 +118,18 @@ s21_size_t s21_strlen(const char *str) {
     return i;
 }
 
-
-// char *s21_strpbrk(const char *str1, const char *str2) {
-//     // todo
-// }
+char *s21_strpbrk(const char *str1, const char *str2) {
+    char *result = NULL;
+    while (*str1 && result == NULL) {
+        char *cursor = (char*) str2;
+        while (*cursor) {
+            if (*cursor++ == *str1)
+                result = (char*) str1;
+        }
+        str1++;
+    }
+    return result;
+}
 
 
 // char *s21_strrchr(const char *str, int c) {
