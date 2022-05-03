@@ -71,9 +71,8 @@ void _set_default_params(struct f_params *params) {
 
  
 int convert_arg(char *str, long double arg, struct f_params params) {
-    int len = 0;
-    for (int i = 0; i < params.width; i++)
-        str[i] = ' ';
+    char *start = str;
+    char buffer[100];
     if (s21_strpbrk(params.specifier, "id") != S21_NULL) {
         if (params.specifier[0] == 'l' && params.specifier[1] == 'l') {
             long long value = (long long) arg;
@@ -84,34 +83,33 @@ int convert_arg(char *str, long double arg, struct f_params params) {
         } else {
             int value = (int) arg;
         }
-        char buffer[100];
-        s21_strcpy(itoa(value, buffer, 10), str);
-        len += s21_strlen(buffer);
+        itoa(value, buffer, 10)
     } else if (s21_strchr(params.specifier, 'f') != S21_NULL) {
         if (param.specifier[0] != 'L')
             double value = (double) arg;
         else
             long double value = arg;
-        char buffer[100];
-        s21_strcpy(dtoa(value, buffer, params.precision), str);
-        len += s21_strlen(buffer);
+        dtoa(value, buffer, params.precision));
     } else if (s21_strchr(params.specifier, 'c') != S21_NULL) {
-        str++ = (char) arg;
-        len++;
+        *buffer = (char) arg;
+        buffer[1] = '\0';
     } else if (s21_strchr(params.specifier, 's') != S21_NULL) {
         char *value = (char*) arg;
         int arg_len = s21_strlen(arg);
-        s21_strncpy(arg, str, arg_len);
-        len += arg_len;
+        s21_strcpy(arg, buffer, arg_len);
     } else if (params.specifier == '%') {
-        *str++ = '%';
-        len++;
+        *buffer = '%';
+        buffer[1] = '\0';
     }
-    return len;
+    int padding_len = params.width - s21_strlen(buffer);
+    for (int i = 0; i < padding_len; i++)
+        str++ = ' ';
+    s21_strncpy(buffer, str, s21_strlen(buffer));
+    return str - start;
 }
 
 // Returns length of resulting string
-int itoa(long long value, char* result, int base) {
+int itoa(long long value, char* result, int base, char flag) {
     char *cur = result;
     int neg = value < 0;
     if (neg) value = -value;
@@ -120,7 +118,10 @@ int itoa(long long value, char* result, int base) {
         value /= base;
         *cur++ = _base_values(index, base);
     } while (value);
-    if (neg) *cur++ = '-';
+    if (neg)
+        *cur++ = '-';
+    else if (flag == ' ' || flag == '+')
+        *cur++ == flag;
 
     _reverse(result, cur);
     *cur = '\0';
@@ -132,10 +133,10 @@ int dtoa(long double value, char *result, int precision) {
     int i = 0;
     if (isnan(value)) {
         i = 3;
-        s21_memcpy((void*) result, (void*) "nan", i);
+        s21_strcpy((void*) result, (void*) "nan", i);
     } else if (isinf(value)) {
         i = 3;
-        s21_memcpy((void*) result, (void*) "inf", i);
+        s21_strcpy(result, "inf", i);
     } else {
         long long int_part = (long long) value;
         i += itoa(int_part, result, 10);
