@@ -71,7 +71,7 @@ void _set_default_params(struct f_params *params) {
  
 int convert_arg(char *str, va_list args, struct f_params params) {
     char *start = str;
-    char buffer[1000];
+    char buffer[100000];
 
     // Parse arg to buffer
     if (s21_strpbrk(params.type, "id") != S21_NULL) {
@@ -155,7 +155,8 @@ int itoa(long long value, char* result, int base, char flag, int precision) {
 }
 
 // Returns length of resulting string
-int dtoa(double value, char *result, int precision) {
+int dtoa(long double value, char *result, int precision) {
+    // printf("%Lf %i\n", value, precision);
     int i = 0;
     if (isnan(value)) {
         i = 3;
@@ -164,23 +165,60 @@ int dtoa(double value, char *result, int precision) {
         i = 3;
         s21_strcpy(result, "inf");
     } else {
-        long long int_part = (long long) value;
-        i += itoa(int_part, result, 10, 0, 0);
+        // long long int_part = (long long) (double) value;
+        // i += itoa(int_part, result, 10, 0, 0);
+        long double int_part, float_part;
+        float_part = fabsl(modfl(value, &int_part));
+        int_part = fabsl(int_part);
+        // printf("%Lf\n", int_part);
+        char buffer[100000];
+        buffer[0] = '0';
+        while (int_part >= 1) {
+            int num = (int) fmodl(int_part, 10);
+            buffer[i++] = _base_values(num, 10);
+            int_part = truncl(int_part / 10.0L);
+            // printf("%i %Lf\n", num, int_part);
+        }
+        // printf("buffer - %s\n", buffer);
+        if (value < 0)
+            buffer[i++] = '-';
+        _reverse(buffer, buffer + i);
 
-        double float_part = fabs(value - (double) int_part);
-        // printf("%f\n", float_part);
+        // printf("%.10Lf\n", float_part);
         if (precision > 0) {
-            result[i] = '.';
-            while (float_part * 10 < 1) {
-                result[++i] = '0';
-                float_part *= 10;
+            buffer[i++] = '.';
+            float_part = roundl(float_part * pow(10, precision));
+            int float_part_start = i;
+            while (precision > 0) {
+                int num = (int) fmodl(float_part, 10);
+                buffer[i++] = _base_values(num, 10);
+                float_part = truncl(float_part / 10.0L);
                 precision--;
             }
+            _reverse(buffer + float_part_start, buffer + i);
+            // printf("%i %Lf\n", num, int_part);
+            // while (float_part * 10 < 1 && precision > 0) {
+            //     buffer[i++] = '0';
+            //     float_part *= 10;
+            //     precision--;
+            // }
+            // printf("%Lf\n", roundl(float_part * pow(10, precision)));
+            // while (precision > 0) {
+            //     float_part *= 10;
+            //     int num = (int) fmodl(float_part, 10);
+            //     // printf("%i %Lf\n", num, float_part);
+            //     buffer[i++] = _base_values(num, 10);
+            //     precision--;
+            // }
+            // _reverse(buffer + float_part_start, buffer + i);
+
             // printf("%f %i\n", float_part, precision);
-            float_part = round(float_part * pow(10, precision));
+            //float_part = roundl(float_part * pow(10, precision));
             // printf("%lld\n", (long long) float_part);
-            i += itoa((long long) float_part, result + i, 10, 0, 0) + 1;
+            //i += itoa((long long) float_part, result + i, 10, 0, 0) + 1;
         }
+        buffer[i] = '\0';
+        s21_strcpy(result, buffer);
     }
     return i;
 }

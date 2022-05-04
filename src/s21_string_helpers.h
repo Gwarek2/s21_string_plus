@@ -2,9 +2,6 @@
 
 #define _S21_CONVERTERS
 
-#define MAX_INT_LEN 100
-#define MAX_FLOAT_LEN 100
-
 #define DEC_VALUES "0123456789"
 #define OCT_VALUES "01234567"
 #define HEX_VALUES "0123456789abcdef"
@@ -25,7 +22,7 @@ enum bases {OCT = 8, DEC = 10, HEX = 16};
 int read_format_params(struct f_params* params, const char *format);
 int convert_arg(char *str, va_list args, struct f_params params);
 int itoa(long long value, char* result, int base, char flag, int precision);
-int dtoa(double value, char *result, int precision);
+int dtoa(long double value, char *result, int precision);
 int _read_f_char(const char *format, char *ch, const char *values);
 int _read_f_spec(const char *format, char ch[5]);
 int _read_f_num(const char *format, int *num);

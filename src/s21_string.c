@@ -100,12 +100,12 @@ char *s21_strncpy(char *dest, const char *src, s21_size_t n) {
 char *s21_strerror(int errnum) {
     static char buff[100];
     if (errnum > 0 && errnum <= ERROR_COUNT) {
-        s21_memcpy((void*) buff, error_descrs[errnum], 100);
+        s21_strcpy(buff, error_descrs[errnum]);
     } else {
         char num[5];
         itoa(errnum, num, 10, 0, 0);
-        s21_memcpy((void*) buff, UNKNOWN_ERROR, 100);
-        s21_memcpy((void*) (buff + s21_strlen(UNKNOWN_ERROR)), num, 5);
+        s21_strcpy(buff, UNKNOWN_ERROR);
+        s21_strcpy(buff + s21_strlen(UNKNOWN_ERROR), num);
     }
     return buff;
 }
