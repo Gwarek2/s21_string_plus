@@ -7,8 +7,8 @@
 void *s21_memchr(const void *str, int c, s21_size_t n) {
     void* result = S21_NULL;
     for (s21_size_t i = 0; i < n && result == S21_NULL; i++) {
-        if (((char*) str)[i] == c) {
-            result = str + i;
+        if (((char*) str)[i] == c)
+            result = (void*) str + i;
     }
     return result;
 }
@@ -103,7 +103,7 @@ char *s21_strerror(int errnum) {
         s21_memcpy((void*) buff, error_descrs[errnum], 100);
     } else {
         char num[5];
-        itoa(errnum, num, 10);
+        itoa(errnum, num, 10, 0, 0);
         s21_memcpy((void*) buff, UNKNOWN_ERROR, 100);
         s21_memcpy((void*) (buff + s21_strlen(UNKNOWN_ERROR)), num, 5);
     }
@@ -119,8 +119,8 @@ s21_size_t s21_strlen(const char *str) {
 }
 
 char *s21_strpbrk(const char *str1, const char *str2) {
-    char *result = NULL;
-    while (*str1 && result == NULL) {
+    char *result = S21_NULL;
+    while (*str1 && result == S21_NULL) {
         char *cursor = (char*) str2;
         while (*cursor) {
             if (*cursor++ == *str1)
@@ -158,10 +158,11 @@ int s21_sprintf(char *str, const char *format, ...) {
 
     va_start(vars, format);
     while (*format) {
-        if (*format++ == '%') {
+        if (*format == '%') {
+            format++;
             struct f_params params;
             format += read_format_params(&params, (char*) format);
-            // long long arg = va_arg(vars, long long);
+            str += convert_arg(str, vars, params);
         } else {
             *str++ = *format++;
         }

@@ -150,30 +150,30 @@ Suite * s21_string_strerror_suite(void) {
     return s;
 }
 
-// // sprintf test
-// START_TEST(test_s21_sprintf_normal) {
-//     char buff1[100];
-//     char buff2[100];
-//     int n1 = -123;
-//     double n2 = 1.01;
-//     char *str = "hello";
-//     int c1 = s21_sprintf(buff1, "'%i' is int, 5%%, the float is '%f',  the char is '%c', the string is '%s'", n1, n2, *str, str);
-//     int c2 = sprintf(buff2, "'%i' is int, 5%%, the float is '%f',  the char is '%c', the string is '%s'", n1, n2, *str, str);
-//     ck_assert_str_eq(buff1, buff2);
-//     ck_assert_int_eq(c1, c2);
-// } END_TEST
+// sprintf test
+START_TEST(test_s21_sprintf_normal) {
+    char buff1[100];
+    char buff2[100];
+    int n1 = -123;
+    float n2 = 1.01;
+    char *str = "hello";
+    int c1 = s21_sprintf(buff1, "'%-8.5i' is int, 5%%, the float is '%f',  the char is '%c', the string is '%s'", n1, n2, *str, str);
+    int c2 = sprintf(buff2, "'%-8.5i' is int, 5%%, the float is '%f',  the char is '%c', the string is '%s'", n1, n2, *str, str);
+    ck_assert_str_eq(buff1, buff2);
+    ck_assert_int_eq(c1, c2);
+} END_TEST
 
-// Suite * s21_string_ssprintf_suite(void) {
-//     Suite *s;
-//     TCase *tc_core;
+Suite * s21_string_ssprintf_suite(void) {
+    Suite *s;
+    TCase *tc_core;
 
-//     s = suite_create("S21_string_sprintf");
-//     tc_core = tcase_create("Core");
-//     tcase_add_test(tc_core, test_s21_sprintf_normal);
-//     suite_add_tcase(s, tc_core);
+    s = suite_create("S21_string_sprintf");
+    tc_core = tcase_create("Core");
+    tcase_add_test(tc_core, test_s21_sprintf_normal);
+    suite_add_tcase(s, tc_core);
 
-//     return s;
-// }
+    return s;
+}
 
 // main
 int main() {
@@ -182,19 +182,19 @@ int main() {
     Suite *s_memcmp;
     Suite *s_memcpy;
     Suite *s_strerror;
-    // Suite *s_sprintf;
+    Suite *s_sprintf;
     SRunner *sr;
 
     s_memchr = s21_string_memchr_suite();
     s_memcmp = s21_string_memcmp_suite();
     s_memcpy = s21_string_memcpy_suite();
     s_strerror = s21_string_strerror_suite();
-    // s_sprintf = s21_string_ssprintf_suite();
+    s_sprintf = s21_string_ssprintf_suite();
     sr = srunner_create(s_memchr);
     srunner_add_suite(sr, s_memcmp);
     srunner_add_suite(sr, s_memcpy);
     srunner_add_suite(sr, s_strerror);
-    // srunner_add_suite(sr, s_sprintf);
+    srunner_add_suite(sr, s_sprintf);
 
     srunner_run_all(sr, CK_NORMAL);
     number_failed = srunner_ntests_failed(sr);
