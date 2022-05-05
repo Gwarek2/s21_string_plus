@@ -1,0 +1,18 @@
+#include <string.h>
+#include "../s21_string.h"
+
+
+#test test_s21_memchr_normal
+    void *str = (void*) "Hello world";
+    ck_assert_str_eq(s21_memchr(str, 111, 10), memchr(str, 111, 10));
+
+#test test_s21_memchr_no_result
+    void *str2 = (void*) "Hello world";
+    void *str1 = (void*) "Hello world";
+    ck_assert_ptr_eq(s21_memchr(str1, 107, 11), memchr(str2, 107, 11));
+
+#test test_s21_memchr_empty_str
+    void *str1 = (void*) "\0";
+    void *str2 = (void*) "\0";
+    ck_assert_ptr_eq(s21_memchr(str1, 12, 1), memchr(str2, 12, 1));
+
