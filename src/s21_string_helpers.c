@@ -15,6 +15,7 @@ int read_format_params(struct f_params* params, const char *format) {
     if (*cursor == '.') {
         cursor++;
         cursor += _read_f_num(cursor, &(params->precision));
+        // printf("%i\n", params->precision);
     }
     cursor += _read_f_spec(cursor, params->type);
     return cursor - format;
@@ -41,9 +42,9 @@ int _read_f_spec(const char *format, char ch[5]) {
         buff[i] = format[i];
         i++;
     }
-    if (s21_memchr(SPECS, format[i], s21_strlen(SPECS))) {
-            buff[i] = format[i];
-            i++;
+    if (s21_strchr(SPECS, format[i])) {
+        buff[i] = format[i];
+        i++;
     }
     buff[i] ='\0';
     s21_strcpy(ch, buff);
@@ -56,7 +57,8 @@ int _read_f_num(const char *format, int *num) {
         cursor++;
     if (cursor > format) {
         static char result[100];
-        s21_memcpy((void*) result, format, cursor - format);
+        s21_strncpy(result, format, cursor - format);
+        result[cursor - format] = '\0';
         *num = atoi(result);
     }
     return cursor - format;

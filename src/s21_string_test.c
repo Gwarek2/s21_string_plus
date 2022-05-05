@@ -4,6 +4,7 @@
 #include <check.h>
 #include <errno.h>
 #include <limits.h>
+#include <float.h>
 
 #include "s21_string.h"
 
@@ -156,10 +157,10 @@ START_TEST(test_s21_sprintf_normal) {
     char buff1[100000];
     char buff2[100000];
     char *str = "hello";
-    int c1 = s21_sprintf(buff1, "'%-8.5i' is int, 5%%, the float is '%f', the long double is '%Lf', the char is '%c', the string is '%s'", INT_MAX, DBL_MAX, LDBL_MAX, *str, str);
-    int c2 = sprintf(buff2, "'%-8.5i' is int, 5%%, the float is '%f', the long double is '%Lf', the char is '%c', the string is '%s'", INT_MAX, DBL_MAX, LDBL_MAX, *str, str);
-    printf("%s\n\n%s\n\n", buff1, buff2);
-    // ck_assert_str_eq(buff1, buff2);
+    int c1 = s21_sprintf(buff1, "'%+18.12i' is int, the percent char is 5%%, the float is '%.3f', the char is '%c', the string is '%s'", 123456789, 547834.000234243, *str, str);
+    int c2 = sprintf(buff2, "'%+18.12i' is int, the percent char is 5%%, the float is '%.3f', the char is '%c', the string is '%s'", 123456789, 547834.000234243, *str, str);
+    // printf("%s\n\n%s\n\n", buff1, buff2);
+    ck_assert_str_eq(buff1, buff2);
     ck_assert_int_eq(c1, c2);
 } END_TEST
 
