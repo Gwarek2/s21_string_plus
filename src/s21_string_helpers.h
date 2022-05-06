@@ -28,12 +28,15 @@ int read_format_params(struct f_params* params, const char *format, va_list args
 int convert_arg(char *str, va_list args, struct f_params params);
 int itoa(long long value, char* result, int base, char flag, int precision);
 int dtoa(long double value, char *result, int precision);
+
+void _int_to_str(char *buffer, va_list args, struct f_params params, int base);
+void _uint_to_str(char *buffer, va_list args, struct f_params params, int base);
+void ptr_to_str(char *buffer, va_list args);
 int _read_f_flag(const char *format, char *ch, const char *values);
 int _read_f_spec(const char *format, char ch[5]);
 int _read_f_num(const char *format, int *num);
 void _add_padding(char *str, int len, char ch);
 void _set_default_params(struct f_params *params);
-// char _base_values(int i, int base);
 char* _reverse(char* start, char *end);
 
 #endif

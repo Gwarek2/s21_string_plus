@@ -1,39 +1,35 @@
+#ifndef S21_STRING_HELPERS
+#define S21_STRING_HELPERS
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <stddef.h>
 
 #include "s21_string.h"
 #include "s21_string_helpers.h"
 
 
-int read_format_params(struct f_params* params, const char *format, va_list args) {
+int read_format_params(struct f_params* params, const char *format) {
     _set_default_params(params);
     char *cursor = (char*) format;
-    cursor += _read_f_flag(cursor, &(params->flag), FLAGS);
-
+    cursor += _read_f_char(cursor, &(params->flag), FLAGS);
     if (*cursor == '*') {
         params->width = va_arg(args, int);
         cursor++;
     } else {
         cursor += _read_f_num(cursor, &(params->width));
     }
-
     if (*cursor == '.') {
         cursor++;
-        if (*cursor == '*') {
-            params->precision = va_arg(args, int);
-            cursor++;
-        } else {
-            cursor += _read_f_num(cursor, &(params->precision));
-        }
+        cursor += _read_f_num(cursor, &(params->precision));
         // printf("%i\n", params->precision);
     }
     cursor += _read_f_spec(cursor, params->type);
     return cursor - format;
 }
 
-int _read_f_flag(const char *format, char *ch, const char *values) {
+int _read_f_char(const char *format, char *ch, const char *values) {
     int len = 0;
     char *result = s21_strchr(values, *format);
     if (result != NULL) {
@@ -80,6 +76,8 @@ void _set_default_params(struct f_params *params) {
     params->flag = '\0';
     params->width = 0;
     params->precision = -1;
+    for (int i = 0; i < 5; i++)
+        params->type[i] = '\0';
 }
 
  
@@ -89,26 +87,15 @@ int convert_arg(char *str, va_list args, struct f_params params) {
 
     // Parse arg to buffer
     if (s21_strpbrk(params.type, "id") != S21_NULL) {
-        if (params.type[0] == 'l' && params.type[1] == 'l') {
-            itoa(va_arg(args, long long), buffer, 10, params.flag, params.precision);
-        } else if (params.type[0] == 'l') {
-            itoa(va_arg(args, long), buffer, 10, params.flag, params.precision);
-        } else {
-            itoa(va_arg(args, int), buffer, 10, params.flag, params.precision);
-        }
+        int_to_str(buffer, args, params, 10);
     } else if (s21_strchr(params.type, 'u') != S21_NULL) {
-        if (params.type[0] == 'l' && params.type[1] == 'l') {
-            itoa(va_arg(args, long long unsigned), buffer, 10, params.flag, params.precision);
-        } else if (params.type[0] == 'l') {
-            itoa(va_arg(args, long unsigned), buffer, 10, params.flag, params.precision);
-        } else {
-            itoa(va_arg(args, unsigned int), buffer, 10, params.flag, params.precision);
-        }
+        uint_to_str(buffer, args, params, 10);
     } else if (s21_strchr(params.type, 'o')) {
-        itoa(va_arg(args, unsigned), buffer, 8, params.flag, params.precision);
+        uint_to_str(buffer, args, params, 8);
     } else if (s21_strpbrk(params.type, "xX")) {
-        itoa(va_arg(args, unsigned), buffer, 16, params.flag, params.precision);
-        // if (s21_strchr(params.type, 'X'))
+        uint_to_str(buffer, args, params, 16);
+    } else if (params.type[0] == 'p') {
+        ptr_to_str(buffer, args);
     } else if (s21_strchr(params.type, 'f') != S21_NULL) {
         if (params.precision == -1)
             params.precision = 6;
@@ -117,7 +104,8 @@ int convert_arg(char *str, va_list args, struct f_params params) {
         else 
             dtoa(va_arg(args, double), buffer, params.precision);
     } else if (s21_strchr(params.type, 'c') != S21_NULL) {
-        *buffer = va_arg(args, int);
+        int ch = va_arg(args, int);
+        *buffer = ch;
         buffer[1] = '\0';
     } else if (s21_strchr(params.type, 's') != S21_NULL) {
         s21_strcpy(buffer, va_arg(args, char*));
@@ -132,13 +120,10 @@ int convert_arg(char *str, va_list args, struct f_params params) {
     if (params.flag == '-') {
         s21_strncpy(str, buffer, buff_len);
         str += buff_len;
-        _add_padding(str, padding_len, ' ');
+        _add_padding(str, padding_len);
         str += padding_len;
     } else {
-        if (params.flag == '0' && params.precision == -1)
-            _add_padding(str, padding_len, '0');
-        else
-            _add_padding(str, padding_len, ' ');
+        _add_padding(str, padding_len);
         str += padding_len;
         s21_strncpy(str, buffer, buff_len);
         str += buff_len;
@@ -146,9 +131,35 @@ int convert_arg(char *str, va_list args, struct f_params params) {
     return str - start;
 }
 
-void _add_padding(char *str, int len, char ch) {
+void _int_to_str(char *buffer, va_list args, struct f_params params, int base) {
+    if (params.type[0] == 'l' && params.type[1] == 'l')
+        itoa(va_arg(args, long long), buffer, base, params.flag, params.precision);
+    else if (params.type[0] == 'l')
+        itoa(va_arg(args, long), buffer, base, params.flag, params.precision);
+    else if (params.type[0] == 'h')
+        itoa(va_arg(args, short), buffer, base, params.flag, params.precision);
+    else
+        itoa(va_arg(args, int), buffer, base, params.flag, params.precision);
+}
+
+void _uint_to_str(char *buffer, va_list args, struct f_params params, int base) {
+    if (params.type[0] == 'l' && params.type[1] == 'l')
+        itoa(va_arg(args, long long unsigned), buffer, base, params.flag, params.precision);
+    else if (params.type[0] == 'l')
+        itoa(va_arg(args, long unsigned), buffer, base, params.flag, params.precision);
+    else if (params.type[0] == 'h')
+        itoa(va_arg(args, short unsigned), buffer, base, params.flag, params.precision);
+    else
+        itoa(va_arg(args, unsigned), buffer, base, params.flag, params.precision);
+}
+
+void ptr_to_str(char *buffer, va_list args) {
+    itoa(va_arg(args, long unsigned), buffer, 16, '', 0);
+}
+
+void _add_padding(char *str, int len) {
     for (int i = 0; i < len; i++)
-        *str++ = ch;
+        *str++ = ' ';
 }
 
 // Returns length of resulting string
@@ -168,8 +179,13 @@ int itoa(long long value, char* result, int base, char flag, int precision) {
 
     if (neg)
         *cur++ = '-';
-    else if ((flag == ' ' || flag == '+') && base == 10)
+    else if (base == 10 && (flag == ' ' || flag == '+'))
         *cur++ = flag;
+    else if (base == 16 && flag == '#')
+        *cur++ = 'x';
+        *cur++ = '0';
+    else if (base == 8 && flag == '#')
+        *cur++ = '0';
 
     _reverse(result, cur);
     *cur = '\0';
@@ -177,8 +193,9 @@ int itoa(long long value, char* result, int base, char flag, int precision) {
 }
 
 // Returns length of resulting string
-int dtoa(long double value, char *result, int precision) {
+int dtoa(long double value, char *result, struct f_params params) {
     // printf("%Lf %i\n", value, precision);
+    int precision = params.precision;
     int i = 0;
     if (isnan(value)) {
         i = 3;
@@ -189,20 +206,26 @@ int dtoa(long double value, char *result, int precision) {
     } else {
         // long long int_part = (long long) (double) value;
         // i += itoa(int_part, result, 10, 0, 0);
+        int neg = value < 0;
         long double int_part, float_part;
         float_part = fabsl(modfl(value, &int_part));
         int_part = fabsl(int_part);
         // printf("%Lf\n", int_part);
-        char buffer[100000];
+        char buffer[10000];
         buffer[0] = '0';
         while (int_part >= 1) {
             int num = (int) fmodl(int_part, 10);
-            buffer[i++] = NUM_VALUES_LOWER[num];
+            buffer[i++] = NUM_VALUES_LOWER[index];
             int_part = truncl(int_part / 10.0L);
             // printf("%i %Lf\n", num, int_part);
         }
         // printf("buffer - %s\n", buffer);
-        if (value < 0)
+        if (params.flag == '0') {
+            int zero_padding_len = (i + 1 + precision + neg) - params.width;
+            while (zero_padding_len--)
+                buffer[i++] = '0';
+        }
+        if (neg)
             buffer[i++] = '-';
         _reverse(buffer, buffer + i);
 
@@ -211,13 +234,32 @@ int dtoa(long double value, char *result, int precision) {
             buffer[i++] = '.';
             float_part = roundl(float_part * pow(10, precision));
             int float_part_start = i;
-            while (precision > 0) {
+            while (precision-- > 0) {
                 int num = (int) fmodl(float_part, 10);
-                buffer[i++] = NUM_VALUES_LOWER[num];
+                buffer[i++] = NUM_VALUES_LOWER[index];
                 float_part = truncl(float_part / 10.0L);
-                precision--;
             }
             _reverse(buffer + float_part_start, buffer + i);
+            // printf("%i %Lf\n", num, int_part);
+            // while (float_part * 10 < 1 && precision > 0) {
+            //     buffer[i++] = '0';
+            //     float_part *= 10;
+            //     precision--;
+            // }
+            // printf("%Lf\n", roundl(float_part * pow(10, precision)));
+            // while (precision > 0) {
+            //     float_part *= 10;
+            //     int num = (int) fmodl(float_part, 10);
+            //     // printf("%i %Lf\n", num, float_part);
+            //     buffer[i++] = _base_values(num, 10);
+            //     precision--;
+            // }
+            // _reverse(buffer + float_part_start, buffer + i);
+
+            // printf("%f %i\n", float_part, precision);
+            //float_part = roundl(float_part * pow(10, precision));
+            // printf("%lld\n", (long long) float_part);
+            //i += itoa((long long) float_part, result + i, 10, 0, 0) + 1;
         }
         buffer[i] = '\0';
         s21_strcpy(result, buffer);
@@ -225,7 +267,6 @@ int dtoa(long double value, char *result, int precision) {
     return i;
 }
 
-/**
 char _base_values(int i, int base) {
     char ch = '\0';
     if (base == OCT)
@@ -236,7 +277,6 @@ char _base_values(int i, int base) {
         ch = DEC_VALUES[i];
     return ch;
 }
-**/
 
 char* _reverse(char* start, char *end) {
     char *result = start;
@@ -257,3 +297,4 @@ char* _reverse(char* start, char *end) {
 //     printf("%s\n", buff1);
 //     return 0;
 // }
+#endif // S21_STRING_HELPERS
