@@ -1,0 +1,5 @@
+#test test_s21_strerror_true_codes
+    for (int i = 0; i <= 140; i++)
+        ck_assert_str_eq(strerror(i), s21_strerror(i));
+#test test_s21_strerror_wrong_code
+    ck_assert_str_eq(strerror(-1), s21_strerror(-1));

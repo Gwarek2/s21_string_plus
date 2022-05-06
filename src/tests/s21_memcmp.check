@@ -1,5 +1,3 @@
-#include <string.h>
-#include "../s21_string.h"
 #test test_s21_memcmp_normal
     void *str1 = (void*) "Hello world";
     void *str2 = (void*) "Hello world";

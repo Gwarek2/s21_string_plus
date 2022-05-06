@@ -9,7 +9,7 @@
 #define UNKNOWN_ERROR "Unknown error: "
 
 const char error_descrs[ERROR_COUNT][100] = {
-    "Success",
+    "Undefined error: 0",
     "Operation not permitted",
     "No such file or directory",
     "No such process",
