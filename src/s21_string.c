@@ -273,7 +273,7 @@ int s21_sprintf(char *str, const char *format, ...) {
         if (*format == '%') {
             format++;
             struct f_params params;
-            format += read_format_params(&params, (char*) format);
+            format += read_format_params(&params, (char*) format, vars);
             str += convert_arg(str, vars, params);
         } else {
             *str++ = *format++;

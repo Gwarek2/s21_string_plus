@@ -1,6 +1,5 @@
 #include <string.h>
 #include "../s21_string.h"
-
 #test test_s21_memcpy_full
     void *template = (void*) "Hello world";
     char buff1[50]; char buff2[50];
@@ -9,7 +8,6 @@
     memcpy(str1, template, 10);
     s21_memcpy(str2, template, 10);
     ck_assert_int_eq(memcmp(str1, str2, 10), 0);
-
 #test test_s21_memcpy_partial
     void *template = (void*) "Text to copy";
     char buff1[50]; char buff2[50];
@@ -18,8 +16,6 @@
     memcpy(str1, template, 5);
     s21_memcpy(str2, template, 5);
     ck_assert_int_eq(memcmp(str1, str2, 5), 0);
-
-
 #test test_s21_memcpy_empty
     void *template = (void*) "\0";
     char buff1[50]; char buff2[50];

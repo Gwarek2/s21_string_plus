@@ -7,21 +7,33 @@
 #include "s21_string_helpers.h"
 
 
-int read_format_params(struct f_params* params, const char *format) {
+int read_format_params(struct f_params* params, const char *format, va_list args) {
     _set_default_params(params);
     char *cursor = (char*) format;
-    cursor += _read_f_char(cursor, &(params->flag), FLAGS);
-    cursor += _read_f_num(cursor, &(params->width));
+    cursor += _read_f_flag(cursor, &(params->flag), FLAGS);
+
+    if (*cursor == '*') {
+        params->width = va_arg(args, int);
+        cursor++;
+    } else {
+        cursor += _read_f_num(cursor, &(params->width));
+    }
+
     if (*cursor == '.') {
         cursor++;
-        cursor += _read_f_num(cursor, &(params->precision));
+        if (*cursor == '*') {
+            params->precision = va_arg(args, int);
+            cursor++;
+        } else {
+            cursor += _read_f_num(cursor, &(params->precision));
+        }
         // printf("%i\n", params->precision);
     }
     cursor += _read_f_spec(cursor, params->type);
     return cursor - format;
 }
 
-int _read_f_char(const char *format, char *ch, const char *values) {
+int _read_f_flag(const char *format, char *ch, const char *values) {
     int len = 0;
     char *result = s21_strchr(values, *format);
     if (result != NULL) {
@@ -92,6 +104,11 @@ int convert_arg(char *str, va_list args, struct f_params params) {
         } else {
             itoa(va_arg(args, unsigned int), buffer, 10, params.flag, params.precision);
         }
+    } else if (s21_strchr(params.type, 'o')) {
+        itoa(va_arg(args, unsigned), buffer, 8, params.flag, params.precision);
+    } else if (s21_strpbrk(params.type, "xX")) {
+        itoa(va_arg(args, unsigned), buffer, 16, params.flag, params.precision);
+        // if (s21_strchr(params.type, 'X'))
     } else if (s21_strchr(params.type, 'f') != S21_NULL) {
         if (params.precision == -1)
             params.precision = 6;
@@ -115,10 +132,13 @@ int convert_arg(char *str, va_list args, struct f_params params) {
     if (params.flag == '-') {
         s21_strncpy(str, buffer, buff_len);
         str += buff_len;
-        _add_padding(str, padding_len);
+        _add_padding(str, padding_len, ' ');
         str += padding_len;
     } else {
-        _add_padding(str, padding_len);
+        if (params.flag == '0' && params.precision == -1)
+            _add_padding(str, padding_len, '0');
+        else
+            _add_padding(str, padding_len, ' ');
         str += padding_len;
         s21_strncpy(str, buffer, buff_len);
         str += buff_len;
@@ -126,9 +146,9 @@ int convert_arg(char *str, va_list args, struct f_params params) {
     return str - start;
 }
 
-void _add_padding(char *str, int len) {
+void _add_padding(char *str, int len, char ch) {
     for (int i = 0; i < len; i++)
-        *str++ = ' ';
+        *str++ = ch;
 }
 
 // Returns length of resulting string
@@ -139,7 +159,7 @@ int itoa(long long value, char* result, int base, char flag, int precision) {
     do {
         long long index = value % base;
         value /= base;
-        *cur++ = _base_values(index, base);
+        *cur++ = NUM_VALUES_LOWER[index];
     } while (value);
 
     int zero_padding_len = precision - (cur - result);
@@ -148,7 +168,7 @@ int itoa(long long value, char* result, int base, char flag, int precision) {
 
     if (neg)
         *cur++ = '-';
-    else if (flag == ' ' || flag == '+')
+    else if ((flag == ' ' || flag == '+') && base == 10)
         *cur++ = flag;
 
     _reverse(result, cur);
@@ -177,7 +197,7 @@ int dtoa(long double value, char *result, int precision) {
         buffer[0] = '0';
         while (int_part >= 1) {
             int num = (int) fmodl(int_part, 10);
-            buffer[i++] = _base_values(num, 10);
+            buffer[i++] = NUM_VALUES_LOWER[num];
             int_part = truncl(int_part / 10.0L);
             // printf("%i %Lf\n", num, int_part);
         }
@@ -193,31 +213,11 @@ int dtoa(long double value, char *result, int precision) {
             int float_part_start = i;
             while (precision > 0) {
                 int num = (int) fmodl(float_part, 10);
-                buffer[i++] = _base_values(num, 10);
+                buffer[i++] = NUM_VALUES_LOWER[num];
                 float_part = truncl(float_part / 10.0L);
                 precision--;
             }
             _reverse(buffer + float_part_start, buffer + i);
-            // printf("%i %Lf\n", num, int_part);
-            // while (float_part * 10 < 1 && precision > 0) {
-            //     buffer[i++] = '0';
-            //     float_part *= 10;
-            //     precision--;
-            // }
-            // printf("%Lf\n", roundl(float_part * pow(10, precision)));
-            // while (precision > 0) {
-            //     float_part *= 10;
-            //     int num = (int) fmodl(float_part, 10);
-            //     // printf("%i %Lf\n", num, float_part);
-            //     buffer[i++] = _base_values(num, 10);
-            //     precision--;
-            // }
-            // _reverse(buffer + float_part_start, buffer + i);
-
-            // printf("%f %i\n", float_part, precision);
-            //float_part = roundl(float_part * pow(10, precision));
-            // printf("%lld\n", (long long) float_part);
-            //i += itoa((long long) float_part, result + i, 10, 0, 0) + 1;
         }
         buffer[i] = '\0';
         s21_strcpy(result, buffer);
@@ -225,6 +225,7 @@ int dtoa(long double value, char *result, int precision) {
     return i;
 }
 
+/**
 char _base_values(int i, int base) {
     char ch = '\0';
     if (base == OCT)
@@ -235,6 +236,7 @@ char _base_values(int i, int base) {
         ch = DEC_VALUES[i];
     return ch;
 }
+**/
 
 char* _reverse(char* start, char *end) {
     char *result = start;

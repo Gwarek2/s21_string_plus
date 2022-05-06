@@ -12,11 +12,11 @@ endif
 all: test gcov_report
 
 test: s21_string.a
-	$(CC) $(FLAGS) s21_string_test.c $(CHECK_DEPENDENCIES) -L. -ls21_string -o s21_string_test
+	$(CC) $(FLAGS) tests/s21_string_tests.c $(CHECK_DEPENDENCIES) -L. -ls21_string -o s21_string_test
 
 gcov_report:
 	$(CC) $(FLAGS) -c --coverage s21_string.c s21_string_helpers.c
-	$(CC) $(FLAGS) s21_string_helpers.o s21_string.o s21_string_test.c --coverage $(CHECK_DEPENDENCIES) -o s21_string_report
+	$(CC) $(FLAGS) s21_string_helpers.o s21_string.o tests/s21_string_tests.c --coverage $(CHECK_DEPENDENCIES) -o s21_string_report
 	./s21_string_report
 	gcovr -r . --html --html-details -o coverage_report.html
 
