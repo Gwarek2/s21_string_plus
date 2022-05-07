@@ -20,7 +20,10 @@ struct f_params {
 int read_format_params(struct f_params* params, const char *format, va_list args);
 int convert_arg(char *str, va_list args, struct f_params params);
 int itoa(long long value, char* result, int base, struct f_params params);
-int dtoa(long double value, char *result, struct f_params params);
+int ftoa(long double value, char *result, struct f_params params);
+int fntoa(char *buffer, long double value, int precision); 
+int fetoa(char *buffer, long double value, int precision, int upper_case);
+int fgtoa(char *buffer, long double value, int precision, int upper_case);
 int s21_atoi(char *str);
 
 void _int_to_str(char *buffer, va_list args, struct f_params params, int base);

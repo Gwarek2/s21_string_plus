@@ -165,12 +165,10 @@ void _ptr_to_str(char *buffer, va_list args) {
 }
 
 void _float_to_str(char *buffer, struct f_params params, va_list args) {
-    if (params.precision == -1)
-        params.precision = 6;
     if (params.type[0] == 'L')
-        dtoa(va_arg(args, long double), buffer, params);
+        ftoa(va_arg(args, long double), buffer, params);
     else 
-        dtoa(va_arg(args, double), buffer, params);
+        ftoa(va_arg(args, double), buffer, params);
 }
 
 void _get_printed_chars_num(va_list args, struct f_params params) {
@@ -228,11 +226,14 @@ int itoa(long long value, char* result, int base, struct f_params params) {
 }
 
 // Returns length of resulting string
-int dtoa(long double value, char *result, struct f_params params) {
+int ftoa(long double value, char *result, struct f_params params) {
     // printf("%Lf %i\n", value, precision);
     int i = 0;
     int flag = params.flag;
     int precision = params.precision;
+    if (params.precision == -1)
+        params.precision = 6;
+
     if (isnan(value)) {
         i = 3;
         s21_strcpy(result, "nan");
@@ -241,38 +242,13 @@ int dtoa(long double value, char *result, struct f_params params) {
         s21_strcpy(result, "inf");
     } else {
         int neg = value < 0;
-        long double int_part, float_part;
-        // printf("%Lf\n", int_part);
         char buffer[100000];
-        float_part = fabsl(modfl(value, &int_part));
-        if (precision > 0) {
-            int_part = fabsl(int_part);
-            float_part = roundl(float_part * pow(10, precision));
-            while (precision-- > 0) {
-                int num = roundl(fmodl(float_part, 10));
-                buffer[i++] = NUM_TABLE_LOWER[num];
-                float_part = truncl(float_part / 10.0L);
-            }
-            buffer[i++] = '.';
-            // _reverse(buffer + float_part_start, buffer + i);
-        } else {
-            int_part = roundl(value);
+        if (s21_strchr(params.type, 'f')) {
+            i += fntoa(buffer, value, precision);
+        } else if (s21_strpbrk(params.type, "eE")) {
+            
         }
-
-        if (int_part >= 1) {
-            int_part += float_part;
-            while (int_part >= 1) {
-                int num = (int) fmodl(int_part, 10);
-                buffer[i++] = NUM_TABLE_LOWER[num];
-                int_part = truncl(int_part / 10.0L);
-                // printf("%i %Lf\n", num, int_part);
-            }
-        } else {
-            buffer[i++] = '0';
-        }
-        // printf("%s\n", buffer);
         if (flag == '0') {
-            // int point = precision > 0
             int zero_padding_len = params.width - (i + neg);
             _add_padding(buffer + i, zero_padding_len, '0');
             i += zero_padding_len > 0 ? zero_padding_len : 0;
@@ -282,15 +258,53 @@ int dtoa(long double value, char *result, struct f_params params) {
         else if (flag == ' ' || flag == '+')
             buffer[i++] = flag;
         _reverse(buffer, buffer + i);
-        // printf("%s\n", buffer);
 
-        // printf("%.10Lf\n", float_part);
         buffer[i] = '\0';
-        // printf("%s\n", buffer);
         s21_strcpy(result, buffer);
     }
     return i;
 }
+
+int fntoa(char *buffer, long double value, int precision) {
+    int i = 0;
+    long double int_part, float_part;
+    float_part = fabsl(modfl(value, &int_part));
+    if (precision > 0) {
+        int_part = fabsl(int_part);
+        float_part = roundl(float_part * pow(10, precision));
+        while (precision-- > 0) {
+            int num = roundl(fmodl(float_part, 10));
+            buffer[i++] = NUM_TABLE_LOWER[num];
+            float_part = truncl(float_part / 10.0L);
+        }
+        buffer[i++] = '.';
+    } else {
+        int_part = roundl(value);
+    }
+
+    if (int_part >= 1) {
+        int_part += float_part;
+        while (int_part >= 1) {
+            int num = (int) fmodl(int_part, 10);
+            buffer[i++] = NUM_TABLE_LOWER[num];
+            int_part = truncl(int_part / 10.0L);
+        }
+    } else {
+        buffer[i++] = '0';
+    }
+    return i;
+}
+
+int fetoa(char *buffer, long double value, int precision, int upper_case) {
+    int i = 0;
+
+    return i;
+}
+
+// int fgtoa(char *buffer, long double value, int precision, int upper_case) {
+//     int i = 0;
+//     return i;
+// }
 
 int s21_atoi(char *str) {
     int num = 0;
