@@ -1,12 +1,69 @@
 #include "../s21_string.h"
-#test test_s21_sprintf_normal
+#test test_s21_sprintf_strings
     char buff1[100000];
     char buff2[100000];
-    char *str = "hello";
-    int n1, n2, n3, n4;
-    int c1 = s21_sprintf(buff1, "|%#llX|, |5%%|, |%n|, |%030.4f|, |%c|, |%-10.10s|%n|", (long long unsigned) 123456789, &n1, 547834.99999, *str, str, &n3);
-    int c2 = sprintf(buff2, "|%#llX|, |5%%|, |%n|, |%030.4f|, |%c|, |%-10.10s|%n|", (long long unsigned) 123456789, &n2, 547834.99999, *str, str, &n4);
+    int c1 = s21_sprintf(buff1, "|5%%|, |%10c|, |%-10.10s|", 'n', "hello");
+    int c2 = sprintf(buff2, "|5%%|, |%10c|, |%-10.10s|", 'n', "hello");
     ck_assert_str_eq(buff1, buff2);
     ck_assert_int_eq(c1, c2);
-    ck_assert_int_eq(n1, n2);
-    ck_assert_int_eq(n3, n4);
+#test test_s21_sprintf_float_values
+    char buff1[100000];
+    char buff2[100000];
+    int c1 = s21_sprintf(buff1, "|%+.7f|, |% 10.2f|, |%.1f|", 1234.12, 999.999, -125.56); 
+    int c2 = sprintf(buff2, "|%+.7f|, |% 10.2f|, |%.1f|", 1234.12, 999.999, -125.56); 
+    ck_assert_str_eq(buff1, buff2);
+    ck_assert_int_eq(c1, c2);
+#test test_s21_sprintf_int_values
+    char buff1[100000];
+    char buff2[100000];
+    int c1 = s21_sprintf(buff1, "|%-10.7d|, |%010d|, |%+4i|", 9512, -1234, 4219);
+    int c2 = sprintf(buff2, "|%-10.7d|, |%010d|, |%+4i|", 9512, -1234, 4219);
+    ck_assert_str_eq(buff1, buff2);
+    ck_assert_int_eq(c1, c2);
+#test test_s21_sprintf_uint_values
+    char buff1[100000];
+    char buff2[100000];
+    int c1 = s21_sprintf(buff1, "|%-10.7u|, |%010u|, |%4u|", 9512, 1234, 4219);
+    int c2 = sprintf(buff2, "|%-10.7u|, |%010u|, |%4u|", 9512, 1234, 4219);
+    ck_assert_str_eq(buff1, buff2);
+    ck_assert_int_eq(c1, c2);
+#test test_s21_sprintf_oct_values
+    char buff1[100000];
+    char buff2[100000];
+    int c1 = s21_sprintf(buff1, "|%-10.7o|, |%010o|, |%#o|", 9512, 1234, 4219);
+    int c2 = sprintf(buff2, "|%-10.7o|, |%010o|, |%#o|", 9512, 1234, 4219);
+    ck_assert_str_eq(buff1, buff2);
+    ck_assert_int_eq(c1, c2);
+#test test_s21_sprintf_hex_values
+    char buff1[100000];
+    char buff2[100000];
+    int c1 = s21_sprintf(buff1, "|%-10.7x|, |%010X|, |%#7x|", 9512, 1234, 4219);
+    int c2 = sprintf(buff2, "|%-10.7x|, |%010X|, |%#7x|", 9512, 1234, 4219);
+    ck_assert_str_eq(buff1, buff2);
+    ck_assert_int_eq(c1, c2);
+#test test_s21_sprintf_ptr
+    char buff1[100000];
+    char buff2[100000];
+    int p1, p2, p3;
+    int c1 = s21_sprintf(buff1, "|%-20p|, |%p|, |%15p|", &p1, &p2, &p3);
+    int c2 = sprintf(buff2, "|%-20p|, |%p|, |%15p|", &p1, &p2, &p3);
+    ck_assert_str_eq(buff1, buff2);
+    ck_assert_int_eq(c1, c2); 
+#test test_s21_sprintf_chars_printed
+    char buff1[100000];
+    char buff2[100000];
+    int p1, p2, p3, p4, p5, p6;
+    int c1 = s21_sprintf(buff1, "|%-20d|, |%n| |%s|, |%n| |%.2f||%n|", 1234, &p1, "string", &p2, 234.564, &p3);
+    int c2 = sprintf(buff2, "|%-20d|, |%n| |%s|, |%n| |%.2f||%n|", 1234, &p4, "string", &p5, 234.564, &p6);
+    ck_assert_str_eq(buff1, buff2);
+    ck_assert_int_eq(c1, c2); 
+    ck_assert_int_eq(p1, p4); 
+    ck_assert_int_eq(p2, p5); 
+    ck_assert_int_eq(p3, p6);
+#test test_s21_sprintf_custom_width_and_precision
+    char buff1[100000];
+    char buff2[100000];
+    int c1 = s21_sprintf(buff1, "|%-*.*d|, |%0*i|, |%*s|", 20, 10, 12345, 10, 5782, 15, "string");
+    int c2 = sprintf(buff2, "|%-*.*d|, |%0*i|, |%*s|", 20, 10, 12345, 10, 5782, 15, "string");
+    ck_assert_str_eq(buff1, buff2);
+    ck_assert_int_eq(c1, c2);

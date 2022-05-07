@@ -2,7 +2,7 @@
 #define S21_STRING_HELPERS
 #include <math.h>
 #include <stdarg.h>
-// #include <stdio.h>
+#include <stdio.h>
 
 #include "s21_string.h"
 #include "s21_string_helpers.h"
@@ -19,11 +19,11 @@ int read_format_params(struct f_params* params, const char *format, va_list args
         cursor += _read_f_num(cursor, &(params->width));
     }
     if (*cursor == '.') {
+        cursor++;
         if (*cursor == '*') {
             params->precision = va_arg(args, int);
             cursor++;
         } else {
-            cursor++;
             cursor += _read_f_num(cursor, &(params->precision));
         }
     }
@@ -160,6 +160,7 @@ void _uint_to_str(char *buffer, va_list args, struct f_params params, int base) 
 void _ptr_to_str(char *buffer, va_list args) {
     struct f_params params;
     _set_default_params(&params);
+    params.type[0] = 'p';
     itoa(va_arg(args, long unsigned), buffer, 16, params);
 }
 
@@ -205,16 +206,16 @@ int itoa(long long value, char* result, int base, struct f_params params) {
     if (precision != -1)
         zero_padding_len = precision - (cur - result);
     else if (flag == '0')
-        zero_padding_len = params.width - (cur - result);
+        zero_padding_len = params.width - (cur - result) - neg;
     _add_padding(cur, zero_padding_len, '0');
     if (zero_padding_len > 0)
         cur += zero_padding_len;
 
     if (neg) {
         *cur++ = '-';
-    } else if (base == 10 && (flag == ' ' || flag == '+')) {
+    } else if (base == 10 && s21_strchr(params.type, 'u') == S21_NULL && (flag == ' ' || flag == '+')) {
         *cur++ = flag;
-    } else if (base == 16 && flag == '#') {
+    } else if (base == 16 && (flag == '#' || s21_strchr(params.type, 'p'))) {
         *cur++ = upper_case ? 'X' : 'x';
         *cur++ = '0';
     } else if (base == 8 && flag == '#') {
@@ -241,43 +242,51 @@ int dtoa(long double value, char *result, struct f_params params) {
     } else {
         int neg = value < 0;
         long double int_part, float_part;
-        float_part = fabsl(modfl(value, &int_part));
-        int_part = fabsl(int_part);
         // printf("%Lf\n", int_part);
-        char buffer[10000];
-        buffer[0] = '0';
-        while (int_part >= 1) {
-            int num = (int) fmodl(int_part, 10);
-            buffer[i++] = NUM_TABLE_LOWER[num];
-            int_part = truncl(int_part / 10.0L);
-            // printf("%i %Lf\n", num, int_part);
+        char buffer[100000];
+        float_part = fabsl(modfl(value, &int_part));
+        if (precision > 0) {
+            int_part = fabsl(int_part);
+            float_part = roundl(float_part * pow(10, precision));
+            while (precision-- > 0) {
+                int num = roundl(fmodl(float_part, 10));
+                buffer[i++] = NUM_TABLE_LOWER[num];
+                float_part = truncl(float_part / 10.0L);
+            }
+            buffer[i++] = '.';
+            // _reverse(buffer + float_part_start, buffer + i);
+        } else {
+            int_part = roundl(value);
+        }
+
+        if (int_part >= 1) {
+            int_part += float_part;
+            while (int_part >= 1) {
+                int num = (int) fmodl(int_part, 10);
+                buffer[i++] = NUM_TABLE_LOWER[num];
+                int_part = truncl(int_part / 10.0L);
+                // printf("%i %Lf\n", num, int_part);
+            }
+        } else {
+            buffer[i++] = '0';
         }
         // printf("%s\n", buffer);
         if (flag == '0') {
-            int zero_padding_len = params.width - (i + 1 + precision + neg);
+            // int point = precision > 0
+            int zero_padding_len = params.width - (i + neg);
             _add_padding(buffer + i, zero_padding_len, '0');
             i += zero_padding_len > 0 ? zero_padding_len : 0;
         }
         if (neg)
             buffer[i++] = '-';
-        if (precision <= 0)
-            buffer[0] = (buffer[0] - 48 + 1) % 10 + 48;
+        else if (flag == ' ' || flag == '+')
+            buffer[i++] = flag;
         _reverse(buffer, buffer + i);
         // printf("%s\n", buffer);
 
         // printf("%.10Lf\n", float_part);
-        if (precision > 0) {
-            buffer[i++] = '.';
-            float_part = roundl(float_part * pow(10, precision));
-            int float_part_start = i;
-            while (precision-- > 0) {
-                int num = (int) fmodl(float_part, 10);
-                buffer[i++] = NUM_TABLE_LOWER[num];
-                float_part = truncl(float_part / 10.0L);
-            }
-            _reverse(buffer + float_part_start, buffer + i);
-        }
         buffer[i] = '\0';
+        // printf("%s\n", buffer);
         s21_strcpy(result, buffer);
     }
     return i;
