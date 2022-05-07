@@ -4,8 +4,6 @@
  */
 
 #include <check.h>
-#include <stdio.h>
-#include <string.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -90,11 +88,13 @@ START_TEST(test_s21_sprintf_normal) {
     char buff1[100000];
     char buff2[100000];
     char *str = "hello";
-    int c1 = s21_sprintf(buff1, "'%+18.12i' is int, the percent char is 5%%, the float is '%.3f', the char is '%c', the string is '%s'", 123456789, 547834.000234243, *str, str);
-    int c2 = sprintf(buff2, "'%+18.12i' is int, the percent char is 5%%, the float is '%.3f', the char is '%c', the string is '%s'", 123456789, 547834.000234243, *str, str);
+    int n1, n2, n3, n4;
+    int c1 = s21_sprintf(buff1, "|%#llX|, |5%%|, |%n|, |%030.4f|, |%c|, |%-10.10s|%n|", (long long unsigned) 123456789, &n1, 547834.99999, *str, str, &n3);
+    int c2 = sprintf(buff2, "|%#llX|, |5%%|, |%n|, |%030.4f|, |%c|, |%-10.10s|%n|", (long long unsigned) 123456789, &n2, 547834.99999, *str, str, &n4);
     ck_assert_str_eq(buff1, buff2);
     ck_assert_int_eq(c1, c2);
-
+    ck_assert_int_eq(n1, n2);
+    ck_assert_int_eq(n3, n4);
 }
 END_TEST
 

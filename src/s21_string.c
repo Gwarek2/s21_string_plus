@@ -152,7 +152,9 @@ char *s21_strerror(int errnum) {
         s21_strcpy(buff, error_descrs[errnum]);
     } else {
         char num[5];
-        itoa(errnum, num, 10, 0, 0);
+        struct f_params params;
+        _set_default_params(&params);
+        itoa(errnum, num, 10, params);
         s21_strcpy(buff, UNKNOWN_ERROR);
         s21_strcpy(buff + s21_strlen(UNKNOWN_ERROR), num);
     }
@@ -274,6 +276,7 @@ int s21_sprintf(char *str, const char *format, ...) {
             format++;
             struct f_params params;
             format += read_format_params(&params, (char*) format, vars);
+            params.chars_printed = str - start;
             str += convert_arg(str, vars, params);
         } else {
             *str++ = *format++;
