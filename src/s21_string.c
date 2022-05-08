@@ -31,8 +31,8 @@ void *s21_memcpy(void *dest, const void *src, s21_size_t n) {
 
 
 void *s21_memmove(void *dest, const void *src, s21_size_t n) {
-    char *cdest = (char *) dest;
-    char *csrc = (char *) src; 
+    char *cdest = (char*) dest;
+    char *csrc = (char*) src; 
     char *tmp = malloc(n * sizeof(char) + 1);
     for (s21_size_t i = 0; i < n; i++)
         tmp[i] = *csrc++; 
@@ -81,18 +81,28 @@ char *s21_strchr(const char *str, int c) {
 
 
 int s21_strcmp(const char *str1, const char *str2) {
-    s21_size_t i = 0;
-    while (str1[i] == str2[i] && (str1[i] != '\0' || str2[i] != '\0'))
-        i++;
-    return str1[i] - str2[i];
+    int result = 0;
+    while (*str1 && *str2 && *str1 != *str2) {
+        str1++;
+        str2++;
+    }
+    if (*str1 != *str2)
+        result = *str1 > *str2 ? 1 : -1;
+    return result;
 }
 
 
 int s21_strncmp(const char *str1, const char *str2, s21_size_t n) {
     s21_size_t i = 0;
-    while (str1[i] == str2[i] && (str1[i] != '\0' || str2[i] != '\0') && i < n)
+    int result = 0;
+    while (*str1 && *str2 && *str1 != *str2 && i < n) {
+        str1++;
+        str2++;
         i++;
-    return str1[i] - str2[i];
+    }
+    if (*str1 != *str2)
+        result = *str1 > *str2 ? 1 : -1;
+    return result;
 }
 
 

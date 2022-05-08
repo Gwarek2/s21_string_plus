@@ -12,7 +12,7 @@ endif
 all: test gcov_report
 
 test: s21_string.a
-	$(CC) $(FLAGS) tests/s21_string_tests.c $(CHECK_DEPENDENCIES) -L. -ls21_string -o s21_string_test
+	$(CC) $(FLAGS) tests/s21_string_tests.c $(CHECK_DEPENDENCIES) s21_string.a -o s21_string_test
 
 gcov_report:
 	$(CC) $(FLAGS) -c --coverage s21_string.c s21_string_helpers.c
@@ -22,8 +22,8 @@ gcov_report:
 
 s21_string.a:
 	$(CC) $(FLAGS) -c s21_string_helpers.c s21_string.c
-	ar -rc libs21_string.a s21_string_helpers.o s21_string.o
-	ranlib libs21_string.a
+	ar -rc s21_string.a s21_string_helpers.o s21_string.o
+	ranlib s21_string.a
 
 clean:
 	-rm *.o *.out *.a *.html *.gcno *.gcda s21_string_test s21_string_report

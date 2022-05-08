@@ -1,8 +1,10 @@
 #ifndef S21_STRING_HELPERS
 #define S21_STRING_HELPERS
+
 #include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stddef.h>
 
 #include "s21_string.h"
 #include "s21_string_helpers.h"
@@ -102,14 +104,12 @@ int convert_arg(char *str, va_list args, struct f_params params) {
         _uint_to_str(buffer, args, params, 16);
     } else if (params.type[0] == 'p') {
         _ptr_to_str(buffer, args);
-    } else if (s21_strchr(params.type, 'f') != S21_NULL) {
+    } else if (s21_strpbrk(params.type, "feEgG") != S21_NULL) {
         _float_to_str(buffer, params, args);
     } else if (s21_strchr(params.type, 'c') != S21_NULL) {
-        int ch = va_arg(args, int);
-        *buffer = ch;
-        buffer[1] = '\0';
+        _chr_to_str(buffer, args);
     } else if (s21_strchr(params.type, 's') != S21_NULL) {
-        s21_strcpy(buffer, va_arg(args, char*));
+        _str_to_str(buffer, args, params);
     } else if (s21_strchr(params.type, '%') != S21_NULL) {
         *buffer = '%';
         buffer[1] = '\0';
@@ -169,6 +169,31 @@ void _float_to_str(char *buffer, struct f_params params, va_list args) {
         ftoa(va_arg(args, long double), buffer, params);
     else 
         ftoa(va_arg(args, double), buffer, params);
+}
+
+void _chr_to_str(char *buffer, va_list args) {
+    int ch = va_arg(args, int);
+    *buffer = ch;
+    buffer[1] = '\0';
+}
+
+void _str_to_str(char *buffer, va_list args, struct f_params params) {
+    int chars_print = params.precision;
+
+    if (s21_strchr(params.type, 'l')) {
+        wchar_t *tmp = va_arg(args, wchar_t*);
+        while (*tmp && (chars_print)) {
+            *buffer++ = *tmp++;
+            chars_print--;
+        }
+        *buffer = '\0';
+    } else {
+        char *str = va_arg(args, char*);
+        if (chars_print == -1)
+            chars_print = s21_strlen(str);
+        s21_strncpy(buffer, str, chars_print);
+        buffer[chars_print] = '\0';
+    }
 }
 
 void _get_printed_chars_num(va_list args, struct f_params params) {
@@ -232,7 +257,7 @@ int ftoa(long double value, char *result, struct f_params params) {
     int flag = params.flag;
     int precision = params.precision;
     if (params.precision == -1)
-        params.precision = 6;
+        precision = 6;
 
     if (isnan(value)) {
         i = 3;
@@ -244,10 +269,17 @@ int ftoa(long double value, char *result, struct f_params params) {
         int neg = value < 0;
         char buffer[100000];
         if (s21_strchr(params.type, 'f')) {
-            i += fntoa(buffer, value, precision);
+            i += fntoa(buffer, value, precision, flag, 0);
         } else if (s21_strpbrk(params.type, "eE")) {
-            
+            int exp = _calc_exp(value);
+            int upper_case = s21_strchr(params.type, 'E') != NULL;
+            i += fetoa(buffer, value, exp, precision, flag, upper_case);
+        } else if (s21_strpbrk(params.type, "gG")) {
+            int exp = _calc_exp(value);
+            int upper_case = s21_strchr(params.type, 'G') != NULL;
+            i += fgtoa(buffer, value, exp, precision, flag, upper_case);
         }
+
         if (flag == '0') {
             int zero_padding_len = params.width - (i + neg);
             _add_padding(buffer + i, zero_padding_len, '0');
@@ -265,29 +297,35 @@ int ftoa(long double value, char *result, struct f_params params) {
     return i;
 }
 
-int fntoa(char *buffer, long double value, int precision) {
+int fntoa(char *buffer, long double value, int precision, char flag, int g_spec) {
     int i = 0;
     long double int_part, float_part;
     float_part = fabsl(modfl(value, &int_part));
     if (precision > 0) {
+        int write_trailing_nums = 0;
         int_part = fabsl(int_part);
         float_part = roundl(float_part * pow(10, precision));
         while (precision-- > 0) {
             int num = roundl(fmodl(float_part, 10));
-            buffer[i++] = NUM_TABLE_LOWER[num];
-            float_part = truncl(float_part / 10.0L);
+            if (!g_spec || num || write_trailing_nums) {
+                buffer[i++] = NUM_TABLE_LOWER[num];
+                write_trailing_nums = 1;
+            }
+            float_part = truncl(float_part / 10.0);
         }
-        buffer[i++] = '.';
+        flag = '#';
     } else {
         int_part = roundl(value);
     }
+    if (flag == '#')
+        buffer[i++] = '.';
 
     if (int_part >= 1) {
         int_part += float_part;
         while (int_part >= 1) {
             int num = (int) fmodl(int_part, 10);
             buffer[i++] = NUM_TABLE_LOWER[num];
-            int_part = truncl(int_part / 10.0L);
+            int_part = truncl(int_part / 10.0);
         }
     } else {
         buffer[i++] = '0';
@@ -295,16 +333,72 @@ int fntoa(char *buffer, long double value, int precision) {
     return i;
 }
 
-int fetoa(char *buffer, long double value, int precision, int upper_case) {
+int fetoa(char *buffer, long double value, int exp, int precision, char flag, int upper_case) {
     int i = 0;
+    long double mant = fabsl(value);
+    if (exp < 0)
+        mant = mant * powl(10, -exp);
+    else
+        mant = mant / powl(10, exp);
 
+    int exp_temp = exp;
+    if (exp_temp < 0)
+        exp_temp = -exp_temp;
+    while (exp_temp) {
+        int index = exp_temp % 10;
+        buffer[i++] = NUM_TABLE_LOWER[index];
+        exp_temp /= 10;
+    }
+    if (exp < 10 && exp > -10)
+        buffer[i++] = '0';
+    buffer[i++] = exp < 0 ? '-' : '+';
+    buffer[i++] = upper_case ? 'E' : 'e';
+
+    if (precision > 0) {
+        mant = roundl(mant * powl(10, precision));
+        while (precision--) {
+            int index = fmodl(mant, 10);
+            buffer[i++] = NUM_TABLE_LOWER[index];
+            mant /= 10;
+        }
+        flag = '#';
+    } else {
+        mant = roundl(mant);
+        buffer[i++] = fmodl(mant, 10);
+    }
+    if (flag == '#')
+        buffer[i++] = '.';
+    int index = fmodl(mant, 10);
+    buffer[i++] = NUM_TABLE_LOWER[index];
     return i;
 }
 
-// int fgtoa(char *buffer, long double value, int precision, int upper_case) {
-//     int i = 0;
-//     return i;
-// }
+int fgtoa(char *buffer, long double value, int exp, int precision, char flag, int upper_case) {
+    int i = 0;
+    if (precision > exp && exp >= -4) {
+        i += fntoa(buffer, value, precision - (exp + 1), flag, 1);
+    } else {
+        i += fetoa(buffer, value, exp, precision - 1, flag, upper_case);
+    }
+    return i;
+}
+
+int _calc_exp(long double num) {
+    int exp = 0;
+    num = fabsl(num);
+    if (num < 1) {
+        do {
+            num *= 10;
+            exp--;
+        } while (num < 1);
+    } else {
+        do {
+            num /= 10;
+            exp++;
+        } while (num > 9);
+    }
+    return exp;
+}
 
 int s21_atoi(char *str) {
     int num = 0;
