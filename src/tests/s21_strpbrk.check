@@ -1,0 +1,12 @@
+#test test_s21_strpbrk_normal
+    char *str = (void *)"Hello world";
+    char *str2 = (void *)"frse";
+    ck_assert_str_eq(s21_strpbrk(str, str2), strpbrk(str, str2));
+#test test_s21_strpbrk_no_result
+    char *str = (void *)"Hello world";
+    char *str2 = (void *)"fact";
+    ck_assert_ptr_eq(s21_strpbrk(str, str2), strpbrk(str, str2));
+#test test_s21_strpbrk_empty_str
+    char *str = (void *)"Hello world";
+    char *str2 = (void *)"";
+    ck_assert_ptr_eq(s21_strpbrk(str, str2), strpbrk(str, str2));

@@ -1,0 +1,12 @@
+#test test_s21_strcmp_1_equal
+    char str1[100] = "abc";
+    char str2[100] = "abc";
+    ck_assert_int_eq(s21_strcmp(str1, str2), strcmp(str1, str2));
+#test test_s21_strcmp_2_non_equal
+    char str1[100] = "abc";
+    char str2[100] = "abd";
+    ck_assert_int_eq(s21_strcmp(str1, str2), strcmp(str1, str2));
+#test test_s21_strcmp_1_littel
+    char str1[100] = "abd";
+    char str2[100] = "abc";
+    ck_assert_int_eq(s21_strcmp(str1, str2), strcmp(str1, str2));

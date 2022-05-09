@@ -1,0 +1,15 @@
+#test test_s21_strncmp_1_same
+    char str1[100] = "abc";
+    char str2[100] = "abc";
+    long unsigned n = 3;
+    ck_assert_int_eq(s21_strncmp(str1, str2, n), strncmp(str1, str2, n));
+#test test_s21_strncmp_2_big
+    char str1[100] = "abc";
+    char str2[100] = "abd";
+    long unsigned n = 3;
+    ck_assert_int_eq(s21_strncmp(str1, str2, n), strncmp(str1, str2, n));
+#test test_s21_strncmp_1_littel
+    char str1[100] = "abd";
+    char str2[100] = "abc";
+    long unsigned n = 3;
+    ck_assert_int_eq(s21_strncmp(str1, str2, n), strncmp(str1, str2, n));

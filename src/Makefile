@@ -1,5 +1,5 @@
 CC=gcc
-FLAGS=-Wall -Werror -Wextra -std=c11
+FLAGS=-Wall -Werror -Wextra -std=c11 -fsanitize=address
 
 UNAME = $(shell uname -s)
 ifeq ($(UNAME),Darwin)
@@ -18,7 +18,9 @@ gcov_report:
 	$(CC) $(FLAGS) -c --coverage s21_string.c s21_string_helpers.c
 	$(CC) $(FLAGS) s21_string_helpers.o s21_string.o tests/s21_string_tests.c --coverage $(CHECK_DEPENDENCIES) -o s21_string_report
 	./s21_string_report
-	gcovr -r . --html --html-details -o coverage_report.html
+	gcov -a tests/s21_string_tests.c
+	lcov -c -f -d . --output-file s21_string_coverage.info
+	genhtml s21_string_coverage.info --output-directory s21_string_coverage
 
 s21_string.a:
 	$(CC) $(FLAGS) -c s21_string_helpers.c s21_string.c
@@ -26,4 +28,4 @@ s21_string.a:
 	ranlib s21_string.a
 
 clean:
-	-rm *.o *.out *.a *.html *.gcno *.gcda s21_string_test s21_string_report
+	-rm -rf *.o *.out *.a *.html *.gcno *.gcda *.info s21_string_test s21_string_report s21_string_coverage

@@ -1,0 +1,12 @@
+#test test_s21_strstr_normal
+    char *str = (void *)"Hello world, my friend!";
+    char *str2 = (void *)"world";
+    ck_assert_str_eq(s21_strstr(str, str2), strstr(str, str2));
+#test test_s21_strstr_no_result
+    char *str = (void *)"Hello world, my friend!";
+    char *str2 = (void *)"worlds";
+    ck_assert_ptr_eq(s21_strstr(str, str2), strstr(str, str2));
+#test test_s21_strstr_empty_str
+    char *str = (void *)"Hello world, my friend!";
+    char *str2 = (void *)"";
+    ck_assert_ptr_eq(s21_strstr(str, str2), strstr(str, str2));

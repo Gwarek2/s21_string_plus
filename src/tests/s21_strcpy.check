@@ -1,0 +1,20 @@
+#test test_s21_strcpy_not_empty
+    char line1[20] = "Hello world\0";
+    char line2[20] = "Hi\0";
+    char* dest = line1;
+    const char* src = line2;
+    char line3[20] = "Hello world\0";
+    char line4[20] = "Hi\0";
+    char* dest2 = line3;
+    const char* src2 = line4;
+    ck_assert_str_eq(s21_strcpy(dest, src), strcpy(dest2, src2));
+#test test_s21_strcpy_empty
+    char line1[20] = "\0";
+    char line2[20] = "\0";
+    char* dest = line1;
+    const char* src = line2;
+    char line3[20] = "\0";
+    char line4[20] = "\0";
+    char* dest2 = line3;
+    const char* src2 = line4;
+    ck_assert_str_eq(s21_strcpy(dest, src), strcpy(dest2, src2));

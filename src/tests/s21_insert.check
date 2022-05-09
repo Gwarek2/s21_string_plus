@@ -1,0 +1,31 @@
+#test test_insert_zero_index
+    char* str1 = "123456\0";
+    char* str2 = "AB\0";
+    size_t index = 0;
+    char* expected_result = "AB123456\0";
+    char* result_insert = s21_insert(str1, str2, index);
+    ck_assert_str_eq(result_insert, expected_result);
+    free(result_insert);
+#test test_insert_last_index
+    char* str1 = "123456\0";
+    char* str2 = "AB\0";
+    size_t index = 6;
+    char* expected_result = "123456AB\0";
+    char* result_insert = s21_insert(str1, str2, index);
+    ck_assert_str_eq(result_insert, expected_result);
+    free(result_insert);
+#test test_insert_middle_index
+    char* str1 = "123456\0";
+    char* str2 = "AB\0";
+    size_t index = 3;
+    char* expected_result = "123AB456\0";
+    char* result_insert = s21_insert(str1, str2, index);
+    ck_assert_str_eq(result_insert, expected_result);
+    free(result_insert);
+#test test_insert_larger_index
+    char* str1 = "123456\0";
+    char* str2 = "AB\0";
+    size_t index = 11;
+    char* result_insert = s21_insert(str1, str2, index);
+    ck_assert_ptr_eq(result_insert, NULL);
+    free(result_insert);

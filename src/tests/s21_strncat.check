@@ -1,0 +1,4 @@
+#test test_s21_strncat_s1_sum_s2_3
+    char str1[100] = "01234";
+    char str2[100] = "56789";
+    ck_assert_pstr_eq(s21_strncat(str1, str2, 3), strncat(str1, str2, 3));

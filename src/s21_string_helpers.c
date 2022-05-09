@@ -72,7 +72,6 @@ int _read_f_num(const char *format, int *num) {
         s21_strncpy(result, format, cursor - format);
         result[cursor - format] = '\0';
         *num = s21_atoi(result);
-        // printf("%d %s\n", *num, result);
     }
     return cursor - format;
 }
@@ -85,7 +84,6 @@ void _set_default_params(struct f_params *params) {
         params->type[i] = '\0';
 }
 
- 
 int convert_arg(char *str, va_list args, struct f_params params) {
     char *start = str;
     char buffer[100000];
@@ -118,7 +116,6 @@ int convert_arg(char *str, va_list args, struct f_params params) {
     // Add padding and parsed arg
     int buff_len = s21_strlen(buffer);
     int padding_len = params.width > buff_len ? params.width - buff_len : 0;
-    // printf("%s\n", buffer);
     if (params.flag == '-') {
         s21_strncpy(str, buffer, buff_len);
         str += buff_len;
@@ -134,27 +131,29 @@ int convert_arg(char *str, va_list args, struct f_params params) {
 }
 
 void _int_to_str(char *buffer, va_list args, struct f_params params, int base) {
-    if (params.type[0] == 'l' && params.type[1] == 'l')
+    if (params.type[0] == 'l' && params.type[1] == 'l') {
         itoa(va_arg(args, long long), buffer, base, params);
-    else if (params.type[0] == 'l')
+    } else if (params.type[0] == 'l') {
         itoa(va_arg(args, long), buffer, base, params);
-    else if (params.type[0] == 'h') {
+    } else if (params.type[0] == 'h') {
         short arg = (short) va_arg(args, int);
         itoa(arg, buffer, base, params);
-    } else
+    } else {
         itoa(va_arg(args, int), buffer, base, params);
+    }
 }
 
 void _uint_to_str(char *buffer, va_list args, struct f_params params, int base) {
-    if (params.type[0] == 'l' && params.type[1] == 'l')
+    if (params.type[0] == 'l' && params.type[1] == 'l') {
         itoa(va_arg(args, long long unsigned), buffer, base, params);
-    else if (params.type[0] == 'l')
+    } else if (params.type[0] == 'l') {
         itoa(va_arg(args, long unsigned), buffer, base, params);
-    else if (params.type[0] == 'h') {
+    } else if (params.type[0] == 'h') {
         short unsigned arg = (short unsigned) va_arg(args, unsigned);
         itoa(arg, buffer, base, params);
-    } else
+    } else {
         itoa(va_arg(args, unsigned), buffer, base, params);
+    }
 }
 
 void _ptr_to_str(char *buffer, va_list args) {
@@ -167,7 +166,7 @@ void _ptr_to_str(char *buffer, va_list args) {
 void _float_to_str(char *buffer, struct f_params params, va_list args) {
     if (params.type[0] == 'L')
         ftoa(va_arg(args, long double), buffer, params);
-    else 
+    else
         ftoa(va_arg(args, double), buffer, params);
 }
 
@@ -252,7 +251,6 @@ int itoa(long long value, char* result, int base, struct f_params params) {
 
 // Returns length of resulting string
 int ftoa(long double value, char *result, struct f_params params) {
-    // printf("%Lf %i\n", value, precision);
     int i = 0;
     int flag = params.flag;
     int precision = params.precision;
@@ -395,7 +393,7 @@ int _calc_exp(long double num) {
         do {
             num /= 10;
             exp++;
-        } while (num > 9);
+        } while (num > 10);
     }
     return exp;
 }
@@ -428,4 +426,4 @@ char* _reverse(char* start, char *end) {
     return result;
 }
 
-#endif // S21_STRING_HELPERS
+#endif  // S21_STRING_HELPERS

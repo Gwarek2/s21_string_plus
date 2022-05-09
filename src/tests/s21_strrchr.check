@@ -1,0 +1,15 @@
+#test test_s21_strrchr_can_find_match
+    const char* str = "1234567\0";
+    const char* str2 = "1234567\0";
+    int element = '3';
+    ck_assert_str_eq(s21_strrchr(str, element), strrchr(str2, element));
+#test test_s21_strrchr_several_matches
+    const char* str = "123123123\0";
+    const char* str2 = "123123123\0";
+    int element = '2';
+    ck_assert_str_eq(s21_strrchr(str, element), strrchr(str2, element));
+#test test_s21_strrchr_can_not_find_match
+    const char* str = "1234567\0";
+    int element = '9';
+    char* result_s21_strrchr = s21_strrchr(str, element);
+    ck_assert(result_s21_strrchr == NULL);

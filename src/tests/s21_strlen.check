@@ -1,0 +1,9 @@
+#test test_s21_strlen_normal
+    char *str = (void *)"Hello world";
+    ck_assert_int_eq(s21_strlen(str), strlen(str));
+#test test_s21_strlen_no_result
+    void *str = (void *)"";
+    ck_assert_int_eq(s21_strlen(str), strlen(str));
+#test test_s21_strlen_empty_str
+    void *str = (void *)"\n\0";
+    ck_assert_int_eq(s21_strlen(str), strlen(str));
