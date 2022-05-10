@@ -219,7 +219,7 @@ int itoa(long long value, char* result, int base, struct f_params params) {
 
     if (neg) value = -value;
     do {
-        long long index = value % base;
+        int index = value % base;
         value /= base;
         *cur++ = num_table[index];
     } while (value);
@@ -254,18 +254,20 @@ int ftoa(long double value, char *result, struct f_params params) {
     int i = 0;
     int flag = params.flag;
     int precision = params.precision;
+    int neg = value < 0;
+    int is_nan = isnan(value);
+    int is_inf = isinf(value);
+    char buffer[100000];
     if (params.precision == -1)
         precision = 6;
 
-    if (isnan(value)) {
+    if (is_nan) {
         i = 3;
-        s21_strcpy(result, "nan");
-    } else if (isinf(value)) {
+        s21_strcpy(buffer, "nan");
+    } else if (is_inf) {
         i = 3;
-        s21_strcpy(result, "inf");
+        s21_strcpy(buffer, "fni");
     } else {
-        int neg = value < 0;
-        char buffer[100000];
         if (s21_strchr(params.type, 'f')) {
             i += fntoa(buffer, value, precision, flag, 0);
         } else if (s21_strpbrk(params.type, "eE")) {
@@ -283,15 +285,14 @@ int ftoa(long double value, char *result, struct f_params params) {
             _add_padding(buffer + i, zero_padding_len, '0');
             i += zero_padding_len > 0 ? zero_padding_len : 0;
         }
-        if (neg)
-            buffer[i++] = '-';
-        else if (flag == ' ' || flag == '+')
-            buffer[i++] = flag;
-        _reverse(buffer, buffer + i);
-
-        buffer[i] = '\0';
-        s21_strcpy(result, buffer);
     }
+    if (neg && !is_nan)
+        buffer[i++] = '-';
+    else if ((flag == ' ' || flag == '+') && !is_nan)
+        buffer[i++] = flag;
+    _reverse(buffer, buffer + i);
+    buffer[i] = '\0';
+    s21_strcpy(result, buffer);
     return i;
 }
 

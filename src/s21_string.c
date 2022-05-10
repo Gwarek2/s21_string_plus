@@ -172,7 +172,7 @@ char *s21_strerror(int errnum) {
         char num[5];
         struct f_params params;
         _set_default_params(&params);
-        itoa(errnum, num, 10, params);
+        itoa(errnum, num, 10, params, errnum < 0);
         s21_strcpy(buff, UNKNOWN_ERROR);
         s21_strcpy(buff + s21_strlen(UNKNOWN_ERROR), num);
     }

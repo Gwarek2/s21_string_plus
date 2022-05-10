@@ -21,8 +21,8 @@ gcov_report:
 	$(CC) $(FLAGS) -c --coverage s21_string.c s21_string_helpers.c
 	$(CC) $(FLAGS) s21_string_helpers.o s21_string.o tests/s21_string_tests.c --coverage $(CHECK_DEPENDENCIES) -o s21_string_report
 	./s21_string_report
-	gcov -a tests/s21_string_tests.c
-	lcov -c -f -d . --output-file s21_string_coverage.info
+	gcov -fm tests/s21_string.c
+	lcov -c --directory . --output-file s21_string_coverage.info
 	genhtml s21_string_coverage.info --output-directory s21_string_coverage
 
 s21_string.a:

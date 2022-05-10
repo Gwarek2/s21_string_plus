@@ -19,7 +19,7 @@ struct f_params {
 
 int read_format_params(struct f_params* params, const char *format, va_list args);
 int convert_arg(char *str, va_list args, struct f_params params);
-int itoa(long long value, char* result, int base, struct f_params params);
+int itoa(long long unsigned value, char* result, int base, struct f_params params, int neg);
 int ftoa(long double value, char *result, struct f_params params);
 int fntoa(char *buffer, long double value, int precision, char flag, int g_spec); 
 int fetoa(char *buffer, long double value, int exp, int precision, char flag, int upper_case);
