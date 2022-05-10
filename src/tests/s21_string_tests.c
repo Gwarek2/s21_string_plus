@@ -172,6 +172,16 @@ START_TEST(test_s21_sprintf_float_values) {
 }
 END_TEST
 
+START_TEST(test_s21_sprintf_float_max) {
+    char buff1[100000];
+    char buff2[100000];
+    int c1 = s21_sprintf(buff1, "|%+.7f|, |% 10.2f|, |%012.1f|, |%#.0f|", FLT_MAX, 999.999, -125.56, 76456.9);
+    int c2 = sprintf(buff2, "|%+.7f|, |% 10.2f|, |%012.1f|, |%#.0f|", FLT_MAX, 999.999, -125.56, 76456.9);
+    ck_assert_str_eq(buff1, buff2);
+    ck_assert_int_eq(c1, c2);
+}
+END_TEST
+
 START_TEST(test_s21_sprintf_nan) {
     char buff1[100000];
     char buff2[100000];
@@ -202,11 +212,31 @@ START_TEST(test_s21_sprintf_int_values) {
 }
 END_TEST
 
-START_TEST(test_s21_sprintf_uint_values) {
+START_TEST(s21_sprintf_int_max_values) {
     char buff1[100000];
     char buff2[100000];
-    int c1 = s21_sprintf(buff1, "|%-10.7u|, |%010lu|, |%4llu|", UINT_MAX, ULONG_MAX, ULLONG_MAX);
-    int c2 = sprintf(buff2, "|%-10.7u|, |%010lu|, |%4llu|", UINT_MAX, ULONG_MAX, ULLONG_MAX);
+    int c1 = s21_sprintf(buff1, "|%hu|, |%-10.7d|, |%010ld|, |%+4lli|", SHRT_MAX, INT_MAX, LONG_MAX, LLONG_MAX);
+    int c2 = sprintf(buff2, "|%hu|, |%-10.7d|, |%010ld|, |%+4lli|", SHRT_MAX, INT_MAX, LONG_MAX, LLONG_MAX);
+    ck_assert_str_eq(buff1, buff2);
+    ck_assert_int_eq(c1, c2);
+}
+END_TEST
+
+START_TEST(s21_sprintf_int_min_values) {
+    char buff1[100000];
+    char buff2[100000];
+    int c1 = s21_sprintf(buff1, "|%hu|, |%-10.7d|, |%010ld|, |%+4lli|", SHRT_MIN, INT_MIN, LONG_MIN, LLONG_MIN);
+    int c2 = sprintf(buff2, "|%hu|, |%-10.7d|, |%010ld|, |%+4lli|", SHRT_MIN, INT_MIN, LONG_MIN, LLONG_MIN);
+    ck_assert_str_eq(buff1, buff2);
+    ck_assert_int_eq(c1, c2);
+}
+END_TEST
+
+START_TEST(test_s21_sprintf_uint_max_values) {
+    char buff1[100000];
+    char buff2[100000];
+    int c1 = s21_sprintf(buff1, "|%hu|, |%-10.7u|, |%010lu|, |%4llu|", USHRT_MAX, UINT_MAX, ULONG_MAX, ULLONG_MAX);
+    int c2 = sprintf(buff2, "|%hu|, |%-10.7u|, |%010lu|, |%4llu|", USHRT_MAX, UINT_MAX, ULONG_MAX, ULLONG_MAX);
     ck_assert_str_eq(buff1, buff2);
     ck_assert_int_eq(c1, c2);
 }
@@ -222,11 +252,31 @@ START_TEST(test_s21_sprintf_oct_values) {
 }
 END_TEST
 
+START_TEST(test_s21_sprintf_uint_oct_max_values) {
+    char buff1[100000];
+    char buff2[100000];
+    int c1 = s21_sprintf(buff1, "|%ho|, |%-10.7o|, |%010lo|, |%4llo|", USHRT_MAX, UINT_MAX, ULONG_MAX, ULLONG_MAX);
+    int c2 = sprintf(buff2, "|%ho|, |%-10.7o|, |%010lo|, |%4llo|", USHRT_MAX, UINT_MAX, ULONG_MAX, ULLONG_MAX);
+    ck_assert_str_eq(buff1, buff2);
+    ck_assert_int_eq(c1, c2);
+}
+END_TEST
+
 START_TEST(test_s21_sprintf_hex_values) {
     char buff1[100000];
     char buff2[100000];
     int c1 = s21_sprintf(buff1, "|%-10.7x|, |%010X|, |%#7x|", 9512, 1234, 4219);
     int c2 = sprintf(buff2, "|%-10.7x|, |%010X|, |%#7x|", 9512, 1234, 4219);
+    ck_assert_str_eq(buff1, buff2);
+    ck_assert_int_eq(c1, c2);
+}
+END_TEST
+
+START_TEST(test_s21_sprintf_uint_hex_max_values) {
+    char buff1[100000];
+    char buff2[100000];
+    int c1 = s21_sprintf(buff1, "|%hx|, |%-10.7x|, |%010lx|, |%4llx|", USHRT_MAX, UINT_MAX, ULONG_MAX, ULLONG_MAX);
+    int c2 = sprintf(buff2, "|%hx|, |%-10.7x|, |%010lx|, |%4llx|", USHRT_MAX, UINT_MAX, ULONG_MAX, ULLONG_MAX);
     ck_assert_str_eq(buff1, buff2);
     ck_assert_int_eq(c1, c2);
 }
@@ -240,6 +290,14 @@ START_TEST(test_s21_sprintf_ptr) {
     int c2 = sprintf(buff2, "|%-20p|, |%p|, |%15p|", &p1, &p2, &p3);
     ck_assert_str_eq(buff1, buff2);
     ck_assert_int_eq(c1, c2);
+// #test test_s21_sprintf_ptr_null
+//     char buff1[100000];
+//     char buff2[100000];
+//     void *p1 = NULL;
+//     int c1 = s21_sprintf(buff1, "|%p|", p1);
+//     int c2 = sprintf(buff2, "|%p|", p1);
+//     ck_assert_str_eq(buff1, buff2);
+//     ck_assert_int_eq(c1, c2);
 }
 END_TEST
 
@@ -673,12 +731,17 @@ int main(void) {
     tcase_add_test(tc1_1, test_s21_sprintf_strings);
     tcase_add_test(tc1_1, test_s21_sprintf_wide_strings);
     tcase_add_test(tc1_1, test_s21_sprintf_float_values);
+    tcase_add_test(tc1_1, test_s21_sprintf_float_max);
     tcase_add_test(tc1_1, test_s21_sprintf_nan);
     tcase_add_test(tc1_1, test_s21_sprintf_inf);
     tcase_add_test(tc1_1, test_s21_sprintf_int_values);
-    tcase_add_test(tc1_1, test_s21_sprintf_uint_values);
+    tcase_add_test(tc1_1, s21_sprintf_int_max_values);
+    tcase_add_test(tc1_1, s21_sprintf_int_min_values);
+    tcase_add_test(tc1_1, test_s21_sprintf_uint_max_values);
     tcase_add_test(tc1_1, test_s21_sprintf_oct_values);
+    tcase_add_test(tc1_1, test_s21_sprintf_uint_oct_max_values);
     tcase_add_test(tc1_1, test_s21_sprintf_hex_values);
+    tcase_add_test(tc1_1, test_s21_sprintf_uint_hex_max_values);
     tcase_add_test(tc1_1, test_s21_sprintf_ptr);
     tcase_add_test(tc1_1, test_s21_sprintf_chars_printed);
     tcase_add_test(tc1_1, test_s21_sprintf_width_and_precision_from_arg);

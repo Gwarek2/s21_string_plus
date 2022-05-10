@@ -5,6 +5,8 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stddef.h>
+#include <limits.h>
+#include <float.h>
 
 #include "s21_string.h"
 #include "s21_string_helpers.h"
@@ -132,27 +134,36 @@ int convert_arg(char *str, va_list args, struct f_params params) {
 
 void _int_to_str(char *buffer, va_list args, struct f_params params, int base) {
     if (params.type[0] == 'l' && params.type[1] == 'l') {
-        itoa(va_arg(args, long long), buffer, base, params);
+        long long value = va_arg(args, long long);
+        unsigned long long arg = value < 0 ? -value : value;
+        itoa(arg, buffer, base, value < 0, params);
     } else if (params.type[0] == 'l') {
-        itoa(va_arg(args, long), buffer, base, params);
+        long value = va_arg(args, long);
+        unsigned long long arg = value < 0 ? -value : value;
+        itoa(arg, buffer, base, value < 0, params);
     } else if (params.type[0] == 'h') {
-        short arg = (short) va_arg(args, int);
-        itoa(arg, buffer, base, params);
+        short value = (short) va_arg(args, int);
+        unsigned long long arg = value < 0 ? -value : value;
+        itoa(arg, buffer, base, value < 0, params);
     } else {
-        itoa(va_arg(args, int), buffer, base, params);
+        int value = va_arg(args, int);
+        unsigned long long arg = value < 0 ? -value : value;
+        if (value == INT_MIN)
+            arg = (unsigned long long) INT_MAX + 1;
+        itoa(arg, buffer, base, value < 0, params);
     }
 }
 
 void _uint_to_str(char *buffer, va_list args, struct f_params params, int base) {
     if (params.type[0] == 'l' && params.type[1] == 'l') {
-        itoa(va_arg(args, long long unsigned), buffer, base, params);
+        itoa(va_arg(args, long long unsigned), buffer, base, 0, params);
     } else if (params.type[0] == 'l') {
-        itoa(va_arg(args, long unsigned), buffer, base, params);
+        itoa(va_arg(args, long unsigned), buffer, base, 0, params);
     } else if (params.type[0] == 'h') {
         short unsigned arg = (short unsigned) va_arg(args, unsigned);
-        itoa(arg, buffer, base, params);
+        itoa(arg, buffer, base, 0, params);
     } else {
-        itoa(va_arg(args, unsigned), buffer, base, params);
+        itoa(va_arg(args, unsigned), buffer, base, 0, params);
     }
 }
 
@@ -160,7 +171,9 @@ void _ptr_to_str(char *buffer, va_list args) {
     struct f_params params;
     _set_default_params(&params);
     params.type[0] = 'p';
-    itoa(va_arg(args, long unsigned), buffer, 16, params);
+    long unsigned arg = va_arg(args, long unsigned);
+    itoa(arg, buffer, 16, 0, params);
+
 }
 
 void _float_to_str(char *buffer, struct f_params params, va_list args) {
@@ -206,9 +219,8 @@ void _add_padding(char *str, int len, char ch) {
 }
 
 // Returns length of resulting string
-int itoa(long long value, char* result, int base, struct f_params params) {
+int itoa(long long unsigned value, char* result, int base, int neg, struct f_params params) {
     char *cur = result;
-    int neg = value < 0;
     int precision = params.precision;
     int flag = params.flag;
 
@@ -217,7 +229,6 @@ int itoa(long long value, char* result, int base, struct f_params params) {
     if (upper_case)
         num_table = NUM_TABLE_UPPER;
 
-    if (neg) value = -value;
     do {
         int index = value % base;
         value /= base;

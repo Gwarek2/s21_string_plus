@@ -8,6 +8,15 @@
 #define FLAGS " +-0#"
 #define SPECS "cdifsugGeExXonp%"
 
+
+#define NULL_STR "(null)"
+
+#ifdef __APPLE__
+#define NULL_INT "0x0"
+#else
+#define NULL_INT "(nil)"
+#endif
+
 struct f_params {
     char flag;
     int width;
@@ -19,7 +28,7 @@ struct f_params {
 
 int read_format_params(struct f_params* params, const char *format, va_list args);
 int convert_arg(char *str, va_list args, struct f_params params);
-int itoa(long long unsigned value, char* result, int base, struct f_params params, int neg);
+int itoa(long long unsigned value, char* result, int base, int neg, struct f_params params);
 int ftoa(long double value, char *result, struct f_params params);
 int fntoa(char *buffer, long double value, int precision, char flag, int g_spec); 
 int fetoa(char *buffer, long double value, int exp, int precision, char flag, int upper_case);
