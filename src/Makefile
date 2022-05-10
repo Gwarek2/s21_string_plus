@@ -1,5 +1,5 @@
 CC=gcc
-FLAGS=-Wall -Werror -Wextra -std=c11 -fsanitize=address
+FLAGS=-Wall -Werror -Wextra -std=c11
 
 UNAME = $(shell uname -s)
 ifeq ($(UNAME),Darwin)
@@ -13,6 +13,9 @@ all: test gcov_report
 
 test: s21_string.a
 	$(CC) $(FLAGS) tests/s21_string_tests.c $(CHECK_DEPENDENCIES) s21_string.a -o s21_string_test
+
+build_test_file:
+	rm tests/s21_string_tests.c && checkmk clean_mode=1 tests/*.check > tests/s21_string_tests.c
 
 gcov_report:
 	$(CC) $(FLAGS) -c --coverage s21_string.c s21_string_helpers.c

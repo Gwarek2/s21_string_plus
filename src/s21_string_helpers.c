@@ -342,11 +342,11 @@ int fetoa(char *buffer, long double value, int exp, int precision, char flag, in
     int exp_temp = exp;
     if (exp_temp < 0)
         exp_temp = -exp_temp;
-    while (exp_temp) {
+    do {
         int index = exp_temp % 10;
         buffer[i++] = NUM_TABLE_LOWER[index];
         exp_temp /= 10;
-    }
+    } while (exp_temp);
     if (exp < 10 && exp > -10)
         buffer[i++] = '0';
     buffer[i++] = exp < 0 ? '-' : '+';
@@ -362,11 +362,14 @@ int fetoa(char *buffer, long double value, int exp, int precision, char flag, in
         flag = '#';
     } else {
         mant = roundl(mant);
-        buffer[i++] = fmodl(mant, 10);
     }
     if (flag == '#')
         buffer[i++] = '.';
     int index = fmodl(mant, 10);
+    if (index < 1) {
+        index = 1;
+        // buffer[0] += 1;
+    }
     buffer[i++] = NUM_TABLE_LOWER[index];
     return i;
 }
@@ -389,11 +392,13 @@ int _calc_exp(long double num) {
             num *= 10;
             exp--;
         } while (num < 1);
-    } else {
+    } else if (num > 10) {
         do {
             num /= 10;
             exp++;
         } while (num > 10);
+        if (fmodl(roundl(num), 10) < 1)
+            exp++;
     }
     return exp;
 }

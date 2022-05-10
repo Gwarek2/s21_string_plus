@@ -5,6 +5,7 @@
 #include "s21_errors.h"
 #include "s21_string_helpers.h"
 
+
 void *s21_memchr(const void *str, int c, s21_size_t n) {
     void *result = S21_NULL;
     char *cursor = (char*) str;
@@ -310,11 +311,11 @@ int s21_sprintf(char *str, const char *format, ...) {
 
 /** C# string class functions **/
 void *s21_to_upper(const char *str) {
-    char* returned_string = NULL;
-    if (str != NULL) {
+    char* returned_string = S21_NULL;
+    if (str != S21_NULL) {
         long unsigned int length = s21_strlen(str);
         returned_string = calloc(length + 1, sizeof(char));
-        if (returned_string != NULL) {
+        if (returned_string != S21_NULL) {
             for (s21_size_t i = 0; i < length; i++) {
                 if (str[i] >= 97 && str[i] <= 122)
                     returned_string[i] = str[i] - 32;
@@ -328,11 +329,11 @@ void *s21_to_upper(const char *str) {
 }
 
 void* s21_to_lower(const char* str) {
-    char* returned_string = NULL;
-    if (str != NULL) {
+    char* returned_string = S21_NULL;
+    if (str != S21_NULL) {
         long unsigned int length = s21_strlen(str);
         returned_string = calloc(length + 1, sizeof(char));
-        if (returned_string != NULL) {
+        if (returned_string != S21_NULL) {
             for (s21_size_t i = 0; i < length; i++) {
                 if (str[i] >= 65 && str[i] <= 90)
                     returned_string[i] = str[i] + 32;
@@ -345,15 +346,14 @@ void* s21_to_lower(const char* str) {
     return (void*) returned_string;
 }
 
-// Part5 bonus function 3
-void *s21_insert(const char *src, const char *str, size_t start_index) {
+void *s21_insert(const char *src, const char *str, s21_size_t start_index) {
     s21_size_t src_len = s21_strlen(src);
     s21_size_t str_len = s21_strlen(str);
-    char* returned_string = NULL;
+    char* returned_string = S21_NULL;
 
     if (start_index <= src_len) {
         returned_string = calloc(src_len + str_len, sizeof(char));
-        if (returned_string != NULL) {
+        if (returned_string != S21_NULL) {
             s21_strncpy(returned_string, src, start_index);
             returned_string = returned_string + start_index;
             src = src + start_index;
@@ -366,3 +366,4 @@ void *s21_insert(const char *src, const char *str, size_t start_index) {
 
     return (void*) returned_string;
 }
+

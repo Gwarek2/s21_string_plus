@@ -14,7 +14,7 @@
 START_TEST(test_insert_zero_index) {
     char* str1 = "123456\0";
     char* str2 = "AB\0";
-    size_t index = 0;
+    s21_size_t index = 0;
     char* expected_result = "AB123456\0";
     char* result_insert = s21_insert(str1, str2, index);
     ck_assert_str_eq(result_insert, expected_result);
@@ -25,7 +25,7 @@ END_TEST
 START_TEST(test_insert_last_index) {
     char* str1 = "123456\0";
     char* str2 = "AB\0";
-    size_t index = 6;
+    s21_size_t index = 6;
     char* expected_result = "123456AB\0";
     char* result_insert = s21_insert(str1, str2, index);
     ck_assert_str_eq(result_insert, expected_result);
@@ -36,7 +36,7 @@ END_TEST
 START_TEST(test_insert_middle_index) {
     char* str1 = "123456\0";
     char* str2 = "AB\0";
-    size_t index = 3;
+    s21_size_t index = 3;
     char* expected_result = "123AB456\0";
     char* result_insert = s21_insert(str1, str2, index);
     ck_assert_str_eq(result_insert, expected_result);
@@ -47,8 +47,19 @@ END_TEST
 START_TEST(test_insert_larger_index) {
     char* str1 = "123456\0";
     char* str2 = "AB\0";
-    size_t index = 11;
+    s21_size_t index = 11;
     char* result_insert = s21_insert(str1, str2, index);
+    ck_assert_ptr_eq(result_insert, NULL);
+    free(result_insert);
+}
+END_TEST
+
+START_TEST(test_insert_neg_index) {
+    char* str1 = "123456\0";
+    char* str2 = "AB\0";
+    s21_size_t index = -1;
+    char* result_insert = s21_insert(str1, str2, index);
+    printf("%p\n", result_insert);
     ck_assert_ptr_eq(result_insert, NULL);
     free(result_insert);
 }
@@ -235,27 +246,33 @@ START_TEST(test_s21_sprintf_width_and_precision_from_arg) {
     int c2 = sprintf(buff2, "|%-*.*d|, |%0*i|, |%*s|", 20, 10, 12345, 10, 5782, 15, "string");
     ck_assert_str_eq(buff1, buff2);
     ck_assert_int_eq(c1, c2);
-// #test test_s21_sprintf_float_exp_format
-//     char buff1[100000];
-//     char buff2[100000];
-//     int c1 = s21_sprintf(buff1, "|%#.0E|, |%-10.2e|, |%+.4E|", 239.99, 0.001329, -99.99);
-//     int c2 = sprintf(buff2, "|%#.0E|, |%-10.2e|, |%+.4E|", 239.99, 0.001329, -99.99);
-//     ck_assert_str_eq(buff1, buff2);
-//     ck_assert_int_eq(c1, c2);
-// #test test_s21_sprintf_float_g_format
-//     char buff1[100000];
-//     char buff2[100000];
-//     int c1 = s21_sprintf(buff1, "|%#.0G|, |%-10g|", 239.99, 0.001329);
-//     int c2 = sprintf(buff2, "|%#.0G|, |%-10g|", 239.99, 0.001329);
-//     ck_assert_str_eq(buff1, buff2);
-//     ck_assert_int_eq(c1, c2);
+}
+END_TEST
+
+START_TEST(test_s21_sprintf_float_exp_format) {
+    char buff1[100000];
+    char buff2[100000];
+    int c1 = s21_sprintf(buff1, "|%#.0E|, |%-10.2e|, |%+.4E|, |%.0e|", 299.99, 0.001329, -9.454, 999.99);
+    int c2 = sprintf(buff2, "|%#.0E|, |%-10.2e|, |%+.4E|, |%.0e|", 299.99, 0.001329, -9.454, 999.99);
+    ck_assert_str_eq(buff1, buff2);
+    ck_assert_int_eq(c1, c2);
+}
+END_TEST
+
+START_TEST(test_s21_sprintf_float_g_format) {
+    char buff1[100000];
+    char buff2[100000];
+    int c1 = s21_sprintf(buff1, "|%#.0G|, |%-10g|, |%.0e|", 236.78, 0.001329, 999.99);
+    int c2 = sprintf(buff2, "|%#.0G|, |%-10g|, |%.0e|", 236.78, 0.001329, 999.99);
+    ck_assert_str_eq(buff1, buff2);
+    ck_assert_int_eq(c1, c2);
 }
 END_TEST
 
 START_TEST(test_s21_strcat_s1_sum_s2) {
     char str1[100] = "01234";
     char str2[100] = "56789";
-    ck_assert_pstr_eq(s21_strcat(str1, str2), strcat(str1, str2));
+    ck_assert_str_eq(s21_strcat(str1, str2), strcat(str1, str2));
 }
 END_TEST
 
@@ -413,7 +430,7 @@ END_TEST
 START_TEST(test_s21_strncat_s1_sum_s2_3) {
     char str1[100] = "01234";
     char str2[100] = "56789";
-    ck_assert_pstr_eq(s21_strncat(str1, str2, 3), strncat(str1, str2, 3));
+    ck_assert_str_eq(s21_strncat(str1, str2, 3), strncat(str1, str2, 3));
 }
 END_TEST
 
@@ -623,6 +640,7 @@ int main(void) {
     tcase_add_test(tc1_1, test_insert_last_index);
     tcase_add_test(tc1_1, test_insert_middle_index);
     tcase_add_test(tc1_1, test_insert_larger_index);
+    tcase_add_test(tc1_1, test_insert_neg_index);
     tcase_add_test(tc1_1, test_s21_memchr_normal);
     tcase_add_test(tc1_1, test_s21_memchr_no_result);
     tcase_add_test(tc1_1, test_s21_memchr_empty_str);
@@ -642,6 +660,8 @@ int main(void) {
     tcase_add_test(tc1_1, test_s21_sprintf_ptr);
     tcase_add_test(tc1_1, test_s21_sprintf_chars_printed);
     tcase_add_test(tc1_1, test_s21_sprintf_width_and_precision_from_arg);
+    tcase_add_test(tc1_1, test_s21_sprintf_float_exp_format);
+    tcase_add_test(tc1_1, test_s21_sprintf_float_g_format);
     tcase_add_test(tc1_1, test_s21_strcat_s1_sum_s2);
     tcase_add_test(tc1_1, test_s21_strchr_normal);
     tcase_add_test(tc1_1, test_s21_strchr_no_result);
