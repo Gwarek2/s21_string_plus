@@ -1,0 +1,12 @@
+#test s21_memmove_test_two_strings
+    char str1[] = "Hi World";
+    char str2[] = "bye 12345";
+    ck_assert_str_eq(s21_memmove(str1, str2, 3), memmove(str1, str2, 3));
+#test s21_memmove_test_same_string
+    char str2[] = "123456789";
+    char str1[] = "123456789";
+    ck_assert_str_eq(s21_memmove(&(str1[1]), &(str1[4]), 3), memmove(&(str2[1]), &(str2[4]), 3));
+#test s21_memmove_test_null
+    char str1[] = {'\0'}; 
+    char str2[] = "123456789";
+    ck_assert_str_eq(s21_memmove(&(str2[0]), &(str1[0]), 1), memmove(&(str2[0]), &(str1[0]), 1));

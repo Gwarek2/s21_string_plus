@@ -1,0 +1,66 @@
+#test s21_strtok_test_normal
+    char str1[] = "all work_and!no play_makes!jack a_dull!boy.";
+    char str2[] = "all work_and!no play_makes!jack a_dull!boy.";
+    char delims[] = " _!";
+    char result_string[50] = ""; 
+    char result_string1[50] = ""; 
+
+    char *p = s21_strtok(str1, delims);
+    strcat(result_string, p);
+    while (p) {
+        p = s21_strtok(S21_NULL, delims);
+        if (p) strcat(result_string, p);
+    }
+
+    char *p1 = strtok(str2, delims);
+    strcat(result_string1, p1);
+    while (p1) {
+        p1 = strtok(NULL, delims);
+        if (p1) strcat(result_string1, p1);
+    }
+    ck_assert_str_eq(result_string, result_string1);       
+#test s21_strtok_test_only_delims
+    char str1[] = "123123123";    
+    char delims[] = "123"; 
+    ck_assert_ptr_eq(s21_strtok(str1, delims), strtok(str1, delims));
+// #test s21_strtok_test_null
+//     char *str1 = NULL;    
+//     char *str2 = NULL;
+//     char delims[] = "123"; 
+//     char *s1 = s21_strtok(str1, delims);
+//     printf("OK\n");
+//     char *s2 = strtok(str2, delims);
+//     printf("OK\n");
+//     ck_assert_ptr_eq(s1, s2);
+#test s21_strtok_test_empty_delimeters
+    char str1[] = "all work and no play makes jack a dull boy. ";
+    char str2[] = "all work and no play makes jack a dull boy. ";
+    char delims[] = "";
+    ck_assert_str_eq(s21_strtok(str1, delims), strtok(str2, delims));
+#test s21_strtok_test_end_start_delims
+    char str1[] = " !_-, all work and no play makes jack - _-!,";
+    char str2[] = " !_-, all work and no play makes jack - _-!,";
+    char delims[] = "! -_,";
+    char result_string[50] = ""; 
+    char result_string1[50] = ""; 
+
+    char *p = s21_strtok(str1, delims);
+    strcat(result_string, p);
+    while (p) {
+        p = s21_strtok(S21_NULL, delims);
+        if (p) strcat(result_string, p);
+    }
+    // printf("%s\n", result_string);
+    char *p1 = strtok(str2, delims);
+    strcat(result_string1, p1);
+    while (p1) {
+        p1 = strtok(NULL, delims);
+        if (p1) strcat(result_string1, p1);
+    }
+    // printf("%s\n", result_string1);
+    ck_assert_str_eq(result_string, result_string1);       
+#test s21_strtok_test_checking_empty_string
+    char str1[] = "";
+    char str2[] = "";
+    char delims[] =" !,-=";
+    ck_assert_ptr_eq(s21_strtok(str1, delims), strtok(str2, delims));

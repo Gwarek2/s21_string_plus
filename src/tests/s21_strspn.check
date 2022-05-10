@@ -1,0 +1,12 @@
+#test s21_strspn_test_normal
+    char str[] = "123 456";
+    char symbols[] = "321 "; 
+    ck_assert_uint_eq(s21_strspn(str, symbols), strspn(str, symbols));
+#test s21_strspn_test_zero
+    char str[] = "456 123";
+    char symbol[] = "321 "; 
+    ck_assert_uint_eq(s21_strspn(str, symbol), strspn(str, symbol));
+#test s21_strspn_test_null
+    char str[] = "123 456";
+    char symbols = '\0'; 
+    ck_assert_uint_eq(s21_strspn(str, &symbols), strspn(str, &symbols));

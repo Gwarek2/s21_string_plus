@@ -9,6 +9,7 @@
 #include <string.h>
 #include <float.h>
 #include <limits.h>
+#include <math.h>
 #include <stdlib.h>
 
 #include "../s21_string.h"
@@ -136,6 +137,51 @@ START_TEST(test_s21_memcpy_empty) {
     memcpy(str1, template, 1);
     s21_memcpy(str2, template, 1);
     ck_assert_int_eq(memcmp(str1, str2, 1), 0);
+}
+END_TEST
+
+START_TEST(s21_memmove_test_two_strings) {
+    char str1[] = "Hi World";
+    char str2[] = "bye 12345";
+    ck_assert_str_eq(s21_memmove(str1, str2, 3), memmove(str1, str2, 3));
+}
+END_TEST
+
+START_TEST(s21_memmove_test_same_string) {
+    char str2[] = "123456789";
+    char str1[] = "123456789";
+    ck_assert_str_eq(s21_memmove(&(str1[1]), &(str1[4]), 3), memmove(&(str2[1]), &(str2[4]), 3));
+}
+END_TEST
+
+START_TEST(s21_memmove_test_null) {
+    char str1[] = {'\0'}; 
+    char str2[] = "123456789";
+    ck_assert_str_eq(s21_memmove(&(str2[0]), &(str1[0]), 1), memmove(&(str2[0]), &(str1[0]), 1));
+}
+END_TEST
+
+START_TEST(s21_memset_test_normal) {
+    char str[] = "123snake";
+    char str1[] = "123snake";
+    char c = 's';
+    ck_assert_str_eq(s21_memset(str, c, 3), memset(str1, c, 3));
+}
+END_TEST
+
+START_TEST(s21_memset_test_null) {
+    char str[] = "1234";
+    char str1[] = "1234";
+    char c = '\0';
+    ck_assert_str_eq(s21_memset(str, c, 3), memset(str1, c, 3));
+}
+END_TEST
+
+START_TEST(s21_memset_test_newline) {
+    char str[] = "1234";
+    char str1[] = "1234";
+    char c = '\n';
+    ck_assert_str_eq(s21_memset(str, c, 3), memset(str1, c, 3));
 #include "../s21_string.h"
 }
 END_TEST
@@ -147,6 +193,18 @@ START_TEST(test_s21_sprintf_strings) {
                          'n', "helloHELLO", "stringSTRINGstringSTRING");
     int c2 = sprintf(buff2, "|5%%|, |%c|, |%20.5s|, |%40.5s|",
                      'n', "helloHELLO", "stringSTRINGstringSTRING");
+    ck_assert_str_eq(buff1, buff2);
+    ck_assert_int_eq(c1, c2);
+}
+END_TEST
+
+START_TEST(test_s21_sprintf_strings_null) {
+    char buff1[100000];
+    char buff2[100000];
+    char *str1 = NULL;
+    char *str2 = NULL;
+    int c1 = s21_sprintf(buff1, "null string is - |%s|", str1);
+    int c2 = sprintf(buff2, "null string is - |%s|", str2);
     ck_assert_str_eq(buff1, buff2);
     ck_assert_int_eq(c1, c2);
 }
@@ -169,24 +227,21 @@ START_TEST(test_s21_sprintf_float_values) {
     int c2 = sprintf(buff2, "|%+.7f|, |% 10.2f|, |%012.1f|, |%#.0f|", 1234.12, 999.999, -125.56, 76456.9);
     ck_assert_str_eq(buff1, buff2);
     ck_assert_int_eq(c1, c2);
-}
-END_TEST
-
-START_TEST(test_s21_sprintf_float_max) {
-    char buff1[100000];
-    char buff2[100000];
-    int c1 = s21_sprintf(buff1, "|%+.7f|, |% 10.2f|, |%012.1f|, |%#.0f|", FLT_MAX, 999.999, -125.56, 76456.9);
-    int c2 = sprintf(buff2, "|%+.7f|, |% 10.2f|, |%012.1f|, |%#.0f|", FLT_MAX, 999.999, -125.56, 76456.9);
-    ck_assert_str_eq(buff1, buff2);
-    ck_assert_int_eq(c1, c2);
+// #test test_s21_sprintf_float_max
+//     char buff1[100000];
+//     char buff2[100000];
+//     int c1 = s21_sprintf(buff1, "|%+.7f|, |% 10.2f|, |%012.1f|, |%#.0f|", FLT_MAX, 999.999, -125.56, 76456.9);
+//     int c2 = sprintf(buff2, "|%+.7f|, |% 10.2f|, |%012.1f|, |%#.0f|", FLT_MAX, 999.999, -125.56, 76456.9);
+//     ck_assert_str_eq(buff1, buff2);
+//     ck_assert_int_eq(c1, c2);
 }
 END_TEST
 
 START_TEST(test_s21_sprintf_nan) {
     char buff1[100000];
     char buff2[100000];
-    int c1 = s21_sprintf(buff1, "%-4f %+10.3f %05f", NAN, NAN, NAN);
-    int c2 = sprintf(buff2, "%-4f %+10.3f %05f", NAN, NAN, NAN);
+    int c1 = s21_sprintf(buff1, "%-4f %10.3E % 5G", NAN, NAN, NAN);
+    int c2 = sprintf(buff2, "%-4f %10.3E % 5G", NAN, NAN, NAN);
     ck_assert_str_eq(buff1, buff2);
     ck_assert_int_eq(c1, c2);
 }
@@ -290,14 +345,17 @@ START_TEST(test_s21_sprintf_ptr) {
     int c2 = sprintf(buff2, "|%-20p|, |%p|, |%15p|", &p1, &p2, &p3);
     ck_assert_str_eq(buff1, buff2);
     ck_assert_int_eq(c1, c2);
-// #test test_s21_sprintf_ptr_null
-//     char buff1[100000];
-//     char buff2[100000];
-//     void *p1 = NULL;
-//     int c1 = s21_sprintf(buff1, "|%p|", p1);
-//     int c2 = sprintf(buff2, "|%p|", p1);
-//     ck_assert_str_eq(buff1, buff2);
-//     ck_assert_int_eq(c1, c2);
+}
+END_TEST
+
+START_TEST(test_s21_sprintf_ptr_null) {
+    char buff1[100000];
+    char buff2[100000];
+    void *p1 = NULL;
+    int c1 = s21_sprintf(buff1, "|%p|", p1);
+    int c2 = sprintf(buff2, "|%p|", p1);
+    ck_assert_str_eq(buff1, buff2);
+    ck_assert_int_eq(c1, c2);
 }
 END_TEST
 
@@ -651,6 +709,27 @@ START_TEST(test_s21_strrchr_can_not_find_match) {
 }
 END_TEST
 
+START_TEST(s21_strspn_test_normal) {
+    char str[] = "123 456";
+    char symbols[] = "321 "; 
+    ck_assert_uint_eq(s21_strspn(str, symbols), strspn(str, symbols));
+}
+END_TEST
+
+START_TEST(s21_strspn_test_zero) {
+    char str[] = "456 123";
+    char symbol[] = "321 "; 
+    ck_assert_uint_eq(s21_strspn(str, symbol), strspn(str, symbol));
+}
+END_TEST
+
+START_TEST(s21_strspn_test_null) {
+    char str[] = "123 456";
+    char symbols = '\0'; 
+    ck_assert_uint_eq(s21_strspn(str, &symbols), strspn(str, &symbols));
+}
+END_TEST
+
 START_TEST(test_s21_strstr_normal) {
     char *str = (void *)"Hello world, my friend!";
     char *str2 = (void *)"world";
@@ -669,6 +748,87 @@ START_TEST(test_s21_strstr_empty_str) {
     char *str = (void *)"Hello world, my friend!";
     char *str2 = (void *)"";
     ck_assert_ptr_eq(s21_strstr(str, str2), strstr(str, str2));
+}
+END_TEST
+
+START_TEST(s21_strtok_test_normal) {
+    char str1[] = "all work_and!no play_makes!jack a_dull!boy.";
+    char str2[] = "all work_and!no play_makes!jack a_dull!boy.";
+    char delims[] = " _!";
+    char result_string[50] = ""; 
+    char result_string1[50] = ""; 
+
+    char *p = s21_strtok(str1, delims);
+    strcat(result_string, p);
+    while (p) {
+        p = s21_strtok(S21_NULL, delims);
+        if (p) strcat(result_string, p);
+    }
+
+    char *p1 = strtok(str2, delims);
+    strcat(result_string1, p1);
+    while (p1) {
+        p1 = strtok(NULL, delims);
+        if (p1) strcat(result_string1, p1);
+    }
+    ck_assert_str_eq(result_string, result_string1);       
+}
+END_TEST
+
+START_TEST(s21_strtok_test_only_delims) {
+    char str1[] = "123123123";    
+    char delims[] = "123"; 
+    ck_assert_ptr_eq(s21_strtok(str1, delims), strtok(str1, delims));
+// #test s21_strtok_test_null
+//     char *str1 = NULL;    
+//     char *str2 = NULL;
+//     char delims[] = "123"; 
+//     char *s1 = s21_strtok(str1, delims);
+//     printf("OK\n");
+//     char *s2 = strtok(str2, delims);
+//     printf("OK\n");
+//     ck_assert_ptr_eq(s1, s2);
+}
+END_TEST
+
+START_TEST(s21_strtok_test_empty_delimeters) {
+    char str1[] = "all work and no play makes jack a dull boy. ";
+    char str2[] = "all work and no play makes jack a dull boy. ";
+    char delims[] = "";
+    ck_assert_str_eq(s21_strtok(str1, delims), strtok(str2, delims));
+}
+END_TEST
+
+START_TEST(s21_strtok_test_end_start_delims) {
+    char str1[] = " !_-, all work and no play makes jack - _-!,";
+    char str2[] = " !_-, all work and no play makes jack - _-!,";
+    char delims[] = "! -_,";
+    char result_string[50] = ""; 
+    char result_string1[50] = ""; 
+
+    char *p = s21_strtok(str1, delims);
+    strcat(result_string, p);
+    while (p) {
+        p = s21_strtok(S21_NULL, delims);
+        if (p) strcat(result_string, p);
+    }
+    // printf("%s\n", result_string);
+    char *p1 = strtok(str2, delims);
+    strcat(result_string1, p1);
+    while (p1) {
+        p1 = strtok(NULL, delims);
+        if (p1) strcat(result_string1, p1);
+    }
+    // printf("%s\n", result_string1);
+    ck_assert_str_eq(result_string, result_string1);       
+}
+END_TEST
+
+START_TEST(s21_strtok_test_checking_empty_string) {
+    char str1[] = "";
+    char str2[] = "";
+    char delims[] =" !,-=";
+    ck_assert_ptr_eq(s21_strtok(str1, delims), strtok(str2, delims));
 }
 END_TEST
 
@@ -707,6 +867,40 @@ START_TEST(test_to_lower_null) {
 }
 END_TEST
 
+START_TEST(test_to_upper_regular_characters) {
+    char* str = "abc.ABC,123\0";
+    char* result_to_upper = s21_to_upper(str);
+    ck_assert_str_eq(result_to_upper, "ABC.ABC,123\0");
+    free(result_to_upper);
+}
+END_TEST
+
+START_TEST(test_to_upper_control_characters) {
+    char* str = "123\a123\b123\n\0";
+    char* str2 = "123\a123\b123\n\0";
+    char* result_to_upper = s21_to_upper(str);
+    ck_assert_str_eq(result_to_upper, str2);
+    free(result_to_upper);
+}
+END_TEST
+
+START_TEST(test_to_upper_empty_str) {
+    char* str = "\0";
+    char* str2 = "\0";
+    char* result_to_upper = s21_to_upper(str);
+    ck_assert_str_eq(result_to_upper, str2);
+    free(result_to_upper);
+}
+END_TEST
+
+START_TEST(test_to_upper_null_str) {
+    char* str = NULL;
+    char* result_to_upper = s21_to_upper(str);
+    ck_assert_ptr_eq(result_to_upper, NULL);
+    free(result_to_upper);
+}
+END_TEST
+
 int main(void) {
     Suite *s1 = suite_create("Core");
     TCase *tc1_1 = tcase_create("Core");
@@ -728,10 +922,16 @@ int main(void) {
     tcase_add_test(tc1_1, test_s21_memcpy_full);
     tcase_add_test(tc1_1, test_s21_memcpy_partial);
     tcase_add_test(tc1_1, test_s21_memcpy_empty);
+    tcase_add_test(tc1_1, s21_memmove_test_two_strings);
+    tcase_add_test(tc1_1, s21_memmove_test_same_string);
+    tcase_add_test(tc1_1, s21_memmove_test_null);
+    tcase_add_test(tc1_1, s21_memset_test_normal);
+    tcase_add_test(tc1_1, s21_memset_test_null);
+    tcase_add_test(tc1_1, s21_memset_test_newline);
     tcase_add_test(tc1_1, test_s21_sprintf_strings);
+    tcase_add_test(tc1_1, test_s21_sprintf_strings_null);
     tcase_add_test(tc1_1, test_s21_sprintf_wide_strings);
     tcase_add_test(tc1_1, test_s21_sprintf_float_values);
-    tcase_add_test(tc1_1, test_s21_sprintf_float_max);
     tcase_add_test(tc1_1, test_s21_sprintf_nan);
     tcase_add_test(tc1_1, test_s21_sprintf_inf);
     tcase_add_test(tc1_1, test_s21_sprintf_int_values);
@@ -743,6 +943,7 @@ int main(void) {
     tcase_add_test(tc1_1, test_s21_sprintf_hex_values);
     tcase_add_test(tc1_1, test_s21_sprintf_uint_hex_max_values);
     tcase_add_test(tc1_1, test_s21_sprintf_ptr);
+    tcase_add_test(tc1_1, test_s21_sprintf_ptr_null);
     tcase_add_test(tc1_1, test_s21_sprintf_chars_printed);
     tcase_add_test(tc1_1, test_s21_sprintf_width_and_precision_from_arg);
     tcase_add_test(tc1_1, test_s21_sprintf_float_exp_format);
@@ -782,13 +983,25 @@ int main(void) {
     tcase_add_test(tc1_1, test_s21_strrchr_can_find_match);
     tcase_add_test(tc1_1, test_s21_strrchr_several_matches);
     tcase_add_test(tc1_1, test_s21_strrchr_can_not_find_match);
+    tcase_add_test(tc1_1, s21_strspn_test_normal);
+    tcase_add_test(tc1_1, s21_strspn_test_zero);
+    tcase_add_test(tc1_1, s21_strspn_test_null);
     tcase_add_test(tc1_1, test_s21_strstr_normal);
     tcase_add_test(tc1_1, test_s21_strstr_no_result);
     tcase_add_test(tc1_1, test_s21_strstr_empty_str);
+    tcase_add_test(tc1_1, s21_strtok_test_normal);
+    tcase_add_test(tc1_1, s21_strtok_test_only_delims);
+    tcase_add_test(tc1_1, s21_strtok_test_empty_delimeters);
+    tcase_add_test(tc1_1, s21_strtok_test_end_start_delims);
+    tcase_add_test(tc1_1, s21_strtok_test_checking_empty_string);
     tcase_add_test(tc1_1, test_to_lower_regular_characters);
     tcase_add_test(tc1_1, test_to_lower_control_characters);
     tcase_add_test(tc1_1, test_to_lower_empty_line);
     tcase_add_test(tc1_1, test_to_lower_null);
+    tcase_add_test(tc1_1, test_to_upper_regular_characters);
+    tcase_add_test(tc1_1, test_to_upper_control_characters);
+    tcase_add_test(tc1_1, test_to_upper_empty_str);
+    tcase_add_test(tc1_1, test_to_upper_null_str);
 
     srunner_run_all(sr, CK_ENV);
     nf = srunner_ntests_failed(sr);

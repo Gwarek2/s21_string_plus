@@ -1,0 +1,15 @@
+#test s21_memset_test_normal
+    char str[] = "123snake";
+    char str1[] = "123snake";
+    char c = 's';
+    ck_assert_str_eq(s21_memset(str, c, 3), memset(str1, c, 3));
+#test s21_memset_test_null
+    char str[] = "1234";
+    char str1[] = "1234";
+    char c = '\0';
+    ck_assert_str_eq(s21_memset(str, c, 3), memset(str1, c, 3));
+#test s21_memset_test_newline
+    char str[] = "1234";
+    char str1[] = "1234";
+    char c = '\n';
+    ck_assert_str_eq(s21_memset(str, c, 3), memset(str1, c, 3));

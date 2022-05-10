@@ -172,8 +172,10 @@ void _ptr_to_str(char *buffer, va_list args) {
     _set_default_params(&params);
     params.type[0] = 'p';
     long unsigned arg = va_arg(args, long unsigned);
-    itoa(arg, buffer, 16, 0, params);
-
+    if (arg != 0)
+        itoa(arg, buffer, 16, 0, params);
+    else
+        s21_strcpy(buffer, NULL_INT);
 }
 
 void _float_to_str(char *buffer, struct f_params params, va_list args) {
@@ -191,20 +193,27 @@ void _chr_to_str(char *buffer, va_list args) {
 
 void _str_to_str(char *buffer, va_list args, struct f_params params) {
     int chars_print = params.precision;
-
     if (s21_strchr(params.type, 'l')) {
         wchar_t *tmp = va_arg(args, wchar_t*);
-        while (*tmp && (chars_print)) {
-            *buffer++ = *tmp++;
-            chars_print--;
+        if (tmp != NULL) {
+            while (*tmp && (chars_print)) {
+                *buffer++ = *tmp++;
+                chars_print--;
+            }
+            *buffer = '\0';
+        } else {
+            s21_strcpy(buffer, "(null)");
         }
-        *buffer = '\0';
     } else {
         char *str = va_arg(args, char*);
-        if (chars_print == -1)
-            chars_print = s21_strlen(str);
-        s21_strncpy(buffer, str, chars_print);
-        buffer[chars_print] = '\0';
+        if (str != NULL) {
+            if (chars_print == -1)
+                chars_print = s21_strlen(str);
+            s21_strncpy(buffer, str, chars_print);
+            buffer[chars_print] = '\0';
+        } else {
+            s21_strcpy(buffer, "(null)");
+        }
     }
 }
 
@@ -274,10 +283,16 @@ int ftoa(long double value, char *result, struct f_params params) {
 
     if (is_nan) {
         i = 3;
-        s21_strcpy(buffer, "nan");
+        char *nan = "nan";
+        if (s21_strpbrk(params.type, "GE"))
+            nan = "NAN";
+        s21_strcpy(buffer, nan);
     } else if (is_inf) {
         i = 3;
-        s21_strcpy(buffer, "fni");
+        char *inf = "fni";
+        if (s21_strpbrk(params.type, "GE"))
+            inf = "FNI";
+        s21_strcpy(buffer, inf);
     } else {
         if (s21_strchr(params.type, 'f')) {
             i += fntoa(buffer, value, precision, flag, 0);
