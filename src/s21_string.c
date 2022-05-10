@@ -374,7 +374,7 @@ void *s21_insert(const char *src, const char *str, s21_size_t start_index) {
     char* returned_string = S21_NULL;
 
     if (start_index <= src_len) {
-        returned_string = calloc(src_len + str_len, sizeof(char));
+        returned_string = calloc(src_len + str_len + 1, sizeof(char));
         if (returned_string != S21_NULL) {
             s21_strncpy(returned_string, src, start_index);
             returned_string = returned_string + start_index;

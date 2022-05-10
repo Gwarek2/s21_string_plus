@@ -365,6 +365,11 @@ int fetoa(char *buffer, long double value, int exp, int precision, char flag, in
         mant = mant * powl(10, -exp);
     else
         mant = mant / powl(10, exp);
+    mant = mant * powl(10, precision);
+
+    // Handling cases like 9.99 or 0.99 if number of digits after point less than precision
+    if ((fmodl(roundl(mant), 10) < 1) ^ (fmodl(mant, 10) < 1))
+        exp++;
 
     int exp_temp = exp;
     if (exp_temp < 0)
@@ -380,7 +385,7 @@ int fetoa(char *buffer, long double value, int exp, int precision, char flag, in
     buffer[i++] = upper_case ? 'E' : 'e';
 
     if (precision > 0) {
-        mant = roundl(mant * powl(10, precision));
+        mant = roundl(mant);
         while (precision--) {
             int index = fmodl(mant, 10);
             buffer[i++] = NUM_TABLE_LOWER[index];
@@ -424,9 +429,8 @@ int _calc_exp(long double num) {
             num /= 10;
             exp++;
         } while (num > 10);
-        if (fmodl(roundl(num), 10) < 1)
-            exp++;
     }
+
     return exp;
 }
 

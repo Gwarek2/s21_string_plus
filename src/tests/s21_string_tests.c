@@ -223,8 +223,8 @@ END_TEST
 START_TEST(test_s21_sprintf_float_values) {
     char buff1[100000];
     char buff2[100000];
-    int c1 = s21_sprintf(buff1, "|%+.7f|, |% 10.2f|, |%012.1f|, |%#.0f|", 1234.12, 999.999, -125.56, 76456.9);
-    int c2 = sprintf(buff2, "|%+.7f|, |% 10.2f|, |%012.1f|, |%#.0f|", 1234.12, 999.999, -125.56, 76456.9);
+    int c1 = s21_sprintf(buff1, "|%+.7f|, |% 10.2f|, |%012.1f|, |%#.0f|", 1234.12, 999.999, -125.56, 0.199);
+    int c2 = sprintf(buff2, "|%+.7f|, |% 10.2f|, |%012.1f|, |%#.0f|", 1234.12, 999.999, -125.56, 0.199);
     ck_assert_str_eq(buff1, buff2);
     ck_assert_int_eq(c1, c2);
 // #test test_s21_sprintf_float_max
@@ -388,8 +388,8 @@ END_TEST
 START_TEST(test_s21_sprintf_float_exp_format) {
     char buff1[100000];
     char buff2[100000];
-    int c1 = s21_sprintf(buff1, "|%#.0E|, |%-10.2e|, |%+.1E|, |%.0e|", 299.99, 0.001329, -9.454, 999.99);
-    int c2 = sprintf(buff2, "|%#.0E|, |%-10.2e|, |%+.1E|, |%.0e|", 299.99, 0.001329, -9.454, 999.99);
+    int c1 = s21_sprintf(buff1, "|%#.0E|, |%-10.2e|, |%+.1E|, |%e|", 299.99, 0.9999, -9.454, 999.99);
+    int c2 = sprintf(buff2, "|%#.0E|, |%-10.2e|, |%+.1E|, |%e|", 299.99, 0.9999, -9.454, 999.99);
     ck_assert_str_eq(buff1, buff2);
     ck_assert_int_eq(c1, c2);
 }
@@ -398,8 +398,8 @@ END_TEST
 START_TEST(test_s21_sprintf_float_g_format) {
     char buff1[100000];
     char buff2[100000];
-    int c1 = s21_sprintf(buff1, "|%#.1G|, |%-10g|, |%#.0g|", 236.78, 0.001329, 999.99);
-    int c2 = sprintf(buff2, "|%#.1G|, |%-10g|, |%#.0g|", 236.78, 0.001329, 999.99);
+    int c1 = s21_sprintf(buff1, "|%#.1G|, |%-10g|, |%#.0g|, |%g|", 236.78, 0.001329, 999.99, 99.99);
+    int c2 = sprintf(buff2, "|%#.1G|, |%-10g|, |%#.0g|, |%g|", 236.78, 0.001329, 999.99, 99.99);
     ck_assert_str_eq(buff1, buff2);
     ck_assert_int_eq(c1, c2);
 }
