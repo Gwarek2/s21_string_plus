@@ -1,6 +1,8 @@
-#ifndef _S21_CONVERTERS
+#ifndef S21_SPRINTF
 
-#define _S21_CONVERTERS
+#define S21_SPRINTF
+
+#include <stdarg.h>
 
 #define NUM_TABLE_UPPER "0123456789ABCDEF"
 #define NUM_TABLE_LOWER "0123456789abcdef"
@@ -36,7 +38,6 @@ int ftoa(long double value, char *result, struct f_params params);
 int fntoa(char *buffer, long double value, struct f_params params); 
 int fetoa(char *buffer, long double value, int exp, struct f_params params);
 int fgtoa(char *buffer, long double value, int exp, struct f_params params); 
-int s21_atoi(char *str);
 
 int _int_to_str(char *buffer, va_list args, struct f_params params, int base);
 int _uint_to_str(char *buffer, va_list args, struct f_params params, int base);
@@ -53,4 +54,4 @@ int _calc_exp(long double num);
 void _set_default_params(struct f_params *params);
 char* _reverse(char* start, char *end);
 
-#endif
+#endif  // S21_SPRINTF

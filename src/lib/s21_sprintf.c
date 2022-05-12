@@ -2,14 +2,42 @@
 #define S21_STRING_HELPERS
 
 #include <math.h>
-#include <stdarg.h>
 #include <stdio.h>
-#include <stddef.h>
+#include <stdarg.h>
+#include <wchar.h>
 #include <limits.h>
 #include <float.h>
 
 #include "s21_string.h"
-#include "s21_sprintf_helpers.h"
+#include "s21_sprintf.h"
+#include "s21_strlen.h"
+#include "s21_strcpy.h"
+#include "s21_strncpy.h"
+#include "s21_strchr.h"
+#include "s21_strpbrk.h"
+#include "s21_atoi.h"
+
+int s21_sprintf(char *str, const char *format, ...) {
+    char *start = str;
+    va_list vars;
+
+    va_start(vars, format);
+    while (*format) {
+        if (*format == '%') {
+            format++;
+            struct f_params params;
+            format += read_format_params(&params, (char*) format, vars);
+            params.chars_printed = str - start;
+            str += convert_arg(str, vars, params);
+        } else {
+            *str++ = *format++;
+        }
+    }
+    *str = '\0';
+    va_end(vars);
+
+    return str - start;
+}
 
 int read_format_params(struct f_params* params, const char *format, va_list args) {
     _set_default_params(params);
@@ -407,7 +435,6 @@ int fetoa(char *buffer, long double value, int exp, struct f_params params) {
     long double mant = fabsl(value);
     mant *= powl(10, precision - exp);
 
-    printf("%Lf %Lf\n", mant, fmodl(mant, 10));
     // Handling cases like 9.99 or 0.99 if number of digits after point less than precision
     if ((fmodl(roundl(mant), 10) < 1) ^ (fmodl(mant, 10) < 1))
         exp++;
@@ -481,24 +508,6 @@ int _calc_exp(long double num) {
     }
 
     return exp;
-}
-
-int s21_atoi(char *str) {
-    int num = 0;
-    int dec = 1;
-
-    char *cursor = str + s21_strlen(str) - 1;
-    while (str < cursor) {
-        num += (*cursor - 48) * dec;
-        dec *= 10;
-        cursor--;
-    }
-
-    if (*cursor == '-')
-        num = -num;
-    else
-        num += (*cursor - 48) * dec;
-    return num;
 }
 
 char* _reverse(char* start, char *end) {

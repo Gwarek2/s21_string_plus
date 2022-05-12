@@ -4,6 +4,7 @@
 #include "s21_string.h"
 #include "s21_errors.h"
 #include "s21_sprintf_helpers.h"
+#include "s21_atoi.h"
 
 
 void *s21_memchr(const void *str, int c, s21_size_t n) {

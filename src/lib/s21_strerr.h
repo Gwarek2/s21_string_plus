@@ -1,14 +1,15 @@
-#ifndef _S21_ERROR
+#ifndef S21_STRERR
 
-#define _S21_ERROR
+#define S21_STRERR
 
+char *s21_strerror(int errnum);
 
 #ifdef __APPLE__
 
 #define ERROR_COUNT 107
 #define UNKNOWN_ERROR "Unknown error: "
 
-const char error_descrs[ERROR_COUNT][100] = {
+const char ERROR_LIST[ERROR_COUNT][100] = {
     "Undefined error: 0",
     "Operation not permitted",
     "No such file or directory",
@@ -122,7 +123,7 @@ const char error_descrs[ERROR_COUNT][100] = {
 #define ERROR_COUNT 134
 #define UNKNOWN_ERROR "Unknown error "
 
-const char error_descrs[ERROR_COUNT][100] = {
+const char ERROR_LIST[ERROR_COUNT][100] = {
     "Success",
     "Operation not permitted",
     "No such file or directory",
@@ -259,4 +260,4 @@ const char error_descrs[ERROR_COUNT][100] = {
     "Memory page has hardware error"
 };
 #endif
-#endif  // _S21_ERROR
+#endif  // S21_STRERR

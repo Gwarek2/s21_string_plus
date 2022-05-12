@@ -5,4 +5,4 @@
 #include <math.h>
 #include <stdlib.h>
 
-#include "../s21_string.h"
+#include "../lib/s21_string.h"
