@@ -50,7 +50,7 @@ int _read_f_flag(const char *format, struct f_params *params, const char *values
 int _read_f_spec(const char *format, char ch[5]);
 int _read_f_num(const char *format, int *num);
 void _add_padding(char *str, int len, char ch);
-int _calc_exp(long double num);
+int _calc_exponent(long double num);
 void _set_default_params(struct f_params *params);
 char* _reverse(char* start, char *end);
 

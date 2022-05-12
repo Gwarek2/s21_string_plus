@@ -366,11 +366,11 @@ int ftoa(long double value, char *result, struct f_params params) {
         if (s21_strchr(params.type, 'f')) {
             i += fntoa(buffer, value, params);
         } else if (s21_strpbrk(params.type, "eE")) {
-            int exp = _calc_exp(value);
-            i += fetoa(buffer, value, exp, params);
+            int exponent = _calc_exponent(value);
+            i += fetoa(buffer, value, exponent, params);
         } else if (s21_strpbrk(params.type, "gG")) {
-            int exp = _calc_exp(value);
-            i += fgtoa(buffer, value, exp, params);
+            int exponent = _calc_exponent(value);
+            i += fgtoa(buffer, value, exponent, params);
         }
 
         if (params.zero) {
@@ -405,7 +405,7 @@ int fntoa(char *buffer, long double value, struct f_params params) {
                 buffer[i++] = NUM_TABLE_LOWER[num];
                 write_trailing_nums = 1;
             }
-            float_part = truncl(float_part / 10.0);
+            float_part = truncl(float_part / 10);
         }
         params.sharp = 1;
     } else {
@@ -427,29 +427,29 @@ int fntoa(char *buffer, long double value, struct f_params params) {
     return i;
 }
 
-int fetoa(char *buffer, long double value, int exp, struct f_params params) {
+int fetoa(char *buffer, long double value, int exponent, struct f_params params) {
     int i = 0;
     int precision = params.precision;
     int g_spec = s21_strpbrk(params.type, "gG") != NULL;
     int upper_case = s21_strpbrk(params.type, "EG") != NULL;
     long double mant = fabsl(value);
-    mant *= powl(10, precision - exp);
+    mant = expl(logl(mant) + logl(powl(10, precision - exponent)));
 
     // Handling cases like 9.99 or 0.99 if number of digits after point less than precision
     if ((fmodl(roundl(mant), 10) < 1) ^ (fmodl(mant, 10) < 1))
-        exp++;
+        exponent++;
 
-    int exp_temp = exp;
-    if (exp_temp < 0)
-        exp_temp = -exp_temp;
+    int exponent_temp = exponent;
+    if (exponent_temp < 0)
+        exponent_temp = -exponent_temp;
     do {
-        int index = exp_temp % 10;
+        int index = exponent_temp % 10;
         buffer[i++] = NUM_TABLE_LOWER[index];
-        exp_temp /= 10;
-    } while (exp_temp);
-    if (exp < 10 && exp > -10)
+        exponent_temp /= 10;
+    } while (exponent_temp);
+    if (exponent < 10 && exponent > -10)
         buffer[i++] = '0';
-    buffer[i++] = exp < 0 ? '-' : '+';
+    buffer[i++] = exponent < 0 ? '-' : '+';
     buffer[i++] = upper_case ? 'E' : 'e';
 
     if (precision > 0) {
@@ -480,34 +480,34 @@ int fetoa(char *buffer, long double value, int exp, struct f_params params) {
     return i;
 }
 
-int fgtoa(char *buffer, long double value, int exp, struct f_params params) {
+int fgtoa(char *buffer, long double value, int exponent, struct f_params params) {
     int i = 0;
-    if (params.precision > exp && exp >= -4) {
-        params.precision -= exp + 1;
+    if (params.precision > exponent && exponent >= -4) {
+        params.precision -= exponent + 1;
         i += fntoa(buffer, value, params);
     } else {
         params.precision -= 1;
-        i += fetoa(buffer, value, exp, params);
+        i += fetoa(buffer, value, exponent, params);
     }
     return i;
 }
 
-int _calc_exp(long double num) {
-    int exp = 0;
+int _calc_exponent(long double num) {
+    int exponent = 0;
     num = fabsl(num);
     if (num < 1) {
         do {
             num *= 10;
-            exp--;
+            exponent--;
         } while (num < 1);
     } else if (num > 10) {
         do {
             num /= 10;
-            exp++;
+            exponent++;
         } while (num > 10);
     }
 
-    return exp;
+    return exponent;
 }
 
 char* _reverse(char* start, char *end) {

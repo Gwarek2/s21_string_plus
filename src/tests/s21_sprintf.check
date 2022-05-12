@@ -164,17 +164,17 @@
     int c2 = sprintf(buff2, "|%#.0E|, |%-10.2e|, |%+.1E|, |%e|", 299.99, 0.9999, -9.454, 999.99);
     ck_assert_str_eq(buff1, buff2);
     ck_assert_int_eq(c1, c2);
-// #test test_s21_sprintf_float_exp_format_1
-//     char buff1[100000];
-//     char buff2[100000];
-//     int c1 = s21_sprintf(buff1, "|%#.0E|, |%.10e|, |%+.1E|, |%e|", 299.0, 3.0, -9.0, 332.34);
-//     int c2 = sprintf(buff2, "|%#.0E|, |%.10e|, |%+.1E|, |%e|", 299.0, 3.0, -9.0, 332.34);
-//     ck_assert_str_eq(buff1, buff2);
-//     ck_assert_int_eq(c1, c2);
+#test test_s21_sprintf_float_exp_format_1
+    char buff1[100000];
+    char buff2[100000];
+    int c1 = s21_sprintf(buff1, "|%#.0E|, |%.10e|, |%+.1E|, |%e|", 299.0, 3.0, -9.0, 332.34);
+    int c2 = sprintf(buff2, "|%#.0E|, |%.10e|, |%+.1E|, |%e|", 299.0, 3.0, -9.0, 332.34);
+    ck_assert_str_eq(buff1, buff2);
+    ck_assert_int_eq(c1, c2);
 #test test_s21_sprintf_float_g_format
     char buff1[100000];
     char buff2[100000];
-    int c1 = s21_sprintf(buff1, "|%#.1G|, |%-10g|, |%#.0g|, |%#-*.*g|", 236.78, 0.001329, 999.99, 10, 10, 0.0000001);
-    int c2 = sprintf(buff2, "|%#.1G|, |%-10g|, |%#.0g|, |%#-*.*g|", 236.78, 0.001329, 999.99, 10, 10, 0.0000001);
+    int c1 = s21_sprintf(buff1, "|%#.1G|, |%-10g|, |%#.0g|, |%#-*.*g|", 236.78, 0.001329, 999.99, 10, 10, 0.0000001999);
+    int c2 = sprintf(buff2, "|%#.1G|, |%-10g|, |%#.0g|, |%#-*.*g|", 236.78, 0.001329, 999.99, 10, 10, 0.0000001999);
     ck_assert_str_eq(buff1, buff2);
     ck_assert_int_eq(c1, c2);
