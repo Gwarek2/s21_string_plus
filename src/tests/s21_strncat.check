@@ -1,4 +1,30 @@
-#test test_s21_strncat_s1_sum_s2_3
+#test test_s21_strncat_normal
     char str1[100] = "01234";
     char str2[100] = "56789";
-    ck_assert_str_eq(s21_strncat(str1, str2, 3), strncat(str1, str2, 3));
+    char str3[100] = "01234";
+    char str4[100] = "56789";
+    ck_assert_str_eq(s21_strncat(str1, str2, 3), strncat(str3, str4, 3));
+#test test_s21_strncat_to_empty
+    char str1[100] = "\0";
+    char str2[100] = "string";
+    char str3[100] = "\0";
+    char str4[100] = "string";
+    ck_assert_pstr_eq(s21_strncat(str1, str2, 3), s21_strncat(str3, str4, 3));
+#test test_s21_strncat_empty
+    char str1[100] = "\0";
+    char str2[100] = "string";
+    char str3[100] = "\0";
+    char str4[100] = "string";
+    ck_assert_pstr_eq(s21_strncat(str2, str1, 1), s21_strncat(str4, str3, 1));
+#test test_s21_strncat_empty_to_empty
+    char str1[100] = "\0";
+    char str2[100] = "\0";
+    char str3[100] = "\0";
+    char str4[100] = "\0";
+    ck_assert_pstr_eq(s21_strncat(str1, str2, 1), s21_strncat(str3, str4, 1));
+#test test_s21_strncat_null_in_the_middle
+    char str1[100] = "str\0ing";
+    char str2[100] = "ike\0old";
+    char str3[100] = "str\0ing";
+    char str4[100] = "ike\0old";
+    ck_assert_pstr_eq(s21_strncat(str1, str2, 7), s21_strncat(str3, str4, 7));

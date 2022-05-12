@@ -3,12 +3,12 @@
 
 #include "s21_string.h"
 #include "s21_errors.h"
-#include "s21_string_helpers.h"
+#include "s21_sprintf_helpers.h"
 
 
 void *s21_memchr(const void *str, int c, s21_size_t n) {
     void *result = S21_NULL;
-    char *cursor = (char*) str;
+    unsigned char *cursor = (unsigned char*) str;
     for (s21_size_t i = 0; i < n && result == S21_NULL; i++) {
         if (cursor[i] == c)
             result = (void*) cursor + i;
@@ -19,8 +19,8 @@ void *s21_memchr(const void *str, int c, s21_size_t n) {
 
 int s21_memcmp(const void *str1, const void *str2, s21_size_t n) {
     s21_size_t i = 0;
-    char *cursor1 = (char*) str1;
-    char *cursor2 = (char*) str2;
+    unsigned char *cursor1 = (unsigned char*) str1;
+    unsigned char *cursor2 = (unsigned char*) str2;
     while (i < n && cursor1[i] == cursor2[i])
         i++;
     return cursor1[i] - cursor2[i];
@@ -28,8 +28,8 @@ int s21_memcmp(const void *str1, const void *str2, s21_size_t n) {
 
 
 void *s21_memcpy(void *dest, const void *src, s21_size_t n) {
-    char *cursor_dest = (char*) dest;
-    char *cursor_src = (char*) src;
+    unsigned char *cursor_dest = (unsigned char*) dest;
+    unsigned char *cursor_src = (unsigned char*) src;
     for (s21_size_t i = 0; i < n; i++)
         cursor_dest[i] = cursor_src[i];
     return dest;
@@ -37,9 +37,9 @@ void *s21_memcpy(void *dest, const void *src, s21_size_t n) {
 
 
 void *s21_memmove(void *dest, const void *src, s21_size_t n) {
-    char *cdest = (char*) dest;
-    char *csrc = (char*) src;
-    char *tmp = malloc(n * sizeof(char) + 1);
+    unsigned char *cdest = (unsigned char*) dest;
+    unsigned char *csrc = (unsigned char*) src;
+    unsigned char *tmp = calloc(n + 1, sizeof(unsigned char));
     for (s21_size_t i = 0; i < n; i++)
         tmp[i] = *csrc++;
     for (s21_size_t i = 0; i < n; i++)
@@ -50,7 +50,7 @@ void *s21_memmove(void *dest, const void *src, s21_size_t n) {
 
 
 void *s21_memset(void *str, int c, s21_size_t n) {
-    char *cstr = (char*) str;
+    unsigned char *cstr = (unsigned char*) str;
     for (s21_size_t i = 0 ; i < n; i++)
         cstr[i] = c;
     return str;
@@ -369,23 +369,66 @@ void* s21_to_lower(const char* str) {
 }
 
 void *s21_insert(const char *src, const char *str, s21_size_t start_index) {
-    s21_size_t src_len = s21_strlen(src);
-    s21_size_t str_len = s21_strlen(str);
     char* returned_string = S21_NULL;
-
-    if (start_index <= src_len) {
-        returned_string = calloc(src_len + str_len + 1, sizeof(char));
-        if (returned_string != S21_NULL) {
-            s21_strncpy(returned_string, src, start_index);
-            returned_string = returned_string + start_index;
-            src = src + start_index;
-            s21_strcpy(returned_string, str);
-            returned_string = returned_string + str_len;
-            s21_strcpy(returned_string, src);
-            returned_string = returned_string - str_len - start_index;
+    if (src != NULL && str != NULL) {
+        s21_size_t src_len = s21_strlen(src);
+        s21_size_t str_len = s21_strlen(str);
+        if (start_index <= src_len) {
+            returned_string = calloc(src_len + str_len + 1, sizeof(char));
+            if (returned_string != S21_NULL) {
+                s21_strncpy(returned_string, src, start_index);
+                returned_string = returned_string + start_index;
+                src = src + start_index;
+                s21_strcpy(returned_string, str);
+                returned_string = returned_string + str_len;
+                s21_strcpy(returned_string, src);
+                returned_string = returned_string - str_len - start_index;
+            }
         }
     }
 
     return (void*) returned_string;
 }
 
+
+void *s21_trim(const char *src, const char *trim_chars) {
+    s21_size_t length = src != S21_NULL ? s21_strlen(src) : 0;
+    s21_size_t indexStartStr = 0;
+    s21_size_t indexFinishStr = 0;
+
+    for (s21_size_t i = 0; i < length && trim_chars != S21_NULL && src != S21_NULL; i++) {
+        char *symbol = (char*) trim_chars;
+        int status = 1;
+        while (*symbol) {
+            if (*symbol == src[i])
+                status = 0;
+            symbol++;
+        }
+        if (status) {
+            indexStartStr = i;
+            i = length;
+        }
+    }
+
+    for (s21_size_t i = length - 1; i > 0 && !indexFinishStr && trim_chars != S21_NULL && src != S21_NULL; i--) {
+        char *symbol = (char*) trim_chars;
+        int status = 1;
+        while (*symbol) {
+            if (*symbol == src[i])
+                status = 0;
+            symbol++;
+        }
+        if (status) indexFinishStr = i;
+    }
+
+    char *resultStr = src && trim_chars ? malloc((indexFinishStr - indexStartStr + 3) * sizeof(char)) : S21_NULL;
+    char *rs = resultStr;
+
+    for (s21_size_t i = indexStartStr; i <= indexFinishStr && length && trim_chars != S21_NULL; i++) {
+        *rs = src[i];
+        rs++;
+        if (i == indexFinishStr) *rs = '\0';
+    }
+
+    return resultStr;
+}
