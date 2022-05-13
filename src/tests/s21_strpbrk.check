@@ -1,12 +1,16 @@
 #test test_s21_strpbrk_normal
-    char *str = (void *)"Hello world";
-    char *str2 = (void *)"frse";
+    char *str = "Hello world";
+    char *str2 = "frse";
     ck_assert_str_eq(s21_strpbrk(str, str2), strpbrk(str, str2));
 #test test_s21_strpbrk_no_result
-    char *str = (void *)"Hello world";
-    char *str2 = (void *)"fact";
+    char *str = "Hello world";
+    char *str2 = "fact";
+    ck_assert_ptr_eq(s21_strpbrk(str, str2), strpbrk(str, str2));
+#test test_s21_strpbrk_empty_src
+    char *str = "Hello world";
+    char *str2 = "";
     ck_assert_ptr_eq(s21_strpbrk(str, str2), strpbrk(str, str2));
 #test test_s21_strpbrk_empty_str
-    char *str = (void *)"Hello world";
-    char *str2 = (void *)"";
+    char *str = "";
+    char *str2 = "abcd";
     ck_assert_ptr_eq(s21_strpbrk(str, str2), strpbrk(str, str2));

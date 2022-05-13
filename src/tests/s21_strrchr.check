@@ -1,15 +1,12 @@
-#test test_s21_strrchr_can_find_match
-    const char* str = "1234567\0";
-    const char* str2 = "1234567\0";
-    int element = '3';
-    ck_assert_str_eq(s21_strrchr(str, element), strrchr(str2, element));
-#test test_s21_strrchr_several_matches
-    const char* str = "123123123\0";
-    const char* str2 = "123123123\0";
-    int element = '2';
-    ck_assert_str_eq(s21_strrchr(str, element), strrchr(str2, element));
-#test test_s21_strrchr_can_not_find_match
-    const char* str = "1234567\0";
-    int element = '9';
-    char* result_s21_strrchr = s21_strrchr(str, element);
-    ck_assert(result_s21_strrchr == NULL);
+#test test_s21_strrchr_match_start
+    ck_assert_str_eq(s21_strrchr("string", 's'), strrchr("string", 's'));
+#test test_s21_strrchr_match_end
+    ck_assert_str_eq(s21_strrchr("Unit tesT", 'T'), strrchr("Unit tesT", 'T'));
+#test test_s21_strrchr_match_middle
+    ck_assert_str_eq(s21_strrchr("dreams", 'e'), strrchr("dreams", 'e'));
+#test test_s21_strrchr_all_chars_eq
+    ck_assert_str_eq(s21_strrchr("ddd", 'd'), strrchr("ddd", 'd'));
+#test test_s21_strrchr_several_chars_eq
+    ck_assert_str_eq(s21_strrchr("delayed", 'e'), strrchr("delayed", 'e'));
+#test test_s21_strrchr_no_match
+    ck_assert_ptr_eq(s21_strrchr("School21", 's'), strrchr("School21", 's'));

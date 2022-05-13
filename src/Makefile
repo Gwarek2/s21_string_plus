@@ -1,5 +1,5 @@
 CC=gcc
-FLAGS=-Wall -Werror -Wextra -std=c11 -fsanitize=address -Wformat=0
+FLAGS=-Wall -Werror -Wextra -std=c11 -fsanitize=address -Wformat=0 -g
 
 UNAME = $(shell uname -s)
 ifeq ($(UNAME),Darwin)

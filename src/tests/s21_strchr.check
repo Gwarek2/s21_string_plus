@@ -1,12 +1,20 @@
-#test test_s21_strchr_normal
-    char *str = (void *)"Hello world";
-    char *str2 = "o";
-    ck_assert_str_eq(s21_strchr(str, *str2), strchr(str, *str2));
+#test test_s21_strchr_start
+    char *str = "Hello world";
+    char ch = 'H';
+    ck_assert_str_eq(s21_strchr(str, ch), strchr(str, ch));
+#test test_s21_string_end
+    char *str = "Hello world";
+    char ch = 'd';
+    ck_assert_str_eq(s21_strchr(str, ch), strchr(str, ch));
+#test test_s21_string_middle
+    char *str = "Hello world";
+    char ch = 'o';
+    ck_assert_str_eq(s21_strchr(str, ch), strchr(str, ch));
 #test test_s21_strchr_no_result
-    char *str = (void *)"Hello world";
-    char *str2 = "f";
-    ck_assert_ptr_eq(s21_strchr(str, *str2), strchr(str, *str2));
+    char *str = "Hello world";
+    char ch = 'f';
+    ck_assert_ptr_eq(s21_strchr(str, ch), strchr(str, ch));
 #test test_s21_strchr_empty_str
-    char *str = (void *)"Hello world";
-    char *str2 = "";
-    ck_assert_str_eq(s21_strchr(str, *str2), strchr(str, *str2));
+    char *str = "Hello world";
+    char ch = '\0';
+    ck_assert_str_eq(s21_strchr(str, ch), strchr(str, ch));

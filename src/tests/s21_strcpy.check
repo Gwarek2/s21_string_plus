@@ -1,20 +1,30 @@
-#test test_s21_strcpy_not_empty
-    char line1[20] = "Hello world\0";
-    char line2[20] = "Hi\0";
-    char* dest = line1;
-    const char* src = line2;
-    char line3[20] = "Hello world\0";
-    char line4[20] = "Hi\0";
-    char* dest2 = line3;
-    const char* src2 = line4;
-    ck_assert_str_eq(s21_strcpy(dest, src), strcpy(dest2, src2));
+#test test_s21_strcpy_non_empty
+    char *src1 = "Hello world!";
+    char dest1[100];
+    char *src2 = "Hello world!";
+    char dest2[100];
+    ck_assert_str_eq(s21_strcpy(dest1, src1), strcpy(dest2, src2));
+#test test_s21_strcpy_null_char_in_the_middle
+    char *src1 = "Hello \0world!";
+    char dest1[100];
+    char *src2 = "Hello \0world!";
+    char dest2[100];
+    ck_assert_str_eq(s21_strcpy(dest1, src1), strcpy(dest2, src2));
+#test test_s21_strcpy_copy_null_char_at_start
+    char *src1 = "H\0ello world!";
+    char dest1[100];
+    char *src2 = "H\0ello world!";
+    char dest2[100];
+    ck_assert_str_eq(s21_strcpy(dest1, src1), strcpy(dest2, src2));
+#test test_s21_strcpy_copy_with_space_chars
+    char *src1 = "Hello\nworld!";
+    char dest1[100];
+    char *src2 = "Hello\nworld!";
+    char dest2[100];
+    ck_assert_str_eq(s21_strcpy(dest1, src1), strcpy(dest2, src2));
 #test test_s21_strcpy_empty
-    char line1[20] = "\0";
-    char line2[20] = "\0";
-    char* dest = line1;
-    const char* src = line2;
-    char line3[20] = "\0";
-    char line4[20] = "\0";
-    char* dest2 = line3;
-    const char* src2 = line4;
-    ck_assert_str_eq(s21_strcpy(dest, src), strcpy(dest2, src2));
+    char *src1 = "";
+    char dest1[100] = "";
+    char *src2 = "";
+    char dest2[100] = "";
+    ck_assert_str_eq(s21_strcpy(dest1, src1), strcpy(dest2, src2));

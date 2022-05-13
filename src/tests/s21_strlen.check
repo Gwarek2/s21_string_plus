@@ -1,9 +1,18 @@
 #test test_s21_strlen_normal
-    char *str = (void *)"Hello world";
-    ck_assert_int_eq(s21_strlen(str), strlen(str));
-#test test_s21_strlen_no_result
-    void *str = (void *)"";
+    char *str = "Hello world";
     ck_assert_int_eq(s21_strlen(str), strlen(str));
 #test test_s21_strlen_empty_str
-    void *str = (void *)"\n\0";
+    char *str = "";
+    ck_assert_int_eq(s21_strlen(str), strlen(str));
+#test test_s21_strlen_space_chars
+    char *str = "\n\0";
+    ck_assert_int_eq(s21_strlen(str), strlen(str));
+#test test_s21_strlen_null_char_middle
+    char *str = "str\0ing";
+    ck_assert_int_eq(s21_strlen(str), strlen(str));
+#test test_s21_strlen_null_char_start
+    char *str = "\0string";
+    ck_assert_int_eq(s21_strlen(str), strlen(str));
+#test test_s21_strlen_null_char_end
+    char *str = "string\0";
     ck_assert_int_eq(s21_strlen(str), strlen(str));

@@ -1,12 +1,20 @@
-#test s21_strspn_test_normal
-    char *str = "123 456";
-    char *symbols = "321 "; 
+#test test_s21_strspn_test_all_chars_match
+    char *str = "kebab";
+    char *symbols = "abek";
     ck_assert_uint_eq(s21_strspn(str, symbols), strspn(str, symbols));
-#test s21_strspn_test_zero
-    char *str = "456 123";
-    char *symbol = "321 "; 
+#test test_s21_strspn_test_several_chars_match
+    char *str = "nagibator228";
+    char *symbol = "ban";
     ck_assert_uint_eq(s21_strspn(str, symbol), strspn(str, symbol));
-#test s21_strspn_test_empty_symbols
-    char *str = "123 456";
-    char *symbols = "\0"; 
+#test test_s21_strspn_test_no_match
+    char *str = "damn right!";
+    char *symbols = "yw./,";
+    ck_assert_uint_eq(s21_strspn(str, symbols), strspn(str, symbols));
+#test test_s21_strspn_test_null_symbols
+    char *str = "Hello world!";
+    char *symbols = "";
+    ck_assert_uint_eq(s21_strspn(str, symbols), strspn(str, symbols));
+#test test_s21_strspn_null_word
+    char *str = "";
+    char *symbols = "abcd ";
     ck_assert_uint_eq(s21_strspn(str, symbols), strspn(str, symbols));
