@@ -22,7 +22,11 @@
     char str1[100] = "Abc";
     char str2[100] = "abc";
     ck_assert_int_eq(s21_strncmp(str1, str2, 0), strncmp(str1, str2, 0));
-#test test_s21_strncmp_diff_len
+#test test_s21_strncmp_diff_len_1
     char str1[100] = "string";
-    char str2[100] = "strings";
+    char str2[100] = "stringsstr";
+    ck_assert_int_eq(s21_strncmp(str1, str2, 7), strncmp(str1, str2, 7));
+#test test_s21_strncmp_diff_len_2
+    char str1[100] = "stringsstr";
+    char str2[100] = "string";
     ck_assert_int_eq(s21_strncmp(str1, str2, 7), strncmp(str1, str2, 7));

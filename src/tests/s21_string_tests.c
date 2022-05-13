@@ -855,9 +855,16 @@ START_TEST(test_s21_strncmp_zero_len) {
 }
 END_TEST
 
-START_TEST(test_s21_strncmp_diff_len) {
+START_TEST(test_s21_strncmp_diff_len_1) {
     char str1[100] = "string";
     char str2[100] = "strings";
+    ck_assert_int_eq(s21_strncmp(str1, str2, 7), strncmp(str1, str2, 7));
+}
+END_TEST
+
+START_TEST(test_s21_strncmp_diff_len_2) {
+    char str1[100] = "strings";
+    char str2[100] = "string";
     ck_assert_int_eq(s21_strncmp(str1, str2, 7), strncmp(str1, str2, 7));
 }
 END_TEST
@@ -1354,7 +1361,8 @@ int main(void) {
     tcase_add_test(tc1_1, test_s21_strncmp_non_equal_first);
     tcase_add_test(tc1_1, test_s21_strncmp_one_len);
     tcase_add_test(tc1_1, test_s21_strncmp_zero_len);
-    tcase_add_test(tc1_1, test_s21_strncmp_diff_len);
+    tcase_add_test(tc1_1, test_s21_strncmp_diff_len_1);
+    tcase_add_test(tc1_1, test_s21_strncmp_diff_len_2);
     tcase_add_test(tc1_1, test_s21_strncpy_src_all);
     tcase_add_test(tc1_1, test_s21_strncpy_null_char_middle);
     tcase_add_test(tc1_1, test_s21_strncpy_null_char_start);
