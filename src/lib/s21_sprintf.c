@@ -10,12 +10,6 @@
 
 #include "s21_string.h"
 #include "s21_sprintf.h"
-#include "s21_strlen.h"
-#include "s21_strcpy.h"
-#include "s21_strncpy.h"
-#include "s21_strchr.h"
-#include "s21_strpbrk.h"
-#include "s21_atoi.h"
 
 int s21_sprintf(char *str, const char *format, ...) {
     char *start = str;
@@ -433,7 +427,7 @@ int fetoa(char *buffer, long double value, int exponent, struct f_params params)
     int g_spec = s21_strpbrk(params.type, "gG") != NULL;
     int upper_case = s21_strpbrk(params.type, "EG") != NULL;
     long double mant = fabsl(value);
-    mant = expl(logl(mant) + logl(powl(10, precision - exponent)));
+    mant = exp2l(log2l(mant) + log2l(powl(10, precision - exponent)));
 
     // Handling cases like 9.99 or 0.99 if number of digits after point less than precision
     if ((fmodl(roundl(mant), 10) < 1) ^ (fmodl(mant, 10) < 1))
