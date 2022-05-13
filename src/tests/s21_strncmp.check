@@ -1,15 +1,28 @@
-#test test_s21_strncmp_1_same
+#test test_s21_strncmp_equal_not_all
+    char str1[100] = "abc";
+    char str2[100] = "abC";
+    ck_assert_int_eq(s21_strncmp(str1, str2, 2), strncmp(str1, str2, 2));
+#test test_s21_strncmp_equal_all
     char str1[100] = "abc";
     char str2[100] = "abc";
-    long unsigned n = 3;
-    ck_assert_int_eq(s21_strncmp(str1, str2, n), strncmp(str1, str2, n));
-#test test_s21_strncmp_2_big
-    char str1[100] = "abc";
-    char str2[100] = "abd";
-    long unsigned n = 3;
-    ck_assert_int_eq(s21_strncmp(str1, str2, n), strncmp(str1, str2, n));
-#test test_s21_strncmp_1_littel
-    char str1[100] = "abd";
+    ck_assert_int_eq(s21_strncmp(str1, str2, 3), strncmp(str1, str2, 3));
+#test test_s21_strncmp_non_equal_last
+    char str1[100] = "string";
+    char str2[100] = "strink";
+    ck_assert_int_eq(s21_strncmp(str1, str2, 6), strncmp(str1, str2, 6));
+#test test_s21_strncmp_non_equal_first
+    char str1[100] = "String";
+    char str2[100] = "string";
+    ck_assert_int_eq(s21_strncmp(str1, str2, 3), strncmp(str1, str2, 3));
+#test test_s21_strncmp_one_len
+    char str1[100] = "Abc";
     char str2[100] = "abc";
-    long unsigned n = 3;
-    ck_assert_int_eq(s21_strncmp(str1, str2, n), strncmp(str1, str2, n));
+    ck_assert_int_eq(s21_strncmp(str1, str2, 2), strncmp(str1, str2, 2));
+#test test_s21_strncmp_zero_len
+    char str1[100] = "Abc";
+    char str2[100] = "abc";
+    ck_assert_int_eq(s21_strncmp(str1, str2, 0), strncmp(str1, str2, 0));
+#test test_s21_strncmp_diff_len
+    char str1[100] = "string";
+    char str2[100] = "strings";
+    ck_assert_int_eq(s21_strncmp(str1, str2, 7), strncmp(str1, str2, 7));
