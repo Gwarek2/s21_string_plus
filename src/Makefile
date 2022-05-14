@@ -11,6 +11,7 @@ ifeq ($(UNAME),Linux)
 	CHECK_DEPENDENCIES=-lcheck -lm -lpthread -lrt -lsubunit
 endif
 
+.PHONY: all
 all: test gcov_report
 
 test: s21_string.a
@@ -29,11 +30,13 @@ gcov_report: create_out_dirs
 	@lcov -c --directory $(COV_DIR) --output-file $(COV_DIR)/s21_string_coverage.info
 	@genhtml $(COV_DIR)/s21_string_coverage.info --output-directory $(COV_DIR)
 
+.PHONY: s21_string.a
 s21_string.a: create_out_dirs
 	$(CC) $(FLAGS) -c lib/*.c
 	-@mv *.o $(OUT_DIR)
 	ar -rc s21_string.a $(OUT_DIR)/*.o
 	ranlib s21_string.a
+
 
 create_out_dirs:
 	-@mkdir $(OUT_DIR)
