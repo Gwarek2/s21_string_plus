@@ -10,8 +10,8 @@
 #test test_s21_sprintf_null_char
     char buff1[100000];
     char buff2[100000];
-    int c1 = s21_sprintf(buff1, "string) |%---c|\n", '\0');
-    int c2 = sprintf(buff2, "string) |%---c|\n", '\0');
+    int c1 = s21_sprintf(buff1, "string) |%-c|\n", '\0');
+    int c2 = sprintf(buff2, "string) |%-c|\n", '\0');
     ck_assert_str_eq(buff1, buff2);
     ck_assert_int_eq(c1, c2);
 // #test test_s21_sprintf_strings_null
@@ -115,8 +115,8 @@
 #test test_s21_sprintf_hex_values
     char buff1[100000];
     char buff2[100000];
-    int c1 = s21_sprintf(buff1, "|%-10.7x|, |%010X|, |%0*.*x|", 9512, 1234, 20, -20, 4219);
-    int c2 = sprintf(buff2, "|%-10.7x|, |%010X|, |%0*.*x|", 9512, 1234, 20, -20, 4219);
+    int c1 = s21_sprintf(buff1, "|%-10.7x|, |%010X|, |%*.*x|", 9512, 1234, 20, -20, 4219);
+    int c2 = sprintf(buff2, "|%-10.7x|, |%010X|, |%*.*x|", 9512, 1234, 20, -20, 4219);
     ck_assert_str_eq(buff1, buff2);
     ck_assert_int_eq(c1, c2);
 #test test_s21_sprintf_uint_hex_max_values
