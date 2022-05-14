@@ -146,7 +146,7 @@ int _convert_arg(char *str, va_list args, struct f_params params) {
     } else if (s21_strpbrk(params.type, "feEgG") != S21_NULL) {
         len += _float_to_str(buffer, params, args);
     } else if (s21_strchr(params.type, 'c') != S21_NULL) {
-        len += _chr_to_str(buffer, args);
+        len += _chr_to_str(buffer, args, params.type);
     } else if (s21_strchr(params.type, 's') != S21_NULL) {
         len += _str_to_str(buffer, args, params);
     } else if (s21_strchr(params.type, '%') != S21_NULL) {
@@ -237,10 +237,18 @@ int _float_to_str(char *buffer, struct f_params params, va_list args) {
     return i;
 }
 
-int _chr_to_str(char *buffer, va_list args) {
+int _chr_to_str(char *buffer, va_list args, char *type) {
     int ch = va_arg(args, int);
-    *buffer = ch;
-    return 1;
+    int bytes = 0;
+    if (type[0] == 'l') {
+        char wch[50];
+        bytes = wcrtomb(wch, ch, NULL);
+        s21_memcpy(buffer, wch, bytes);
+    } else {
+        *buffer = ch;
+        bytes = 1;
+    }
+    return bytes;
 }
 
 int _str_to_str(char *buffer, va_list args, struct f_params params) {
@@ -249,10 +257,14 @@ int _str_to_str(char *buffer, va_list args, struct f_params params) {
     if (s21_strchr(params.type, 'l')) {
         wchar_t *tmp = va_arg(args, wchar_t*);
         if (tmp != NULL) {
-            while (*tmp && (chars_print)) {
-                *buffer++ = *tmp++;
-                chars_print--;
-                i++;
+            while (*tmp && chars_print) {
+                char wch[50];
+                s21_size_t bytes = wcrtomb(wch, *tmp, NULL);
+                s21_memcpy(buffer, wch, bytes);
+                buffer += bytes;
+                tmp++;
+                chars_print -= bytes;
+                i += bytes;
             }
             *buffer = '\0';
         } else {
