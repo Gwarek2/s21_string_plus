@@ -8,8 +8,8 @@
     ck_assert_int_eq(s21_strncmp(str1, str2, 3), strncmp(str1, str2, 3));
 #test test_s21_strncmp_non_equal_last
     char str1[100] = "string";
-    char str2[100] = "strink";
-    ck_assert_int_eq(s21_strncmp(str1, str2, 6), strncmp(str1, str2, 6));
+    char str2[100] = "strong";
+    ck_assert_int_eq(s21_strncmp(str1, str2, 5), strncmp(str1, str2, 5));
 #test test_s21_strncmp_non_equal_first
     char str1[100] = "String";
     char str2[100] = "string";

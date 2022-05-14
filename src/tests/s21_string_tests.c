@@ -11,6 +11,7 @@
 #include <limits.h>
 #include <math.h>
 #include <stdlib.h>
+#include <locale.h>
 
 #include "../lib/s21_string.h"
 START_TEST(test_insert_zero_index) {
@@ -256,8 +257,8 @@ END_TEST
 START_TEST(test_s21_sprintf_null_char) {
     char buff1[100000];
     char buff2[100000];
-    int c1 = s21_sprintf(buff1, "string) |%-c|\n", '\0');
-    int c2 = sprintf(buff2, "string) |%-c|\n", '\0');
+    int c1 = s21_sprintf(buff1, "string) |%-10c|\n", '\0');
+    int c2 = sprintf(buff2, "string) |%-10c|\n", '\0');
     ck_assert_str_eq(buff1, buff2);
     ck_assert_int_eq(c1, c2);
 // #test test_s21_sprintf_strings_null
@@ -272,11 +273,23 @@ START_TEST(test_s21_sprintf_null_char) {
 }
 END_TEST
 
-START_TEST(test_s21_sprintf_wide_strings) {
+START_TEST(test_s21_sprintf_wide_chars) {
+    setlocale(LC_ALL, "");
     char buff1[100000];
     char buff2[100000];
-    int c1 = s21_sprintf(buff1, "|5%%|, |%10lc|, |%-10.10ls|", L'n', L"hello");
-    int c2 = sprintf(buff2, "|5%%|, |%10lc|, |%-10.10ls|", L'n', L"hello");
+    int c1 = s21_sprintf(buff1, "|%lc| - wchar", L'И');
+    int c2 = sprintf(buff2, "|%lc| - wchar", L'И');
+    ck_assert_str_eq(buff1, buff2);
+    ck_assert_int_eq(c1, c2);
+}
+END_TEST
+
+START_TEST(test_s21_sprintf_wide_strings) {
+    setlocale(LC_ALL, "");
+    char buff1[100000];
+    char buff2[100000];
+    int c1 = s21_sprintf(buff1, "|5%%|, |%-10.10ls|", L"строка");
+    int c2 = sprintf(buff2, "|5%%|, |%-10.10ls|", L"строка");
     ck_assert_str_eq(buff1, buff2);
     ck_assert_int_eq(c1, c2);
 }
@@ -829,8 +842,8 @@ END_TEST
 
 START_TEST(test_s21_strncmp_non_equal_last) {
     char str1[100] = "string";
-    char str2[100] = "strink";
-    ck_assert_int_eq(s21_strncmp(str1, str2, 6), strncmp(str1, str2, 6));
+    char str2[100] = "strong";
+    ck_assert_int_eq(s21_strncmp(str1, str2, 5), strncmp(str1, str2, 5));
 }
 END_TEST
 
@@ -1296,6 +1309,7 @@ int main(void) {
     tcase_add_test(tc1_1, s21_memset_fill_empty_array);
     tcase_add_test(tc1_1, test_s21_sprintf_strings);
     tcase_add_test(tc1_1, test_s21_sprintf_null_char);
+    tcase_add_test(tc1_1, test_s21_sprintf_wide_chars);
     tcase_add_test(tc1_1, test_s21_sprintf_wide_strings);
     tcase_add_test(tc1_1, test_s21_sprintf_float_values);
     tcase_add_test(tc1_1, test_s21_sprintf_nan);
