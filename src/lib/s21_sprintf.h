@@ -31,8 +31,8 @@ struct f_params {
     int default_precision;
 };
 
-int read_format_params(struct f_params* params, const char *format, va_list args);
-int convert_arg(char *str, va_list args, struct f_params params);
+int _read_format_params(struct f_params* params, const char *format, va_list args);
+int _convert_arg(char *str, va_list args, struct f_params params);
 int itoa(long long unsigned value, char* result, int base, int neg, struct f_params params);
 int ftoa(long double value, char *result, struct f_params params);
 int fntoa(char *buffer, long double value, struct f_params params); 
@@ -46,9 +46,9 @@ int _float_to_str(char *buffer,struct f_params params, va_list args);
 int _chr_to_str(char *buffer, va_list args);
 int _str_to_str(char *buffer, va_list args, struct f_params params);
 void _get_printed_chars_num(va_list args, struct f_params params);
-int _read_f_flag(const char *format, struct f_params *params, const char *values);
-int _read_f_spec(const char *format, char ch[5]);
-int _read_f_num(const char *format, int *num);
+int _read_flag(const char *format, struct f_params *params, const char *values);
+int _read_spec(const char *format, char ch[5]);
+int _read_num(const char *format, int *num);
 void _add_padding(char *str, int len, char ch);
 int _calc_exponent(long double num);
 void _set_default_params(struct f_params *params);

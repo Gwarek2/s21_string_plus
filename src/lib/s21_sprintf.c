@@ -20,9 +20,9 @@ int s21_sprintf(char *str, const char *format, ...) {
         if (*format == '%') {
             format++;
             struct f_params params;
-            format += read_format_params(&params, (char*) format, vars);
+            format += _read_format_params(&params, (char*) format, vars);
             params.chars_printed = str - start;
-            str += convert_arg(str, vars, params);
+            str += _convert_arg(str, vars, params);
         } else {
             *str++ = *format++;
         }
@@ -33,16 +33,16 @@ int s21_sprintf(char *str, const char *format, ...) {
     return str - start;
 }
 
-int read_format_params(struct f_params* params, const char *format, va_list args) {
+int _read_format_params(struct f_params* params, const char *format, va_list args) {
     _set_default_params(params);
     char *cursor = (char*) format;
-    cursor += _read_f_flag(cursor, params, FLAGS);
+    cursor += _read_flag(cursor, params, FLAGS);
     if (*cursor == '*') {
         int width = va_arg(args, int);
         params->width = width;
         cursor++;
     } else {
-        cursor += _read_f_num(cursor, &(params->width));
+        cursor += _read_num(cursor, &(params->width));
     }
     if (*cursor == '.') {
         cursor++;
@@ -51,16 +51,16 @@ int read_format_params(struct f_params* params, const char *format, va_list args
             params->precision = precision;
             cursor++;
         } else {
-            cursor += _read_f_num(cursor, &(params->precision));
+            cursor += _read_num(cursor, &(params->precision));
         }
         if (params->precision >= 0)
             params->default_precision = 0;
     }
-    cursor += _read_f_spec(cursor, params->type);
+    cursor += _read_spec(cursor, params->type);
     return cursor - format;
 }
 
-int _read_f_flag(const char *format, struct f_params *params, const char *values) {
+int _read_flag(const char *format, struct f_params *params, const char *values) {
     int len = 0;
     while (s21_strchr(values, *format)) {
         if (*format == '-')
@@ -77,7 +77,7 @@ int _read_f_flag(const char *format, struct f_params *params, const char *values
     return len;
 }
 
-int _read_f_spec(const char *format, char ch[5]) {
+int _read_spec(const char *format, char ch[5]) {
     int i = 0;
     char buff[5];
     if (format[i] == 'l' || format[i] == 'L' || format[i] == 'h') {
@@ -97,7 +97,7 @@ int _read_f_spec(const char *format, char ch[5]) {
     return i;
 }
 
-int _read_f_num(const char *format, int *num) {
+int _read_num(const char *format, int *num) {
     char *cursor = (char*) format;
     if (s21_strchr(FLAGS, *cursor))
         cursor++;
@@ -124,7 +124,7 @@ void _set_default_params(struct f_params *params) {
         params->type[i] = '\0';
 }
 
-int convert_arg(char *str, va_list args, struct f_params params) {
+int _convert_arg(char *str, va_list args, struct f_params params) {
     char *start = str;
     int len = 0;
     char buffer[100000];
