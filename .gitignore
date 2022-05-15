@@ -2,6 +2,7 @@
 *.d
 
 # Object files
+obj
 *.o
 *.ko
 *.obj
@@ -67,6 +68,7 @@ cpplint.py
 *.info
 *.html
 *.css
+s21_string_coverage
 
 *.swp
 
