@@ -1,0 +1,25 @@
+#test test_s21_sscanf_percent
+    char *str = "12 % 34 0567 0890";
+    int s21_n1, s21_n2;
+    int n1, n2;
+    s21_sscanf(str, "%2d%% %i", &s21_n1, &s21_n2);
+    sscanf(str, "%2d%% %i", &n1, &n2);
+    ck_assert_int_eq(s21_n1, n1);
+    ck_assert_int_eq(s21_n2, n2);
+#test test_s21_sscanf_int
+    char *str = "-1234 567 890";
+    int s21_n1, s21_n2, s21_n3;
+    int n1, n2, n3;
+    s21_sscanf(str, "%4d %1i %d", &s21_n1, &s21_n2, &s21_n3);
+    sscanf(str, "%4d %1i %d", &n1, &n2, &n3);
+    ck_assert_int_eq(s21_n1, n1);
+    ck_assert_int_eq(s21_n2, n2);
+    ck_assert_int_eq(s21_n3, n3);
+#test test_s21_sscanf_short
+    char *str = "-25 7434";
+    short s21_n1, s21_n2;
+    short n1, n2;
+    s21_sscanf(str, "%5hd %hd", &s21_n1, &s21_n2);
+    sscanf(str, "%5hd %hd", &n1, &n2);
+    ck_assert_int_eq(s21_n1, n1);
+    ck_assert_int_eq(s21_n2, n2);
