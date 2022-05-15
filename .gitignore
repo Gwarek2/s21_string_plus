@@ -43,6 +43,7 @@ s21_string_report
 *.su
 *.idb
 *.pdb
+.debug
 
 # Kernel Module Compile Results
 *.mod*
