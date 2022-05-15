@@ -33,6 +33,7 @@ void *s21_insert(const char *src, const char *str, s21_size_t start_index);
 void *s21_trim(const char *src, const char *trim_chars);
 
 int s21_sprintf(char *str, const char *format, ...);
+int s21_sscanf(const char *str, const char *format, ...);
 
-int s21_atoi(char *str);
+long long s21_atoi(char *str);
 #endif  // S21_STRING_H
