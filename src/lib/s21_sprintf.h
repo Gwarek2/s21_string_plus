@@ -43,7 +43,7 @@ int _int_to_str(char *buffer, va_list args, struct f_params params, int base);
 int _uint_to_str(char *buffer, va_list args, struct f_params params, int base);
 int _ptr_to_str(char *buffer, va_list args);
 int _float_to_str(char *buffer,struct f_params params, va_list args);
-int _chr_to_str(char *buffer, va_list args, char *type);
+int _chr_to_str(char *buffer, va_list args);
 int _str_to_str(char *buffer, va_list args, struct f_params params);
 void _get_printed_chars_num(va_list args, struct f_params params);
 int _read_flag(const char *format, struct f_params *params, const char *values);
