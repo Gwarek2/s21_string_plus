@@ -18,13 +18,19 @@ int s21_sscanf(const char *str, const char *format, ...) {
         if (*format == '%') {
             format++;
             _read_format(&format, &state);
-            printf("----new_format: bytes - %i, correct_writes - %i, numargs - %i, oargs - %i, fail - %i\n",
-                    state.bytes_scanned, state.correct_writes, state.num_args_flag, state.ordered_args_flag, state.failure),
-            printf("supress - %i, arg_num - %i, width - %i, use_alloc - %i, length - %i, specifier - %c\n",
-                     state.format.supress, state.format.arg_num, state.format.width, state.format.use_alloc, state.format.length,
-                     state.format.specifier);
-            if (!state.failure)
+            // printf("----new_format: bytes - %i, correct_writes - %i, numargs - %i, oargs - %i, fail - %i\n",
+            //         state.bytes_scanned, state.correct_writes, state.num_args_flag, state.ordered_args_flag, state.failure),
+            // printf("supress - %i, arg_num - %i, width - %i, use_alloc - %i, length - %i, specifier - %c\n",
+            //          state.format.supress, state.format.arg_num, state.format.width, state.format.use_alloc, state.format.length,
+            //          state.format.specifier);
+            if (!state.failure && state.format.specifier != '%') {
                 _parse_arg(args, &str, &state);
+            } else if (state.format.specifier == '%') {
+                _ignore_space_chars(&str);
+                if (*str != '%')
+                    state.failure = true;
+                str++;
+            }
             _reset_format(&state);
         } else if (!is_space(*format)) {
             _ignore_space_chars(&str);
@@ -63,12 +69,20 @@ void _ignore_space_chars(const char **str) {
     while (is_space(**str)) (*str)++;
 }
 
+void _ignore_non_digits(const char **str) {
+    while (!is_digit(**str) && !_is_neg_num_starts(*str)) (*str)++;
+}
+
 bool is_space(char ch) {
     return ch <= 32;
 }
 
 bool is_digit(char ch) {
     return ch >= '0' && ch <= '9';
+}
+
+bool _is_neg_num_starts(const char *str) {
+    return *str == '-' && is_digit(str[1]);
 }
 
 void _read_format(const char **format, struct scan_state *st) {
@@ -111,6 +125,13 @@ void _read_width_and_argnum(const char **format, struct scan_state *st) {
 void _read_number(char *buffer, const char **src, int len) {
     const char *cursor = *src;
     int i = 0;
+
+    if (**src == '-') {
+        buffer[i++] = '-';
+        cursor++;
+        len--;
+    }
+
     while (is_digit(*cursor) && len) {
         buffer[i++] = *cursor++;
         len--;
@@ -199,10 +220,6 @@ void _parse_arg(va_list args, const char **str, struct scan_state *st) {
 
     } else if (st->format.specifier == 'n') {
 
-    } else if (st->format.specifier == '%') {
-        if (**str != '%')
-            st->failure = true;
-        (*str)++;
     }
 }
 
@@ -222,8 +239,9 @@ void *_parse_by_index(va_list args, int index) {
 
 void _parse_int(const char **str, void *ptr, struct scan_state *st) {
     char buffer[512];
-    _ignore_space_chars(str);
+    _ignore_non_digits(str);
     _read_number(buffer, str, st->format.width);
+    printf("%s %s\n", buffer, *str);
 
     long long parsed_num = s21_atoi(buffer);
     if (st->format.length == LLONG) {
@@ -240,3 +258,8 @@ void _parse_int(const char **str, void *ptr, struct scan_state *st) {
         *cptr = parsed_num;
     }
 }
+
+// void _parse_uint(const char **str, void *ptr, struct scan_state *st) {
+//     char buffer[512];
+//     _ignore_non_digits
+// }

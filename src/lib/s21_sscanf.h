@@ -35,7 +35,9 @@ struct scan_state {
 int sscanf(const char *str, const char *format, ...);
 bool is_space(char ch);
 bool is_digit(char ch);
+bool _is_neg_num_starts(const char *str);
 void _ignore_space_chars(const char **str);
+void _ignore_non_digits(const char **str);
 void _initialize_state(struct scan_state *st);
 void _reset_format(struct scan_state *st);
 void _ignore_space_chars(const char **str);
@@ -46,7 +48,7 @@ void _read_alloc_flag(const char **format, struct scan_state *st);
 void _read_len(const char **format, struct scan_state *st);
 void _read_specifier(const char **format, struct scan_state *st);
 void _read_scanset(const char **format, struct scan_state *st);
-void _read_number(char *buffer, const char **src, int len);
+void _read_number(char *buffer, const char **src, int width);
 
 void _parse_arg(va_list args, const char **str, struct scan_state *st);
 void *_parse_by_order(va_list args);
