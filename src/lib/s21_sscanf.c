@@ -23,7 +23,9 @@ int s21_sscanf(const char *str, const char *format, ...) {
             // printf("supress - %i, arg_num - %i, width - %i, use_alloc - %i, length - %i, specifier - %c\n",
             //          state.format.supress, state.format.arg_num, state.format.width, state.format.use_alloc, state.format.length,
             //          state.format.specifier);
-            if (!state.failure && state.format.specifier != '%') {
+            if (!state.failure &&
+                    state.format.specifier != '%' &&
+                    !state.format.supress) {
                 _parse_arg(args, &str, &state);
             } else if (state.format.specifier == '%') {
                 _ignore_space_chars(&str);
@@ -73,16 +75,47 @@ bool is_space(char ch) {
     return ch <= 32;
 }
 
-bool is_digit(char ch) {
+
+bool is_oct(char ch) {
+    return ch >= '0' && ch <= '7';
+}
+
+bool is_dec(char ch) {
     return ch >= '0' && ch <= '9';
 }
 
+bool is_hex(char ch) {
+    return (ch >= '0' && ch <= '9') ||
+           (ch >= 'a' && ch <= 'f') ||
+           (ch >= 'A' && ch <= 'F');
+}
+
 bool _is_neg_num_starts(const char *str, int width) {
-    return *str == '-' && is_digit(str[1]) && (width > 1 || width == -1);
+    return *str == '-' && is_dec(str[1]) && (width > 1 || width == -1);
 }
 
 bool _is_float_starts_with_point(const char *str, int width) {
-    return *str == '.' && is_digit(str[1]) && (width > 1 || width == -1);
+    return *str == '.' && is_dec(str[1]) && (width > 1 || width == -1);
+}
+
+bool _is_oct_prefix(const char *str, int width) {
+    return *str == '0' && is_oct(str[1])  && (width == -1 || width > 1);
+}
+
+bool _is_hex_prefix(const char *str, int width) {
+    return *str == '0' && (str[1] == 'x' || str[1] == 'X') &&
+           is_hex(str[2])  && (width == -1 || width > 2);
+}
+
+int _get_uint_base(char specifier) {
+    int result = 0;
+    if (specifier == 'o' || specifier == 'O')
+        result = OCT;
+    else if (specifier == 'u')
+        result = DEC;
+    else if (specifier == 'x' || specifier == 'X')
+        result = HEX;
+    return result;
 }
 
 void _read_format(const char **format, struct scan_state *st) {
@@ -103,7 +136,7 @@ void _read_supressor(const char **format, struct scan_state *st) {
 
 void _read_width_and_argnum(const char **format, struct scan_state *st) {
     char buffer[50];
-    _read_number(buffer, format, -1);
+    _read_number(buffer, format, -1, &is_dec);
     int num = s21_atoi(buffer);
     if (**format == NUM_ARG) {
         st->format.arg_num = num;
@@ -112,7 +145,7 @@ void _read_width_and_argnum(const char **format, struct scan_state *st) {
         if (!st->failure) {
             (*format)++;
             s21_memset(buffer, '\0', 50);
-            _read_number(buffer, format, -1);
+            _read_number(buffer, format, -1, &is_dec);
             num = s21_atoi(buffer);
         }
     } else {
@@ -122,7 +155,7 @@ void _read_width_and_argnum(const char **format, struct scan_state *st) {
     if (num) st->format.width = num;
 }
 
-void _read_number(char *buffer, const char **src, int len) {
+void _read_number(char *buffer, const char **src, int len, bool (*num_check)(char)) {
     const char *cursor = *src;
 
     if (*cursor == '-') {
@@ -131,7 +164,7 @@ void _read_number(char *buffer, const char **src, int len) {
         len--;
     }
 
-    while (is_digit(*cursor) && len) {
+    while (num_check(*cursor) && len) {
         *buffer++ = *cursor++;
         len--;
     }
@@ -142,23 +175,27 @@ void _read_number(char *buffer, const char **src, int len) {
 void _read_float(char *buffer, const char **src, int len) {
     const char *cursor = *src;
 
+    // Consider negative number
     if (*cursor == '-') {
         *buffer++ = '-';
         cursor++;
         len--;
     }
 
-    while (is_digit(*cursor) && len && *cursor != '.') {
+    // Until point
+    while (is_dec(*cursor) && len && *cursor != '.') {
         *buffer++ = *cursor++;
         len--;
     }
 
+    // Consider point
     if (*cursor && *cursor == '.' && len) {
         *buffer++ = *cursor++;
         len--;
     }
 
-    while (is_digit(*cursor) && len) {
+    // After point
+    while (is_dec(*cursor) && len) {
         *buffer++ = *cursor++;
         len--;
     }
@@ -223,17 +260,20 @@ void _parse_arg(va_list args, const char **str, struct scan_state *st) {
     if (st->format.specifier == 'i' || st->format.specifier == 'd') {
         _parse_int(str, arg_ptr, st);
     } else if (st->format.specifier == 'u') {
-        _parse_uint(str, arg_ptr, st);
+        struct uint_utils utils = { DEC, &is_dec, &_is_neg_num_starts, 0 };
+        _parse_uint(str, arg_ptr, st, &utils);
     } else if (st->format.specifier == 'o') {
-
+        struct uint_utils utils = { OCT, &is_dec, &_is_oct_prefix, 1 };
+        _parse_uint(str, arg_ptr, st, &utils);
     } else if (st->format.specifier == 'x' || st->format.specifier == 'X') {
-
+        struct uint_utils utils = { HEX, &is_hex, &_is_hex_prefix, 2 };
+        _parse_uint(str, arg_ptr, st, &utils);
     } else if (st->format.specifier == 'p') {
 
     } else if (st->format.specifier == 'f') {
         _parse_float(str, arg_ptr, st);
     } else if (st->format.specifier == 'e' || st->format.specifier == 'E') {
-
+    
     } else if (st->format.specifier == 'g' || st->format.specifier == 'G') {
 
     } else if (st->format.specifier == 'c') {
@@ -247,6 +287,7 @@ void _parse_arg(va_list args, const char **str, struct scan_state *st) {
     } else if (st->format.specifier == 'n') {
 
     }
+    st->correct_writes++;
 }
 
 void *_parse_by_order(va_list args) {
@@ -265,9 +306,9 @@ void *_parse_by_index(va_list args, int index) {
 
 void _parse_int(const char **str, void *ptr, struct scan_state *st) {
     _ignore_space_chars(str);
-    if (is_digit(**str) || (_is_neg_num_starts(*str, st->format.width)))  {
+    if (is_dec(**str) || _is_neg_num_starts(*str, st->format.width))  {
         char buffer[512];
-        _read_number(buffer, str, st->format.width);
+        _read_number(buffer, str, st->format.width, &is_dec);
 
         long long parsed_num = s21_atoi(buffer);
         if (st->format.length == LLONG) {
@@ -288,19 +329,22 @@ void _parse_int(const char **str, void *ptr, struct scan_state *st) {
     }
 }
 
-void _parse_uint(const char **str, void *ptr, struct scan_state *st) {
+void _parse_uint(const char **str, void *ptr, struct scan_state *st, struct uint_utils* utils) {
     _ignore_space_chars(str);
-    if (is_digit(**str) || _is_neg_num_starts(*str, st->format.width)) {
+
+    bool is_prefix = utils->prefix_check(*str, st->format.width);
+    if (utils->num_check(**str) || is_prefix) {
+        if (is_prefix) (*str) += utils->prefix_len;
         char buffer[512];
-        _read_number(buffer, str, st->format.width);
+        _read_number(buffer, str, st->format.width, utils->num_check);
 
         long long unsigned parsed_num;
 
         // Negative number conversion to unsigned
-        if (buffer[0] == '-')
+        if (utils->base == DEC && buffer[0] == '-')
             parsed_num = s21_atoi(buffer);
         else
-            parsed_num = s21_atou(buffer);
+            parsed_num = s21_atou(buffer, utils->base);
 
         if (st->format.length == LLONG) {
             long long unsigned *llptr = ptr;
@@ -322,7 +366,7 @@ void _parse_uint(const char **str, void *ptr, struct scan_state *st) {
 
 void _parse_float(const char **str, void *ptr, struct scan_state *st) {
     _ignore_space_chars(str);
-    if (is_digit(**str) ||
+    if (is_dec(**str) ||
             _is_neg_num_starts(*str, st->format.width) ||
             _is_float_starts_with_point(*str, st->format.width)) {
         char buffer[1024];

@@ -1,3 +1,14 @@
+#test test_s21_sscanf_hex
+    char str[512];
+    sprintf(str, "%x %#X", 123, -34);
+    unsigned s21_n1 = 0;
+    unsigned s21_n2 = 0;
+    unsigned n1 = s21_n1;
+    unsigned n2 = s21_n2;
+    s21_sscanf(str, "%x %x", &s21_n1, &s21_n2);
+    sscanf(str, "%x %x", &n1, &n2);
+    ck_assert_uint_eq(s21_n1, n1);
+    ck_assert_uint_eq(s21_n2, n2);
 #test test_s21_sscanf_percent
     char *str = "12 % 34 0567 0890";
     int s21_n1, s21_n2;
@@ -273,3 +284,15 @@
     ck_assert_double_eq_tol(s21_n1, n1, 1e-2);
     ck_assert_double_eq_tol(s21_n2, n2, 1e-2);
     ck_assert_double_eq_tol(s21_n3, n3, 1e-2);
+#test test_s21_sscanf_oct
+    char str[512];
+    sprintf(str, "%o %#o", 123, -34);
+    unsigned s21_n1 = 0;
+    unsigned s21_n2 = 0;
+    unsigned n1 = s21_n1;
+    unsigned n2 = s21_n2;
+    s21_sscanf(str, "%o %o", &s21_n1, &s21_n2);
+    sscanf(str, "%o %o", &n1, &n2);
+    ck_assert_uint_eq(s21_n1, n1);
+    ck_assert_uint_eq(s21_n2, n2);
+

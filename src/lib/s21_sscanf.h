@@ -15,6 +15,12 @@ enum length {
     LLONG=4,
 };
 
+enum number_system {
+    OCT=8,
+    DEC=10,
+    HEX=16,
+};
+
 struct scan_state {
     int bytes_scanned;
     int correct_writes;
@@ -32,11 +38,23 @@ struct scan_state {
     } format;
 };
 
+struct uint_utils {
+    int base;
+    bool (*num_check)(char);
+    bool (*prefix_check)(const char*, int);
+    int prefix_len;
+};
+
 int sscanf(const char *str, const char *format, ...);
 bool is_space(char ch);
-bool is_digit(char ch);
+bool is_dec(char ch);
+bool is_oct(char ch);
+bool is_hex(char ch);
 bool _is_neg_num_starts(const char *str, int width);
 bool _is_float_starts_with_point(const char *str, int width);
+bool _is_oct_prefix(const char *str, int width);
+bool _is_hex_prefix(const char *str, int width);
+int _get_uint_base(char specifier);
 void _ignore_space_chars(const char **str);
 void _initialize_state(struct scan_state *st);
 void _reset_format(struct scan_state *st);
@@ -48,12 +66,12 @@ void _read_alloc_flag(const char **format, struct scan_state *st);
 void _read_len(const char **format, struct scan_state *st);
 void _read_specifier(const char **format, struct scan_state *st);
 void _read_scanset(const char **format, struct scan_state *st);
-void _read_number(char *buffer, const char **src, int width);
+void _read_number(char *buffer, const char **src, int width, bool (*num_check)(char));
 
 void _parse_arg(va_list args, const char **str, struct scan_state *st);
-void *_parse_by_order(va_list args);
-void *_parse_by_index(va_list args, int index);
+void* _parse_by_order(va_list args);
+void* _parse_by_index(va_list args, int index);
 void _parse_int(const char **str, void *ptr, struct scan_state *st);
-void _parse_uint(const char **str, void *ptr, struct scan_state *st);
+void _parse_uint(const char **str, void *ptr, struct scan_state *st, struct uint_utils* utils);
 void _parse_float(const char **str, void *ptr, struct scan_state *st);
 #endif  // S21_SSCANF
