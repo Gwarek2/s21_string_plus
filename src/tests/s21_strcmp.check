@@ -1,20 +1,20 @@
 #test test_s21_strcmp_equal
     char str1[100] = "abc";
     char str2[100] = "abc";
-    ck_assert_int_eq(s21_strcmp(str1, str2), strcmp(str1, str2));
+    ck_assert_int_eq(s21_strcmp(str1, str2) == 0, strcmp(str1, str2) == 0);
 #test test_s21_strcmp_non_equal_end
     char str1[100] = "abc";
     char str2[100] = "abk";
-    ck_assert_int_eq(s21_strcmp(str1, str2), strcmp(str1, str2));
+    ck_assert_int_eq(s21_strcmp(str1, str2) < 0, strcmp(str1, str2) < 0);
 #test test_s21_strcmp_non_equal_start
     char str1[100] = "abc";
     char str2[100] = "Abc";
-    ck_assert_int_eq(s21_strcmp(str1, str2), strcmp(str1, str2));
+    ck_assert_int_eq(s21_strcmp(str1, str2) > 0, strcmp(str1, str2) > 0);
 #test test_s21_strcmp_diff_len_non_eq
     char str1[100] = "acs";
     char str2[100] = "abdefg";
-    ck_assert_int_eq(s21_strcmp(str1, str2), strcmp(str1, str2));
+    ck_assert_int_eq(s21_strcmp(str1, str2) > 0, strcmp(str1, str2) > 0);
 #test test_s21_strcmp_diff_len_eq
     char str1[100] = "abd";
     char str2[100] = "abdafg";
-    ck_assert_int_eq(s21_strcmp(str1, str2), strcmp(str1, str2));
+    ck_assert_int_eq(s21_strcmp(str1, str2) < 0, strcmp(str1, str2) < 0);
