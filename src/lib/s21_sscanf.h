@@ -35,9 +35,8 @@ struct scan_state {
 int sscanf(const char *str, const char *format, ...);
 bool is_space(char ch);
 bool is_digit(char ch);
-bool _is_neg_num_starts(const char *str);
+bool _is_neg_num_starts(const char *str, int width);
 void _ignore_space_chars(const char **str);
-void _ignore_non_digits(const char **str);
 void _initialize_state(struct scan_state *st);
 void _reset_format(struct scan_state *st);
 void _ignore_space_chars(const char **str);
@@ -54,4 +53,5 @@ void _parse_arg(va_list args, const char **str, struct scan_state *st);
 void *_parse_by_order(va_list args);
 void *_parse_by_index(va_list args, int index);
 void _parse_int(const char **str, void *ptr, struct scan_state *st);
+void _parse_uint(const char **str, void *ptr, struct scan_state *st);
 #endif  // S21_SSCANF
