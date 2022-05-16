@@ -434,23 +434,7 @@ int fetoa(char *buffer, long double value, int exponent, struct f_params params)
     long double mant = fabsl(value);
     mant = exp2l(log2l(mant) + log2l(powl(10, precision - exponent)));
 
-    // Handling cases like 9.99 or 0.99 if number of digits after point less than precision
-    if ((fmodl(roundl(mant), 10) < 1) ^ (fmodl(mant, 10) < 1))
-        exponent++;
-
-    int exponent_temp = exponent;
-    if (exponent_temp < 0)
-        exponent_temp = -exponent_temp;
-    do {
-        int index = exponent_temp % 10;
-        buffer[i++] = NUM_TABLE_LOWER[index];
-        exponent_temp /= 10;
-    } while (exponent_temp);
-    if (exponent < 10 && exponent > -10)
-        buffer[i++] = '0';
-    buffer[i++] = exponent < 0 ? '-' : '+';
-    buffer[i++] = upper_case ? 'E' : 'e';
-
+    char mant_buffer[1024];
     if (precision > 0) {
         mant = roundl(mant);
         int write_trailing_nums = 0;
@@ -458,7 +442,7 @@ int fetoa(char *buffer, long double value, int exponent, struct f_params params)
         while (precision--) {
             int index = fmodl(mant, 10);
             if (!g_spec || params.sharp || index || write_trailing_nums) {
-                buffer[i++] = NUM_TABLE_LOWER[index];
+                mant_buffer[i++] = NUM_TABLE_LOWER[index];
                 write_trailing_nums = 1;
             }
             mant /= 10;
@@ -469,14 +453,32 @@ int fetoa(char *buffer, long double value, int exponent, struct f_params params)
         mant = roundl(mant);
     }
     if (params.sharp)
-        buffer[i++] = '.';
+        mant_buffer[i++] = '.';
     int index = fmodl(mant, 10);
     if (index < 1) {
         index = 1;
-        // buffer[0] += 1;
+        exponent++;
     }
-    buffer[i++] = NUM_TABLE_LOWER[index];
-    return i;
+    mant_buffer[i++] = NUM_TABLE_LOWER[index];
+    mant_buffer[i] = '\0';
+
+    int j = 0;
+    int exponent_temp = exponent;
+    if (exponent_temp < 0)
+        exponent_temp = -exponent_temp;
+    do {
+        int index = exponent_temp % 10;
+        buffer[j++] = NUM_TABLE_LOWER[index];
+        exponent_temp /= 10;
+    } while (exponent_temp);
+    if (exponent < 10 && exponent > -10)
+        buffer[j++] = '0';
+    buffer[j++] = exponent < 0 ? '-' : '+';
+    buffer[j++] = upper_case ? 'E' : 'e';
+    buffer[j] = '\0';
+    s21_strcat(buffer, mant_buffer);
+
+    return j + i;
 }
 
 int fgtoa(char *buffer, long double value, int exponent, struct f_params params) {
@@ -485,7 +487,7 @@ int fgtoa(char *buffer, long double value, int exponent, struct f_params params)
         params.precision -= exponent + 1;
         i += fntoa(buffer, value, params);
     } else {
-        params.precision -= 1;
+        if (params.precision != 0) params.precision -= 1;
         i += fetoa(buffer, value, exponent, params);
     }
     return i;
