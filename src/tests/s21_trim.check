@@ -32,8 +32,11 @@
     char *result = s21_trim(NULL, "./,'");
     ck_assert_ptr_eq(result, NULL);
 #test test_trim_null_trim_chars
-    char *result = s21_trim("***(code)***", NULL);
-    ck_assert_ptr_eq(result, NULL);
+    char *result = s21_trim("  \t*  **(code)**  *    \n\t", NULL);
+    ck_assert_str_eq(result, "*  **(code)**  *");
+#test test_trim_empty_trim_chars
+    char *result = s21_trim("  \t*  **(code)**  *    \n\t", "");
+    ck_assert_str_eq(result, "*  **(code)**  *");
 #test test_trim_null_strings
     char *result = s21_trim(NULL, NULL);
     ck_assert_ptr_eq(result, NULL);
