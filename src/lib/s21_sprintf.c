@@ -2,7 +2,6 @@
 #define S21_STRING_HELPERS
 
 #include <math.h>
-#include <stdio.h>
 #include <stdarg.h>
 #include <wchar.h>
 #include <limits.h>

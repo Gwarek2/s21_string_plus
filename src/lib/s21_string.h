@@ -36,4 +36,5 @@ int s21_sprintf(char *str, const char *format, ...);
 int s21_sscanf(const char *str, const char *format, ...);
 
 long long s21_atoi(char *str);
+long long unsigned s21_atou(char *str);
 #endif  // S21_STRING_H
