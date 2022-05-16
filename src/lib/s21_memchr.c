@@ -2,10 +2,13 @@
 
 void *s21_memchr(const void *str, int c, s21_size_t n) {
     void *result = S21_NULL;
-    unsigned char *cursor = (unsigned char*) str;
-    for (s21_size_t i = 0; i < n && result == S21_NULL; i++) {
-        if (cursor[i] == c)
-            result = (void*) cursor + i;
+    const unsigned char *cursor = (const unsigned char*) str;
+    const unsigned char ch = c;
+    while (n > 0 && result == S21_NULL) {
+        if (*cursor == ch)
+            result = (void*) cursor;
+        cursor++;
+        n--;
     }
     return result;
 }
