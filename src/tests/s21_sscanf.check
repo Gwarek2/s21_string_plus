@@ -1,16 +1,3 @@
-#test test_s21_sscanf_uint_failure_1
-    char *str = "-7234\n 567 890";
-    unsigned s21_n1 = 0;
-    unsigned s21_n2 = 0;
-    unsigned s21_n3 = 0;
-    unsigned n1 = s21_n1;
-    unsigned n2 = s21_n2;
-    unsigned n3 = s21_n3;
-    s21_sscanf(str, "%4u %1u %u", &s21_n1, &s21_n2, &s21_n3);
-    sscanf(str, "%4u %1u %u", &n1, &n2, &n3);
-    ck_assert_int_eq(s21_n1, n1);
-    ck_assert_int_eq(s21_n2, n2);
-    ck_assert_int_eq(s21_n3, n3);
 #test test_s21_sscanf_percent
     char *str = "12 % 34 0567 0890";
     int s21_n1, s21_n2;
@@ -187,6 +174,19 @@
     s21_sscanf(str, "%llu", &s21_n1);
     sscanf(str, "%llu", &n1);
     ck_assert_int_eq(s21_n1, n1);
+#test test_s21_sscanf_uint_failure_1
+    char *str = "-7234\n 567 890";
+    unsigned s21_n1 = 0;
+    unsigned s21_n2 = 0;
+    unsigned s21_n3 = 0;
+    unsigned n1 = s21_n1;
+    unsigned n2 = s21_n2;
+    unsigned n3 = s21_n3;
+    s21_sscanf(str, "%4u %1u %u", &s21_n1, &s21_n2, &s21_n3);
+    sscanf(str, "%4u %1u %u", &n1, &n2, &n3);
+    ck_assert_int_eq(s21_n1, n1);
+    ck_assert_int_eq(s21_n2, n2);
+    ck_assert_int_eq(s21_n3, n3);
 #test test_s21_sscanf_uint_failure_2
     char *str = "\n  \t 1234a 567 890";
     unsigned s21_n1 = 0;
@@ -213,3 +213,63 @@
     ck_assert_int_eq(s21_n1, n1);
     ck_assert_int_eq(s21_n2, n2);
     ck_assert_int_eq(s21_n3, n3);
+#test test_s21_sscanf_float
+    char *str = "-1234.45 125.0034";
+    float n1, n2, s21_n1, s21_n2;
+    s21_sscanf(str, "%f %7f", &s21_n1, &s21_n2);
+    sscanf(str, "%f %7f", &n1, &n2);
+    ck_assert_float_eq_tol(s21_n1, n1, 1e-2);
+    ck_assert_float_eq_tol(s21_n2, n2, 1e-4);
+#test test_s21_sscanf_double
+    char *str = "-1234.45 12.034";
+    double n1, n2, s21_n1, s21_n2;
+    s21_sscanf(str, "%lf %7lf", &s21_n1, &s21_n2);
+    sscanf(str, "%lf %7lf", &n1, &n2);
+    ck_assert_double_eq_tol(s21_n1, n1, 1e-2);
+    ck_assert_double_eq_tol(s21_n2, n2, 1e-3);
+#test test_s21_sscanf_long_double
+    char *str = "-12.45767 125666354.034";
+    long double n1, n2, s21_n1, s21_n2;
+    s21_sscanf(str, "%Lf %7Lf", &s21_n1, &s21_n2);
+    sscanf(str, "%Lf %7Lf", &n1, &n2);
+    ck_assert_ldouble_eq_tol(s21_n1, n1, 1e-5);
+    ck_assert_ldouble_eq_tol(s21_n2, n2, 1e-0);
+#test test_s21_sscanf_decimal_failure_1
+    char *str = "756.54a 567 890";
+    double s21_n1 = 0;
+    double s21_n2 = 0;
+    double s21_n3 = 0;
+    double n1 = s21_n1;
+    double n2 = s21_n2;
+    double n3 = s21_n3;
+    s21_sscanf(str, "%lf %2lf %lf", &s21_n1, &s21_n2, &s21_n3);
+    sscanf(str, "%lf %2lf %lf", &n1, &n2, &n3);
+    ck_assert_double_eq_tol(s21_n1, n1, 1e-2);
+    ck_assert_double_eq_tol(s21_n2, n2, 1e-2);
+    ck_assert_double_eq_tol(s21_n3, n3, 1e-2);
+#test test_s21_sscanf_decimal_false_failure_2
+    char *str = "756.54.867 890";
+    double s21_n1 = 0;
+    double s21_n2 = 0;
+    double s21_n3 = 0;
+    double n1 = s21_n1;
+    double n2 = s21_n2;
+    double n3 = s21_n3;
+    s21_sscanf(str, "%lf %2lf %lf", &s21_n1, &s21_n2, &s21_n3);
+    sscanf(str, "%lf %2lf %lf", &n1, &n2, &n3);
+    ck_assert_double_eq_tol(s21_n1, n1, 1e-2);
+    ck_assert_double_eq_tol(s21_n2, n2, 1e-2);
+    ck_assert_double_eq_tol(s21_n3, n3, 1e-2);
+#test test_s21_sscanf_decimal_failure_3
+    char *str = "756.54 567.a 890";
+    double s21_n1 = 0;
+    double s21_n2 = 0;
+    double s21_n3 = 0;
+    double n1 = s21_n1;
+    double n2 = s21_n2;
+    double n3 = s21_n3;
+    s21_sscanf(str, "%lf %4lf %lf", &s21_n1, &s21_n2, &s21_n3);
+    sscanf(str, "%lf %4lf %lf", &n1, &n2, &n3);
+    ck_assert_double_eq_tol(s21_n1, n1, 1e-2);
+    ck_assert_double_eq_tol(s21_n2, n2, 1e-2);
+    ck_assert_double_eq_tol(s21_n3, n3, 1e-2);

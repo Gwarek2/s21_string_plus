@@ -81,6 +81,10 @@ bool _is_neg_num_starts(const char *str, int width) {
     return *str == '-' && is_digit(str[1]) && (width > 1 || width == -1);
 }
 
+bool _is_float_starts_with_point(const char *str, int width) {
+    return *str == '.' && is_digit(str[1]) && (width > 1 || width == -1);
+}
+
 void _read_format(const char **format, struct scan_state *st) {
     _read_supressor(format, st);
     _read_width_and_argnum(format, st);
@@ -227,7 +231,7 @@ void _parse_arg(va_list args, const char **str, struct scan_state *st) {
     } else if (st->format.specifier == 'p') {
 
     } else if (st->format.specifier == 'f') {
-
+        _parse_float(str, arg_ptr, st);
     } else if (st->format.specifier == 'e' || st->format.specifier == 'E') {
 
     } else if (st->format.specifier == 'g' || st->format.specifier == 'G') {
@@ -316,11 +320,25 @@ void _parse_uint(const char **str, void *ptr, struct scan_state *st) {
     }
 }
 
-void _parse_float(const char **str, struct scan_state *st) {
+void _parse_float(const char **str, void *ptr, struct scan_state *st) {
     _ignore_space_chars(str);
-    if (is_digit(**str) || _is_neg_num_starts(*str, st->format.width)) {
+    if (is_digit(**str) ||
+            _is_neg_num_starts(*str, st->format.width) ||
+            _is_float_starts_with_point(*str, st->format.width)) {
         char buffer[1024];
         _read_float(buffer, str, st->format.width);
+
+        long double parsed_num = s21_strtod(buffer);
+        if (st->format.length == LLONG) {
+            long double *llptr = ptr;
+            *llptr = parsed_num;
+        } else if (st->format.length == LONG ) {
+            double *lptr = ptr;
+            *lptr = parsed_num;
+        } else {
+            float *cptr = ptr;
+            *cptr = parsed_num;
+        }
     } else {
         st->failure = 1;
     }
