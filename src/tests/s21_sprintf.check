@@ -27,16 +27,16 @@
     setlocale(LC_ALL, "");
     char buff1[100000];
     char buff2[100000];
-    int c1 = s21_sprintf(buff1, "|%lc| - wchar", L'И');
-    int c2 = sprintf(buff2, "|%lc| - wchar", L'И');
+    int c1 = s21_sprintf(buff1, "|%lc| - wchar", L'A');
+    int c2 = sprintf(buff2, "|%lc| - wchar", L'A');
     ck_assert_str_eq(buff1, buff2);
     ck_assert_int_eq(c1, c2);
 #test test_s21_sprintf_wide_strings
     setlocale(LC_ALL, "");
     char buff1[100000];
     char buff2[100000];
-    int c1 = s21_sprintf(buff1, "|5%%|, |%-10.10ls|", L"строка");
-    int c2 = sprintf(buff2, "|5%%|, |%-10.10ls|", L"строка");
+    int c1 = s21_sprintf(buff1, "|5%%|, |%-10.10ls|", L"string");
+    int c2 = sprintf(buff2, "|5%%|, |%-10.10ls|", L"string");
     ck_assert_str_eq(buff1, buff2);
     ck_assert_int_eq(c1, c2);
 #test test_s21_sprintf_float_values
