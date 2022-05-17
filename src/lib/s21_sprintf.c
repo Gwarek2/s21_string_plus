@@ -120,8 +120,7 @@ void _set_default_params(struct f_params *params) {
     params->width = 0;
     params->precision = 0;
     params->default_precision = 1;
-    for (int i = 0; i < 5; i++)
-        params->type[i] = '\0';
+    s21_memset(params->type, '\0', 5);
 }
 
 int _convert_arg(char *str, va_list args, struct f_params params) {
@@ -179,21 +178,21 @@ int _int_to_str(char *buffer, va_list args, struct f_params params, int base) {
     if (params.type[0] == 'l' && params.type[1] == 'l') {
         long long value = va_arg(args, long long);
         unsigned long long arg = value < 0 ? -value : value;
-        i += itoa(arg, buffer, base, value < 0, params);
+        i += _itoa(arg, buffer, base, value < 0, params);
     } else if (params.type[0] == 'l') {
         long value = va_arg(args, long);
         unsigned long long arg = value < 0 ? -value : value;
-        i += itoa(arg, buffer, base, value < 0, params);
+        i += _itoa(arg, buffer, base, value < 0, params);
     } else if (params.type[0] == 'h') {
         short value = (short) va_arg(args, int);
         unsigned long long arg = value < 0 ? -value : value;
-        i += itoa(arg, buffer, base, value < 0, params);
+        i += _itoa(arg, buffer, base, value < 0, params);
     } else {
         int value = va_arg(args, int);
         unsigned long long arg = value < 0 ? -value : value;
         if (value == INT_MIN)
             arg = (unsigned long long) INT_MAX + 1;
-        i += itoa(arg, buffer, base, value < 0, params);
+        i += _itoa(arg, buffer, base, value < 0, params);
     }
     return i;
 }
@@ -201,14 +200,14 @@ int _int_to_str(char *buffer, va_list args, struct f_params params, int base) {
 int _uint_to_str(char *buffer, va_list args, struct f_params params, int base) {
     int i = 0;
     if (params.type[0] == 'l' && params.type[1] == 'l') {
-        i += itoa(va_arg(args, long long unsigned), buffer, base, 0, params);
+        i += _itoa(va_arg(args, long long unsigned), buffer, base, 0, params);
     } else if (params.type[0] == 'l') {
-        i += itoa(va_arg(args, long unsigned), buffer, base, 0, params);
+        i += _itoa(va_arg(args, long unsigned), buffer, base, 0, params);
     } else if (params.type[0] == 'h') {
         short unsigned arg = (short unsigned) va_arg(args, unsigned);
-        i += itoa(arg, buffer, base, 0, params);
+        i += _itoa(arg, buffer, base, 0, params);
     } else {
-        i += itoa(va_arg(args, unsigned), buffer, base, 0, params);
+        i += _itoa(va_arg(args, unsigned), buffer, base, 0, params);
     }
     return i;
 }
@@ -220,7 +219,7 @@ int _ptr_to_str(char *buffer, va_list args) {
     params.type[0] = 'p';
     long unsigned arg = va_arg(args, long unsigned);
     if (arg != 0) {
-        i += itoa(arg, buffer, 16, 0, params);
+        i += _itoa(arg, buffer, 16, 0, params);
     } else {
         s21_strcpy(buffer, NULL_INT);
         i += s21_strlen(NULL_INT);
@@ -231,9 +230,9 @@ int _ptr_to_str(char *buffer, va_list args) {
 int _float_to_str(char *buffer, struct f_params params, va_list args) {
     int i = 0;
     if (params.type[0] == 'L')
-        i += ftoa(va_arg(args, long double), buffer, params);
+        i += _ftoa(va_arg(args, long double), buffer, params);
     else
-        i += ftoa(va_arg(args, double), buffer, params);
+        i += _ftoa(va_arg(args, double), buffer, params);
     return i;
 }
 
@@ -286,7 +285,7 @@ void _add_padding(char *str, int len, char ch) {
 }
 
 // Returns length of resulting string
-int itoa(long long unsigned value, char* result, int base, int neg, struct f_params params) {
+int _itoa(long long unsigned value, char* result, int base, int neg, struct f_params params) {
     char *cur = result;
     int precision = params.precision;
     int flag = params.flag;
@@ -335,7 +334,7 @@ int itoa(long long unsigned value, char* result, int base, int neg, struct f_par
 }
 
 // Returns length of resulting string
-int ftoa(long double value, char *result, struct f_params params) {
+int _ftoa(long double value, char *result, struct f_params params) {
     int i = 0;
     int flag = params.flag;
     int neg = value < 0;
@@ -361,13 +360,13 @@ int ftoa(long double value, char *result, struct f_params params) {
         s21_strcpy(buffer, inf);
     } else {
         if (s21_strchr(params.type, 'f')) {
-            i += fntoa(buffer, value, params);
+            i += _fntoa(buffer, value, params);
         } else if (s21_strpbrk(params.type, "eE")) {
             int exponent = _calc_exponent(value);
-            i += fetoa(buffer, value, exponent, params);
+            i += _fetoa(buffer, value, exponent, params);
         } else if (s21_strpbrk(params.type, "gG")) {
             int exponent = _calc_exponent(value);
-            i += fgtoa(buffer, value, exponent, params);
+            i += _fgtoa(buffer, value, exponent, params);
         }
 
         // Add zero padding
@@ -389,7 +388,7 @@ int ftoa(long double value, char *result, struct f_params params) {
     return i;
 }
 
-int fntoa(char *buffer, long double value, struct f_params params) {
+int _fntoa(char *buffer, long double value, struct f_params params) {
     int precision = params.precision;
     int g_spec = s21_strpbrk(params.type, "gG") != NULL;
     int i = 0;
@@ -427,7 +426,7 @@ int fntoa(char *buffer, long double value, struct f_params params) {
     return i;
 }
 
-int fetoa(char *buffer, long double value, int exponent, struct f_params params) {
+int _fetoa(char *buffer, long double value, int exponent, struct f_params params) {
     int i = 0;
     int precision = params.precision;
     int g_spec = s21_strpbrk(params.type, "gG") != NULL;
@@ -435,6 +434,7 @@ int fetoa(char *buffer, long double value, int exponent, struct f_params params)
     long double mant = fabsl(value);
     mant = exp2l(log2l(mant) + log2l(powl(10, precision - exponent)));
 
+    // Writing mantiss
     char mant_buffer[1024];
     if (precision > 0) {
         mant = roundl(mant);
@@ -463,6 +463,7 @@ int fetoa(char *buffer, long double value, int exponent, struct f_params params)
     mant_buffer[i++] = NUM_TABLE_LOWER[index];
     mant_buffer[i] = '\0';
 
+    // Adding exponent value
     int j = 0;
     int exponent_temp = exponent;
     if (exponent_temp < 0)
@@ -482,14 +483,14 @@ int fetoa(char *buffer, long double value, int exponent, struct f_params params)
     return j + i;
 }
 
-int fgtoa(char *buffer, long double value, int exponent, struct f_params params) {
+int _fgtoa(char *buffer, long double value, int exponent, struct f_params params) {
     int i = 0;
     if (params.precision > exponent && exponent >= -4) {
         params.precision -= exponent + 1;
-        i += fntoa(buffer, value, params);
+        i += _fntoa(buffer, value, params);
     } else {
         if (params.precision != 0) params.precision -= 1;
-        i += fetoa(buffer, value, exponent, params);
+        i += _fetoa(buffer, value, exponent, params);
     }
     return i;
 }
