@@ -54,7 +54,6 @@ bool _is_neg_num_starts(const char *str, int width);
 bool _is_float_starts_with_point(const char *str, int width);
 bool _is_oct_prefix(const char *str, int width);
 bool _is_hex_prefix(const char *str, int width);
-int _get_uint_base(char specifier);
 void _ignore_space_chars(const char **str);
 void _initialize_state(struct scan_state *st);
 void _reset_format(struct scan_state *st);

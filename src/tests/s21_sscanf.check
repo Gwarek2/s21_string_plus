@@ -1,3 +1,16 @@
+#test test_s21_sscanf_float_scientific_notation
+    char *str = "1e+2 234.54545E-4 0.2342";
+    double s21_n1 = 0;
+    double s21_n2 = 0;
+    double s21_n3 = 0;
+    double n1 = s21_n1;
+    double n2 = s21_n2;
+    double n3 = s21_n3;
+    s21_sscanf(str, "%2le %le %le", &s21_n1, &s21_n2, &s21_n3);
+    sscanf(str, "%2le %le %le", &n1, &n2, &n3);
+    ck_assert_float_eq_tol(s21_n1, n1, 1e-0);
+    ck_assert_float_eq_tol(s21_n2, n2, 1e-9);
+    ck_assert_float_eq_tol(s21_n3, n3, 1e-4);
 #test test_s21_sscanf_hex
     char str[512];
     sprintf(str, "%x %#X", 123, -34);
@@ -295,4 +308,16 @@
     sscanf(str, "%o %o", &n1, &n2);
     ck_assert_uint_eq(s21_n1, n1);
     ck_assert_uint_eq(s21_n2, n2);
+#test test_s21_sscanf_ptr
+    char str[512];
+    int n1, n2;
+    sprintf(str, "%p %lx", &n1, (long unsigned) &n2);
+    void *s21_p1 = NULL;
+    void *s21_p2 = NULL;
+    void *p1 = NULL;
+    void *p2 = NULL;
+    s21_sscanf(str, "%p %p", &s21_p1, &s21_p2);
+    sscanf(str, "%p %p", &p1, &p2);
+    ck_assert_ptr_eq(s21_p1, p1);
+    ck_assert_ptr_eq(s21_p2, p2);
 
