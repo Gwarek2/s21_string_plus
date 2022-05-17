@@ -414,7 +414,7 @@ void _parse_str(const char **str, void *ptr, struct scan_state *st) {
     if (st->format.use_alloc) {
         char **buff = (char**) ptr;
         *buff = malloc(sizeof(char));
-        if (buff != NULL)
+        if (*buff != NULL)
             _write_str_to_heap_buffer(buff, str, st);
         else
             st->failure = true;

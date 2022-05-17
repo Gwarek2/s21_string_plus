@@ -19,11 +19,28 @@
     char buffer1[100];
     char buffer2[100];
     char buffer3[100];
-    s21_sscanf(str, "%s %s %s", s21_buffer1, s21_buffer2, s21_buffer3);
-    sscanf(str, "%s %s %s", buffer1, buffer2, buffer3);
+    s21_sscanf(str, "%s %2s %7s", s21_buffer1, s21_buffer2, s21_buffer3);
+    sscanf(str, "%s %2s %7s", buffer1, buffer2, buffer3);
     ck_assert_str_eq(s21_buffer1, buffer1);
     ck_assert_str_eq(s21_buffer2, buffer2);
     ck_assert_str_eq(s21_buffer3, buffer3);
+// #test test_s21_sscanf_string_malloc
+//     char *str = "string string STRING";
+//     char *s21_buffer1;
+//     char *s21_buffer2;
+//     char *s21_buffer3;
+//     char *buffer1;
+//     char *buffer2;
+//     char *buffer3;
+//     sscanf("1234", "%ms", &buffer1);
+//     printf("%s\n", buffer1);
+//     s21_sscanf(str, "%ms %2ms %7ms", &s21_buffer1, &s21_buffer2, &s21_buffer3);
+//     sscanf(str, "%ms %2ms %7ms", &buffer1, &buffer2, &buffer3);
+//     ck_assert_str_eq(s21_buffer1, buffer1);
+//     ck_assert_str_eq(s21_buffer2, buffer2);
+//     ck_assert_str_eq(s21_buffer3, buffer3);
+//     free(s21_buffer1); free(s21_buffer2); free(s21_buffer3);
+//     free(buffer1); free(buffer2); free(buffer3);
 #test test_s21_sscanf_hex
     char str[512];
     sprintf(str, "%x %#X", 123, -34);
