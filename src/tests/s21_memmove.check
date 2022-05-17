@@ -1,0 +1,18 @@
+#test s21_memmove_test_different_strings
+    char str1[] = "Hi World";
+    char str2[] = "bye 12345";
+    char str3[] = "Hi World";
+    char str4[] = "bye 12345";
+    ck_assert_mem_eq(s21_memmove(str1, str2, 3), memmove(str3, str4, 3), 3);
+#test s21_memmove_test_same_string_overlap
+    char str2[] = "123456789";
+    char str1[] = "123456789";
+    ck_assert_mem_eq(s21_memmove(str1, str1 + 2, 4), memmove(str2, str2 + 2, 4), 4);
+#test s21_memmove_test_same_string_non_overlap
+    char str2[] = "123456789";
+    char str1[] = "123456789";
+    ck_assert_mem_eq(s21_memmove(str1 + 1, str1, 4), memmove(str2 + 1, str2, 4), 4);
+#test s21_memmove_test_null
+    char str1[] = "\0";
+    char str2[] = "123456789";
+    ck_assert_mem_eq(s21_memmove(str2, str1, 1), memmove(str2, str1, 1), 1);

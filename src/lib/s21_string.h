@@ -1,8 +1,11 @@
-#ifndef _S21_STRING_H
+#ifndef S21_STRING_H
+
+#define S21_STRING_H
 
 typedef long unsigned s21_size_t;
 
-#define S21_NULL ((void*) 0);
+#define S21_NULL ((void*) 0)
+
 
 void *s21_memchr(const void *str, int c, s21_size_t n);
 int s21_memcmp(const void *str1, const void *str2, s21_size_t n);
@@ -24,6 +27,15 @@ char *s21_strrchr(const char *str, int c);
 s21_size_t s21_strspn(const char *str1, const char *str2);
 char *s21_strstr(const char *haystack, const char *needle);
 char *s21_strtok(char *str, const char *delim);
+void *s21_to_upper(const char *str);
+void *s21_to_lower(const char* str);
+void *s21_insert(const char *src, const char *str, s21_size_t start_index);
+void *s21_trim(const char *src, const char *trim_chars);
 
 int s21_sprintf(char *str, const char *format, ...);
-#endif // _S21_STRING_H
+int s21_sscanf(const char *str, const char *format, ...);
+
+long long s21_atoi(char *str);
+long long unsigned s21_atou(char *str, int base);
+long double s21_strtod(char *buffer);
+#endif  // S21_STRING_H
