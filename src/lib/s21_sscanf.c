@@ -84,8 +84,10 @@ bool is_hex(char ch) {
            (ch >= 'A' && ch <= 'F');
 }
 
-bool _is_neg_num_starts(const char *str, int width) {
-    return *str == '-' && is_dec(str[1]) && (width > 1 || width == -1);
+bool _is_signed_num_starts(const char *str, int width) {
+    return (*str == '-' || *str == '+') &&
+           is_dec(str[1]) &&
+           (width > 1 || width == -1);
 }
 
 bool _is_float_starts_with_point(const char *str, int width) {
@@ -164,9 +166,11 @@ void _read_number(char *buffer, const char **src, int len, bool (*num_check)(cha
 void _read_float(char *buffer, const char **src, int len) {
     const char *cursor = *src;
 
-    // Consider negative number
+    // Consider sign
     if (*cursor == '-') {
-        *buffer++ = '-';
+        *buffer++ = *cursor++;
+        len--;
+    } else if (*cursor == '+') {
         cursor++;
         len--;
     }
@@ -193,19 +197,22 @@ void _read_float(char *buffer, const char **src, int len) {
     *src = cursor;
 }
 
-int _read_exponent(const char **str, int width) {
+int _read_exponent(const char **str, int width, int consumed_width) {
     int exponent = 0;
     char buffer[5];
     char *buff_cursor = buffer;
     const char *cursor = *str;
-    if (_is_scientific_notation_starts(cursor)) {
+    if (_is_scientific_notation_starts(cursor) && (width == -1 || width - consumed_width > 3)) {
         cursor++;
         *buff_cursor++ = *cursor++;
         while (is_dec(*cursor) && *cursor && width--)
             *buff_cursor++ = *cursor++;
         *buff_cursor = '\0';
         exponent = s21_atoi(buffer);
+    } else if (_is_scientific_notation_starts(cursor) && (width - consumed_width > 0)) {
+        cursor += width - consumed_width;
     }
+    *str = cursor;
     return exponent;
 }
 
@@ -266,7 +273,7 @@ void _parse_arg(va_list args, const char **str, struct scan_state *st) {
     if (st->format.specifier == 'i' || st->format.specifier == 'd') {
         _parse_int(str, arg_ptr, st);
     } else if (st->format.specifier == 'u') {
-        struct uint_utils utils = { DEC, &is_dec, &_is_neg_num_starts, 0 };
+        struct uint_utils utils = { DEC, &is_dec, &_is_signed_num_starts, 0 };
         _parse_uint(str, arg_ptr, st, &utils);
     } else if (st->format.specifier == 'o') {
         struct uint_utils utils = { OCT, &is_dec, &_is_oct_prefix, 1 };
@@ -302,7 +309,7 @@ void *_parse_by_index(va_list args, int index) {
 
 void _parse_int(const char **str, void *ptr, struct scan_state *st) {
     _ignore_space_chars(str);
-    if (is_dec(**str) || _is_neg_num_starts(*str, st->format.width))  {
+    if (is_dec(**str) || _is_signed_num_starts(*str, st->format.width))  {
         char buffer[512];
         _read_number(buffer, str, st->format.width, &is_dec);
 
@@ -367,7 +374,7 @@ void _parse_uint(const char **str, void *ptr, struct scan_state *st, struct uint
 void _parse_float(const char **str, void *ptr, struct scan_state *st) {
     _ignore_space_chars(str);
     if (is_dec(**str) ||
-            _is_neg_num_starts(*str, st->format.width) ||
+            _is_signed_num_starts(*str, st->format.width) ||
             _is_float_starts_with_point(*str, st->format.width)) {
         char buffer[1024];
         int width = st->format.width;
@@ -375,9 +382,8 @@ void _parse_float(const char **str, void *ptr, struct scan_state *st) {
 
         int exponent = 0;
         s21_size_t buffer_len = s21_strlen(buffer);
-        if ((st->format.specifier == 'e' || st->format.specifier == 'g') &&
-                (st->format.width == -1 || width - buffer_len > 3))
-            exponent = _read_exponent(str, width - buffer_len);
+        if (st->format.specifier == 'e' || st->format.specifier == 'g')
+            exponent = _read_exponent(str, width, buffer_len);
 
         if (!st->format.supress) {
             long double parsed_num = s21_strtod(buffer) * powl(10.0L, exponent);

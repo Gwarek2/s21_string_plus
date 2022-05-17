@@ -1,5 +1,5 @@
 CC=gcc
-FLAGS=-Wall -Werror -Wextra -std=c11 -g# -fsanitize=address 
+FLAGS=-Wall -Werror -Wextra -std=c11 -g -fsanitize=address 
 CHECKMK=checkmk clean_mode=1
 OUT_DIR=obj
 COV_DIR=coverage_info

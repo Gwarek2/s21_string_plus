@@ -50,7 +50,7 @@ bool is_space(char ch);
 bool is_dec(char ch);
 bool is_oct(char ch);
 bool is_hex(char ch);
-bool _is_neg_num_starts(const char *str, int width);
+bool _is_signed_num_starts(const char *str, int width);
 bool _is_float_starts_with_point(const char *str, int width);
 bool _is_scientific_notation_starts(const char *str);
 bool _is_oct_prefix(const char *str, int width);
