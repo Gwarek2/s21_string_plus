@@ -52,6 +52,7 @@ bool is_oct(char ch);
 bool is_hex(char ch);
 bool _is_neg_num_starts(const char *str, int width);
 bool _is_float_starts_with_point(const char *str, int width);
+bool _is_scientific_notation_starts(const char *str);
 bool _is_oct_prefix(const char *str, int width);
 bool _is_hex_prefix(const char *str, int width);
 void _ignore_space_chars(const char **str);
@@ -73,4 +74,8 @@ void* _parse_by_index(va_list args, int index);
 void _parse_int(const char **str, void *ptr, struct scan_state *st);
 void _parse_uint(const char **str, void *ptr, struct scan_state *st, struct uint_utils* utils);
 void _parse_float(const char **str, void *ptr, struct scan_state *st);
+void _parse_char(const char **str, void *ptr, struct scan_state *st);
+void _parse_str(const char **str, void *ptr, struct scan_state *st);
+void _write_str_to_static_buffer(char *buffer, const char **str, struct scan_state *st);
+void _write_str_to_heap_buffer(char **buffer, const char **str, struct scan_state *st);
 #endif  // S21_SSCANF

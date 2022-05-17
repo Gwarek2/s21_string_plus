@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <wchar.h>
 
 #include "s21_string.h"
 #include "s21_sscanf.h"
@@ -61,7 +62,7 @@ void _reset_format(struct scan_state *st) {
 }
 
 void _ignore_space_chars(const char **str) {
-    while (is_space(**str)) (*str)++;
+    while (is_space(**str) && **str) (*str)++;
 }
 
 bool is_space(char ch) {
@@ -200,7 +201,7 @@ int _read_exponent(const char **str, int width) {
     if (_is_scientific_notation_starts(cursor)) {
         cursor++;
         *buff_cursor++ = *cursor++;
-        while (is_dec(*cursor) && width--)
+        while (is_dec(*cursor) && *cursor && width--)
             *buff_cursor++ = *cursor++;
         *buff_cursor = '\0';
         exponent = s21_atoi(buffer);
@@ -275,16 +276,12 @@ void _parse_arg(va_list args, const char **str, struct scan_state *st) {
         _parse_uint(str, arg_ptr, st, &utils);
     } else if (s21_strchr("feg", st->format.specifier)) {
         _parse_float(str, arg_ptr, st);
-    } else if (st->format.specifier == 'c') {
-
     } else if (st->format.specifier == 'n') {
 
     } else if (st->format.specifier == 'c') {
-
+        _parse_char(str, arg_ptr, st);
     } else if (st->format.specifier == 's') {
-
-    } else if (st->format.specifier == 'n') {
-
+        _parse_str(str, arg_ptr, st);
     }
     st->correct_writes++;
 }
@@ -400,3 +397,56 @@ void _parse_float(const char **str, void *ptr, struct scan_state *st) {
     }
 }
 
+void _parse_char(const char **str, void *ptr, struct scan_state *st) {
+    _ignore_space_chars(str);
+    if (st->format.length == LONG) {
+        wchar_t *wcptr = ptr;
+        *wcptr = **str;
+    } else {
+        char *cptr = ptr;
+        *cptr = **str;
+    }
+    (*str)++;
+}
+
+void _parse_str(const char **str, void *ptr, struct scan_state *st) {
+    _ignore_space_chars(str);
+    if (st->format.use_alloc) {
+        char **buff = (char**) ptr;
+        *buff = malloc(sizeof(char));
+        if (buff != NULL)
+            _write_str_to_heap_buffer(buff, str, st);
+        else
+            st->failure = true;
+    } else {
+        _write_str_to_static_buffer(ptr, str, st);
+    }
+}
+
+void _write_str_to_static_buffer(char *buffer, const char **str, struct scan_state *st) {
+    const char *scan_set = st->format.scanset;
+    const char *cursor = *str;
+    int width = st->format.width;
+    while (!is_space(*cursor) && (!*scan_set || s21_strchr(scan_set, *cursor)) && width--) {
+        *buffer++ = *cursor++;
+    }
+    *buffer = '\0';
+    *str = cursor;
+}
+
+void _write_str_to_heap_buffer(char **buffer, const char **str, struct scan_state *st) {
+    const char *scan_set = st->format.scanset;
+    const char *cursor = *str;
+    char *buff = *buffer;
+    int i = 0;
+    int width = st->format.width;
+    while (!is_space(*cursor) && (!*scan_set || s21_strchr(scan_set, *cursor)) && width-- && buff != S21_NULL) {
+        buff[i++] = *cursor++;
+        buff = realloc(buff, (i + 1) * sizeof(char));
+    }
+    if (buff == S21_NULL)
+        st->failure = true;
+    else
+        buff[i] = '\0';
+    *str = cursor;
+}
