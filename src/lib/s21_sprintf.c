@@ -1,6 +1,7 @@
 #ifndef S21_STRING_HELPERS
 #define S21_STRING_HELPERS
 
+#include <stdio.h>
 #include <math.h>
 #include <stdarg.h>
 #include <wchar.h>
@@ -263,9 +264,9 @@ int _str_to_str(char *buffer, va_list args, struct f_params params) {
         if (str != NULL) {
             if (chars_print == -1)
                 chars_print = s21_strlen(str);
-            s21_strncpy(buffer, str, chars_print);
+            s21_strcpy(buffer, str);
             buffer[chars_print] = '\0';
-            i += chars_print;
+            i += s21_strlen(buffer);
         } else {
             s21_strcpy(buffer, "(null)");
             i += 6;
@@ -305,7 +306,7 @@ int itoa(long long unsigned value, char* result, int base, int neg, struct f_par
 
     // Add zero padding
     int zero_padding_len = 0;
-    if (value == 0 && precision == 0) {
+    if (value == 0 && precision == 0 && !params.default_precision) {
         *--cur = '\0';
     } else if (precision > 0) {
         zero_padding_len = precision - (cur - result);
