@@ -48,5 +48,5 @@
     char *str2 = NULL;
     s21_size_t index = 1;
     char* result_insert = s21_insert(str1, str2, index);
-    ck_assert_ptr_eq(result_insert, result_insert);
+    ck_assert_str_eq(result_insert, str1);
     free(result_insert);
