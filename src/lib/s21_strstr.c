@@ -3,7 +3,7 @@
 char *s21_strstr(const char *haystack, const char *needle) {
     char *result = S21_NULL;
     if (!*haystack && !*needle)
-        result = "";
+        result = (char*) haystack + s21_strlen(haystack);
 
     while (*haystack && result == S21_NULL) {
         const char *h_cursor = haystack;
