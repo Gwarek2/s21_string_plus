@@ -1,0 +1,18 @@
+#test test_s21_memcpy_full
+    void *template = (void*) "Hello world";
+    char buff1[50]; char buff2[50];
+    void *str1 = (void*) buff1;
+    void *str2 = (void*) buff2;
+    ck_assert_mem_eq(memcpy(str1, template, 12), s21_memcpy(str2, template, 12), 12);
+#test test_s21_memcpy_partial
+    void *template = (void*) "Text to copy";
+    char buff1[50]; char buff2[50];
+    void *str1 = (void*) buff1;
+    void *str2 = (void*) buff2;
+    ck_assert_mem_eq(memcpy(str1, template, 5), s21_memcpy(str2, template, 5), 5);
+#test test_s21_memcpy_empty
+    void *template = (void*) "\0";
+    char buff1[50]; char buff2[50];
+    void *str1 = (void*) buff1;
+    void *str2 = (void*) buff2;
+    ck_assert_mem_eq(memcpy(str1, template, 1), s21_memcpy(str2, template, 1), 1);

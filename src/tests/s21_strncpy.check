@@ -1,0 +1,36 @@
+#test test_s21_strncpy_src_all
+    char *src1 = "hello\0";
+    char dest1[100];
+    char *src2 = "hello\0";
+    char dest2[100];
+    ck_assert_str_eq(s21_strncpy(dest1, src1, 6), strncpy(dest2, src2, 6));
+#test test_s21_strncpy_null_char_middle
+    char *src1 = "hel\0lo";
+    char dest1[100];
+    char *src2 = "hel\0lo";
+    char dest2[100];
+    ck_assert_str_eq(s21_strncpy(dest1, src1, 5), strncpy(dest2, src2, 5));
+#test test_s21_strncpy_null_char_start
+    char *src1 = "\0hello";
+    char dest1[100];
+    char *src2 = "\0hello";
+    char dest2[100];
+    ck_assert_str_eq(s21_strncpy(dest1, src1, 5), strncpy(dest2, src2, 5));
+#test test_s21_strncpy_dest_overflow
+    char *src1 = "string";
+    char dest1[100];
+    char *src2 = "string";
+    char dest2[100];
+    ck_assert_str_eq(s21_strncpy(dest1, src1, 8), strncpy(dest2, src2, 8));
+#test test_s21_strncpy_one_char
+    char *src1 = "\0lib";
+    char dest1[100];
+    char *src2 = "\0lib";
+    char dest2[100];
+    ck_assert_str_eq(s21_strncpy(dest1, src1, 1), strncpy(dest2, src2, 1));
+#test test_s21_strncpy_src_empty
+    char *src1 = "";
+    char dest1[100];
+    char *src2 = "";
+    char dest2[100];
+    ck_assert_str_eq(s21_strncpy(dest1, src1, 4), strncpy(dest2, src2, 4));

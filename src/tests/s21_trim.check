@@ -1,0 +1,44 @@
+#test test_trim_chars_on_margins
+    char *str = "***(string)***";
+    char *trim = "*()";
+    char *result = s21_trim(str, trim);
+    ck_assert_str_eq(result, "string");
+    free(result);
+#test test_trim_chars_in_the_middle
+    char *str = "2 * 2 = 4";
+    char *trim = " *=";
+    char *result = s21_trim(str, trim);
+    ck_assert_str_eq(result, "2 * 2 = 4");
+    free(result);
+#test test_trim_in_the_middle_and_margins
+    char *str = "   'Hi, Mark. What are you doing?'       ";
+    char *trim = " '.,";
+    char *result = s21_trim(str, trim);
+    ck_assert_str_eq(result, "Hi, Mark. What are you doing?");
+    free(result);
+#test test_trim_no_trim_chars
+    char *str = "a string";
+    char *trim = "' ,.&*()";
+    char *result = s21_trim(str, trim);
+    ck_assert_str_eq(result, "a string");
+    free(result);
+#test test_trim_all_chars_trimmed
+    char *str = "****(&&&||||)''''''";
+    char *trim = "*&|+_'() ";
+    char *result = s21_trim(str, trim);
+    ck_assert_str_eq(result, "");
+    free(result);
+#test test_trim_null_src
+    char *result = s21_trim(NULL, "./,'");
+    ck_assert_ptr_eq(result, NULL);
+#test test_trim_null_trim_chars
+    char *result = s21_trim("  \t*  **(code)**  *    \n\t", NULL);
+    ck_assert_str_eq(result, "*  **(code)**  *");
+    free(result);
+#test test_trim_empty_trim_chars
+    char *result = s21_trim("  \t*  **(code)**  *    \n\t", "");
+    ck_assert_str_eq(result, "*  **(code)**  *");
+    free(result);
+#test test_trim_null_strings
+    char *result = s21_trim(NULL, NULL);
+    ck_assert_ptr_eq(result, NULL);

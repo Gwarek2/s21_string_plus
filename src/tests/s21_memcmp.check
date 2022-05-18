@@ -1,0 +1,16 @@
+#test test_s21_memcmp_eq_str
+    void *str1 = (void*) "Hello world";
+    void *str2 = (void*) "Hello world";
+    ck_assert_int_eq(s21_memcmp(str1, str2, 11), memcmp(str1, str2, 11));
+#test test_s21_memcmp_neq_str
+    void *str1 = (void*) "Hello world";
+    void *str2 = (void*) "HELLO WORLD";
+    ck_assert_int_eq(s21_memcmp(str1, str2, 11), memcmp(str1, str2, 11));
+#test test_s21_memcmp_neq_str_diff_len
+    void *str1 = (void*) "daddy";
+    void *str2 = (void*) "dim";
+    ck_assert_int_eq(s21_memcmp(str1, str2, 3), s21_memcmp(str1, str2, 3));
+#test test_s21_memcmp_empty_str
+    void *str1 = (void*) "\0";
+    void *str2 = (void*) "\0";
+    ck_assert_int_eq(s21_memcmp(str1, str2, 1), memcmp(str1, str2, 1));

@@ -1,0 +1,22 @@
+#test test_to_upper_regular_characters
+    char* str = "abc.ABC,123\0";
+    char* result_to_upper = s21_to_upper(str);
+    ck_assert_str_eq(result_to_upper, "ABC.ABC,123\0");
+    free(result_to_upper);
+#test test_to_upper_control_characters
+    char* str = "123\a123\b123\n\0";
+    char* str2 = "123\a123\b123\n\0";
+    char* result_to_upper = s21_to_upper(str);
+    ck_assert_str_eq(result_to_upper, str2);
+    free(result_to_upper);
+#test test_to_upper_empty_str
+    char* str = "\0";
+    char* str2 = "\0";
+    char* result_to_upper = s21_to_upper(str);
+    ck_assert_str_eq(result_to_upper, str2);
+    free(result_to_upper);
+#test test_to_upper_null_str
+    char* str = NULL;
+    char* result_to_upper = s21_to_upper(str);
+    ck_assert_ptr_eq(result_to_upper, NULL);
+    free(result_to_upper);

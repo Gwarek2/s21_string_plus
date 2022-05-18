@@ -1,0 +1,23 @@
+#test test_to_lower_regular_characters
+    char* str = "abc.ABC,123\0";
+    char* str2 = "abc.abc,123\0";
+    char* result_to_lower = s21_to_lower(str);
+    ck_assert_str_eq(result_to_lower, str2);
+    free(result_to_lower);
+#test test_to_lower_control_characters
+    char* str = "123\b123\a123\n\0";
+    char* str2 = "123\b123\a123\n\0";
+    char* result_to_lower = s21_to_lower(str);
+    ck_assert_str_eq(result_to_lower, str2);
+    free(result_to_lower);
+#test test_to_lower_empty_line
+    char* str = "\0";
+    char* str2 = "\0";
+    char* result_to_lower = s21_to_lower(str);
+    ck_assert_str_eq(result_to_lower, str2);
+    free(result_to_lower);
+#test test_to_lower_null
+    char* str = NULL;
+    char* result_to_lower = s21_to_lower(str);
+    ck_assert_ptr_eq(result_to_lower, NULL);
+    free(result_to_lower);

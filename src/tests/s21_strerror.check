@@ -1,0 +1,3 @@
+#test test_s21_strerror_in_cycle
+    for (int i = -10; i <= 200; i++)
+        ck_assert_str_eq(strerror(i), s21_strerror(i));

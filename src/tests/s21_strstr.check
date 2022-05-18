@@ -1,0 +1,20 @@
+#test test_s21_strstr_normal
+    char *str = "Hello world, my friend!";
+    char *str2 = "world";
+    ck_assert_pstr_eq(s21_strstr(str, str2), strstr(str, str2));
+#test test_s21_strstr_no_result
+    char *str = "Hello world, my friend!";
+    char *str2 = "worlds";
+    ck_assert_pstr_eq(s21_strstr(str, str2), strstr(str, str2));
+#test test_s21_strstr_empty_needle
+    char *str = "Hello world, my friend!";
+    char *str2 = "";
+    ck_assert_pstr_eq(s21_strstr(str, str2), strstr(str, str2));
+#test test_s21_strstr_empty_haystack
+    char *str = "";
+    char *str2 = "nda";
+    ck_assert_pstr_eq(s21_strstr(str, str2), strstr(str, str2));
+#test test_s21_strstr_empty_haystack_and_needle
+    char *str = "";
+    char *str2 = "";
+    ck_assert_pstr_eq(s21_strstr(str, str2), strstr(str, str2));
