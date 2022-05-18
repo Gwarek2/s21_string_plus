@@ -63,7 +63,7 @@ START_TEST(test_insert_neg_index)
     char* str2 = "AB\0";
     s21_size_t index = -1;
     char* result_insert = s21_insert(str1, str2, index);
-    ck_assert_ptr_eq(result_insert, NULL);
+    ck_assert_pstr_eq(result_insert, NULL);
 }
 END_TEST
 
@@ -73,7 +73,7 @@ START_TEST(test_insert_null_strings)
     char *str2 = NULL;
     s21_size_t index = 0;
     char* result_insert = s21_insert(str1, str2, index);
-    ck_assert_ptr_eq(result_insert, NULL);
+    ck_assert_pstr_eq(result_insert, NULL);
 }
 END_TEST
 
@@ -83,7 +83,7 @@ START_TEST(test_insert_null_src)
     char *str2 = "string";
     s21_size_t index = 0;
     char* result_insert = s21_insert(str1, str2, index);
-    ck_assert_ptr_eq(result_insert, NULL);
+    ck_assert_pstr_eq(result_insert, NULL);
 }
 END_TEST
 
@@ -93,7 +93,8 @@ START_TEST(test_insert_null_dest)
     char *str2 = NULL;
     s21_size_t index = 1;
     char* result_insert = s21_insert(str1, str2, index);
-    ck_assert_ptr_eq(result_insert, NULL);
+    ck_assert_pstr_eq(result_insert, str1);
+    free(result_insert);
 }
 END_TEST
 
@@ -595,23 +596,23 @@ START_TEST(test_s21_sscanf_string)
     ck_assert_str_eq(s21_buffer1, buffer1);
     ck_assert_str_eq(s21_buffer2, buffer2);
     ck_assert_str_eq(s21_buffer3, buffer3);
-// #test test_s21_sscanf_string_malloc
-//     char *str = "string string STRING";
-//     char *s21_buffer1;
-//     char *s21_buffer2;
-//     char *s21_buffer3;
-//     char *buffer1;
-//     char *buffer2;
-//     char *buffer3;
-//     sscanf("1234", "%ms", &buffer1);
-//     printf("%s\n", buffer1);
-//     s21_sscanf(str, "%ms %2ms %7ms", &s21_buffer1, &s21_buffer2, &s21_buffer3);
-//     sscanf(str, "%ms %2ms %7ms", &buffer1, &buffer2, &buffer3);
-//     ck_assert_str_eq(s21_buffer1, buffer1);
-//     ck_assert_str_eq(s21_buffer2, buffer2);
-//     ck_assert_str_eq(s21_buffer3, buffer3);
-//     free(s21_buffer1); free(s21_buffer2); free(s21_buffer3);
-//     free(buffer1); free(buffer2); free(buffer3);
+}
+END_TEST
+
+START_TEST(test_s21_sscanf_wide_string)
+{
+    char *str = "string string STRING";
+    wchar_t s21_buffer1[100];
+    wchar_t s21_buffer2[100];
+    wchar_t s21_buffer3[100];
+    wchar_t buffer1[100];
+    wchar_t buffer2[100];
+    wchar_t buffer3[100];
+    s21_sscanf(str, "%ls %2ls %7ls", s21_buffer1, s21_buffer2, s21_buffer3);
+    sscanf(str, "%ls %2ls %7ls", buffer1, buffer2, buffer3);
+    ck_assert_mem_eq(s21_buffer1, buffer1, 6 * sizeof(wchar_t));
+    ck_assert_mem_eq(s21_buffer2, buffer2, 2 * sizeof(wchar_t));
+    ck_assert_mem_eq(s21_buffer3, buffer3, 5 * sizeof(wchar_t));
 }
 END_TEST
 
@@ -1648,25 +1649,41 @@ END_TEST
 
 START_TEST(test_s21_strstr_normal)
 {
-    char *str = (void *)"Hello world, my friend!";
-    char *str2 = (void *)"world";
-    ck_assert_str_eq(s21_strstr(str, str2), strstr(str, str2));
+    char *str = "Hello world, my friend!";
+    char *str2 = "world";
+    ck_assert_pstr_eq(s21_strstr(str, str2), strstr(str, str2));
 }
 END_TEST
 
 START_TEST(test_s21_strstr_no_result)
 {
-    char *str = (void *)"Hello world, my friend!";
-    char *str2 = (void *)"worlds";
-    ck_assert_ptr_eq(s21_strstr(str, str2), strstr(str, str2));
+    char *str = "Hello world, my friend!";
+    char *str2 = "worlds";
+    ck_assert_pstr_eq(s21_strstr(str, str2), strstr(str, str2));
 }
 END_TEST
 
-START_TEST(test_s21_strstr_empty_str)
+START_TEST(test_s21_strstr_empty_needle)
 {
-    char *str = (void *)"Hello world, my friend!";
-    char *str2 = (void *)"";
-    ck_assert_ptr_eq(s21_strstr(str, str2), strstr(str, str2));
+    char *str = "Hello world, my friend!";
+    char *str2 = "";
+    ck_assert_pstr_eq(s21_strstr(str, str2), strstr(str, str2));
+}
+END_TEST
+
+START_TEST(test_s21_strstr_empty_haystack)
+{
+    char *str = "";
+    char *str2 = "nda";
+    ck_assert_pstr_eq(s21_strstr(str, str2), strstr(str, str2));
+}
+END_TEST
+
+START_TEST(test_s21_strstr_empty_haystack_and_needle)
+{
+    char *str = "";
+    char *str2 = "";
+    ck_assert_pstr_eq(s21_strstr(str, str2), strstr(str, str2));
 }
 END_TEST
 
@@ -1927,7 +1944,6 @@ int main(void)
     Suite *s1 = suite_create("Core");
     TCase *tc1_1 = tcase_create("Core");
     SRunner *sr = srunner_create(s1);
-    srunner_set_fork_status(sr, CK_NOFORK);
     int nf;
 
     suite_add_tcase(s1, tc1_1);
@@ -1984,6 +2000,7 @@ int main(void)
     tcase_add_test(tc1_1, test_s21_sprintf_float_g_format);
     tcase_add_test(tc1_1, test_s21_sscanf_chars);
     tcase_add_test(tc1_1, test_s21_sscanf_string);
+    tcase_add_test(tc1_1, test_s21_sscanf_wide_string);
     tcase_add_test(tc1_1, test_s21_sscanf_hex);
     tcase_add_test(tc1_1, test_s21_sscanf_percent);
     tcase_add_test(tc1_1, test_s21_sscanf_int);
@@ -2086,7 +2103,9 @@ int main(void)
     tcase_add_test(tc1_1, test_s21_strspn_null_word);
     tcase_add_test(tc1_1, test_s21_strstr_normal);
     tcase_add_test(tc1_1, test_s21_strstr_no_result);
-    tcase_add_test(tc1_1, test_s21_strstr_empty_str);
+    tcase_add_test(tc1_1, test_s21_strstr_empty_needle);
+    tcase_add_test(tc1_1, test_s21_strstr_empty_haystack);
+    tcase_add_test(tc1_1, test_s21_strstr_empty_haystack_and_needle);
     tcase_add_test(tc1_1, s21_strtok_test_normal);
     tcase_add_test(tc1_1, s21_strtok_test_only_delims);
     tcase_add_test(tc1_1, s21_strtok_test_empty_delimeters);

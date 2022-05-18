@@ -70,7 +70,7 @@ cpplint.py
 *.css
 s21_string_coverage
 
-*.swp
+.*.swp
 
 TODO
 
