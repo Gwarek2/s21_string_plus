@@ -2,6 +2,7 @@
 *.d
 
 # Object files
+obj
 *.o
 *.ko
 *.obj
@@ -29,6 +30,8 @@
 *.dylib
 
 # Executables
+s21_string_test
+s21_string_report
 *.exe
 *.out
 *.app
@@ -41,6 +44,7 @@
 *.su
 *.idb
 *.pdb
+.debug
 
 # Kernel Module Compile Results
 *.mod*
@@ -50,3 +54,24 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# IDE configs
+.vscode
+.idea
+
+# linters
+cpplint.py
+
+# unittest files
+*.gcda
+*.gcno
+*.info
+*.html
+*.css
+s21_string_coverage
+
+*.swp
+
+TODO
+
+*.cfg
