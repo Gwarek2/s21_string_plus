@@ -321,7 +321,7 @@ int _itoa(long long unsigned value, char* result, int base, int neg, struct f_pa
         *cur++ = '-';
     } else if (base == 10 && s21_strchr(params.type, 'u') == S21_NULL && (flag == ' ' || flag == '+')) {
         *cur++ = flag;
-    } else if (base == 16 && (params.sharp || s21_strchr(params.type, 'p'))) {
+    } else if (base == 16 && value != 0 && (params.sharp || s21_strchr(params.type, 'p'))) {
         *cur++ = upper_case ? 'X' : 'x';
         *cur++ = '0';
     } else if (base == 8 && params.sharp) {
@@ -486,7 +486,8 @@ int _fetoa(char *buffer, long double value, int exponent, struct f_params params
 int _fgtoa(char *buffer, long double value, int exponent, struct f_params params) {
     int i = 0;
     if (params.precision > exponent && exponent >= -4) {
-        params.precision -= exponent + 1;
+        if (params.precision == 0) params.precision = fabs((double) exponent);
+        else params.precision -= exponent + 1;
         i += _fntoa(buffer, value, params);
     } else {
         if (params.precision != 0) params.precision -= 1;
