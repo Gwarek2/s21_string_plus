@@ -348,7 +348,6 @@ void _parse_int(const char **str, void *ptr, struct scan_state *st) {
 }
 
 void _parse_uint(const char **str, void *ptr, struct scan_state *st, struct uint_utils* utils) {
-
     bool is_prefix = utils->prefix_check(*str, st->format.width);
     if (utils->num_check(**str) || is_prefix) {
         if (is_prefix) (*str) += utils->prefix_len;
@@ -454,7 +453,10 @@ int* _read_str(const char **str, struct scan_state *st) {
     const char *scan_set = st->format.scanset;
     const char *cursor = *str;
     int width = st->format.width;
-    while (!is_space(*cursor) && (!*scan_set || s21_strchr(scan_set, *cursor)) && width-- && buffer != S21_NULL) {
+    while (!is_space(*cursor) &&
+            (!*scan_set || s21_strchr(scan_set, *cursor)) &&
+            width-- &&
+            buffer != S21_NULL) {
         buffer[i++] = *cursor++;
         buffer = realloc(buffer, (i + 1) * sizeof(int));
         st->bytes_scanned++;
