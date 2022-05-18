@@ -30,23 +30,23 @@
     char* str2 = "AB\0";
     s21_size_t index = -1;
     char* result_insert = s21_insert(str1, str2, index);
-    ck_assert_ptr_eq(result_insert, NULL);
+    ck_assert_pstr_eq(result_insert, NULL);
 #test test_insert_null_strings
     char *str1 = NULL;
     char *str2 = NULL;
     s21_size_t index = 0;
     char* result_insert = s21_insert(str1, str2, index);
-    ck_assert_ptr_eq(result_insert, NULL);
+    ck_assert_pstr_eq(result_insert, NULL);
 #test test_insert_null_src
     char *str1 = NULL;
     char *str2 = "string";
     s21_size_t index = 0;
     char* result_insert = s21_insert(str1, str2, index);
-    ck_assert_ptr_eq(result_insert, NULL);
+    ck_assert_pstr_eq(result_insert, NULL);
 #test test_insert_null_dest
     char *str1 = "string";
     char *str2 = NULL;
     s21_size_t index = 1;
     char* result_insert = s21_insert(str1, str2, index);
-    ck_assert_str_eq(result_insert, str1);
+    ck_assert_pstr_eq(result_insert, str1);
     free(result_insert);

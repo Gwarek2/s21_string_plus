@@ -1,5 +1,5 @@
 #include <math.h>
-#include "s21_string.h"
+#include "../s21_string.h"
 
 long double _convert_float_part(long double value, int exp);
 

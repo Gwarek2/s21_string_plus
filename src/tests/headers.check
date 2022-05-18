@@ -6,4 +6,4 @@
 #include <stdlib.h>
 #include <locale.h>
 
-#include "../lib/s21_string.h"
+#include "../s21_string.h"

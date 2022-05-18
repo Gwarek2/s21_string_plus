@@ -8,7 +8,7 @@
 #include <limits.h>
 #include <float.h>
 
-#include "s21_string.h"
+#include "../s21_string.h"
 #include "s21_sprintf.h"
 
 int s21_sprintf(char *str, const char *format, ...) {

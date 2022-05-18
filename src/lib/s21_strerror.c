@@ -1,4 +1,4 @@
-#include "s21_string.h"
+#include "../s21_string.h"
 #include "s21_strerror.h"
 #include "s21_sprintf.h"
 

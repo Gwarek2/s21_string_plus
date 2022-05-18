@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "s21_string.h"
+#include "../s21_string.h"
 
 void del_space_chars(const char **start, const char **end);
 

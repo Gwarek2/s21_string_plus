@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <wchar.h>
 
-#include "s21_string.h"
+#include "../s21_string.h"
 #include "s21_sscanf.h"
 
 int s21_sscanf(const char *str, const char *format, ...) {
@@ -458,7 +458,10 @@ int* _read_str(const char **str, struct scan_state *st) {
             width-- &&
             buffer != S21_NULL) {
         buffer[i++] = *cursor++;
-        buffer = realloc(buffer, (i + 1) * sizeof(int));
+        char *temp_buffer = realloc(buffer, (i + 1) * sizeof(int));
+        if (temp_buffer == NULL)
+            free(buffer);
+        buffer = temp_buffer;
         st->bytes_scanned++;
     }
     if (buffer != S21_NULL)
