@@ -33,11 +33,11 @@ struct f_params {
 
 int _read_format_params(struct f_params* params, const char *format, va_list args);
 int _convert_arg(char *str, va_list args, struct f_params params);
-int itoa(long long unsigned value, char* result, int base, int neg, struct f_params params);
-int ftoa(long double value, char *result, struct f_params params);
-int fntoa(char *buffer, long double value, struct f_params params); 
-int fetoa(char *buffer, long double value, int exp, struct f_params params);
-int fgtoa(char *buffer, long double value, int exp, struct f_params params); 
+int _itoa(long long unsigned value, char* result, int base, int neg, struct f_params params);
+int _ftoa(long double value, char *result, struct f_params params);
+int _fntoa(char *buffer, long double value, struct f_params params); 
+int _fetoa(char *buffer, long double value, int exp, struct f_params params);
+int _fgtoa(char *buffer, long double value, int exp, struct f_params params); 
 
 int _int_to_str(char *buffer, va_list args, struct f_params params, int base);
 int _uint_to_str(char *buffer, va_list args, struct f_params params, int base);

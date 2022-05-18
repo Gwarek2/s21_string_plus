@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <wchar.h>
 
 #include "s21_string.h"
 #include "s21_sscanf.h"
@@ -18,14 +19,7 @@ int s21_sscanf(const char *str, const char *format, ...) {
         if (*format == '%') {
             format++;
             _read_format(&format, &state);
-            // printf("----new_format: bytes - %i, correct_writes - %i, numargs - %i, oargs - %i, fail - %i\n",
-            //         state.bytes_scanned, state.correct_writes, state.num_args_flag, state.ordered_args_flag, state.failure),
-            // printf("supress - %i, arg_num - %i, width - %i, use_alloc - %i, length - %i, specifier - %c\n",
-            //          state.format.supress, state.format.arg_num, state.format.width, state.format.use_alloc, state.format.length,
-            //          state.format.specifier);
-            if (!state.failure &&
-                    state.format.specifier != '%' &&
-                    !state.format.supress) {
+            if (!state.failure && state.format.specifier != '%') {
                 _parse_arg(args, &str, &state);
             } else if (state.format.specifier == '%') {
                 _ignore_space_chars(&str);
@@ -68,7 +62,7 @@ void _reset_format(struct scan_state *st) {
 }
 
 void _ignore_space_chars(const char **str) {
-    while (is_space(**str)) (*str)++;
+    while (is_space(**str) && **str) (*str)++;
 }
 
 bool is_space(char ch) {
@@ -90,12 +84,20 @@ bool is_hex(char ch) {
            (ch >= 'A' && ch <= 'F');
 }
 
-bool _is_neg_num_starts(const char *str, int width) {
-    return *str == '-' && is_dec(str[1]) && (width > 1 || width == -1);
+bool _is_signed_num_starts(const char *str, int width) {
+    return (*str == '-' || *str == '+') &&
+           is_dec(str[1]) &&
+           (width > 1 || width == -1);
 }
 
 bool _is_float_starts_with_point(const char *str, int width) {
     return *str == '.' && is_dec(str[1]) && (width > 1 || width == -1);
+}
+
+bool _is_scientific_notation_starts(const char *str) {
+    return (str[0] == 'e' || str[0] == 'E') &&
+            (str[1] == '+' || str[1] == '-') &&
+            is_dec(str[2]);
 }
 
 bool _is_oct_prefix(const char *str, int width) {
@@ -105,17 +107,6 @@ bool _is_oct_prefix(const char *str, int width) {
 bool _is_hex_prefix(const char *str, int width) {
     return *str == '0' && (str[1] == 'x' || str[1] == 'X') &&
            is_hex(str[2])  && (width == -1 || width > 2);
-}
-
-int _get_uint_base(char specifier) {
-    int result = 0;
-    if (specifier == 'o' || specifier == 'O')
-        result = OCT;
-    else if (specifier == 'u')
-        result = DEC;
-    else if (specifier == 'x' || specifier == 'X')
-        result = HEX;
-    return result;
 }
 
 void _read_format(const char **format, struct scan_state *st) {
@@ -132,7 +123,6 @@ void _read_supressor(const char **format, struct scan_state *st) {
         (*format)++;
     }
 }
-
 
 void _read_width_and_argnum(const char **format, struct scan_state *st) {
     char buffer[50];
@@ -158,6 +148,7 @@ void _read_width_and_argnum(const char **format, struct scan_state *st) {
 void _read_number(char *buffer, const char **src, int len, bool (*num_check)(char)) {
     const char *cursor = *src;
 
+    // Consider negative number
     if (*cursor == '-') {
         *buffer++ = '-';
         cursor++;
@@ -175,9 +166,11 @@ void _read_number(char *buffer, const char **src, int len, bool (*num_check)(cha
 void _read_float(char *buffer, const char **src, int len) {
     const char *cursor = *src;
 
-    // Consider negative number
+    // Consider sign
     if (*cursor == '-') {
-        *buffer++ = '-';
+        *buffer++ = *cursor++;
+        len--;
+    } else if (*cursor == '+') {
         cursor++;
         len--;
     }
@@ -199,8 +192,32 @@ void _read_float(char *buffer, const char **src, int len) {
         *buffer++ = *cursor++;
         len--;
     }
+
     *buffer = '\0';
     *src = cursor;
+}
+
+int _read_exponent(const char **str, struct scan_state *st, int consumed_width) {
+    int exponent = 0;
+    int width = st->format.width;
+    char buffer[5];
+    char *buff_cursor = buffer;
+    const char *cursor = *str;
+    if (_is_scientific_notation_starts(cursor) && (width == -1 || width - consumed_width > 3)) {
+        cursor++;
+        st->bytes_scanned++;
+        *buff_cursor++ = *cursor++;
+        while (is_dec(*cursor) && *cursor && width--) {
+            *buff_cursor++ = *cursor++;
+            st->bytes_scanned++;
+        }
+        *buff_cursor = '\0';
+        exponent = s21_atoi(buffer);
+    } else if (_is_scientific_notation_starts(cursor) && (width - consumed_width > 0)) {
+        cursor++;
+    }
+    *str = cursor;
+    return exponent;
 }
 
 void _read_alloc_flag(const char **format, struct scan_state *st) {
@@ -260,43 +277,32 @@ void _parse_arg(va_list args, const char **str, struct scan_state *st) {
     if (st->format.specifier == 'i' || st->format.specifier == 'd') {
         _parse_int(str, arg_ptr, st);
     } else if (st->format.specifier == 'u') {
-        struct uint_utils utils = { DEC, &is_dec, &_is_neg_num_starts, 0 };
+        struct uint_utils utils = { DEC, &is_dec, &_is_signed_num_starts, 0 };
         _parse_uint(str, arg_ptr, st, &utils);
     } else if (st->format.specifier == 'o') {
         struct uint_utils utils = { OCT, &is_dec, &_is_oct_prefix, 1 };
         _parse_uint(str, arg_ptr, st, &utils);
-    } else if (st->format.specifier == 'x' || st->format.specifier == 'X') {
+    } else if (st->format.specifier == 'x' || st->format.specifier == 'p') {
         struct uint_utils utils = { HEX, &is_hex, &_is_hex_prefix, 2 };
         _parse_uint(str, arg_ptr, st, &utils);
-    } else if (st->format.specifier == 'p') {
-
-    } else if (st->format.specifier == 'f') {
+    } else if (s21_strchr("feg", st->format.specifier)) {
         _parse_float(str, arg_ptr, st);
-    } else if (st->format.specifier == 'e' || st->format.specifier == 'E') {
-    
-    } else if (st->format.specifier == 'g' || st->format.specifier == 'G') {
-
-    } else if (st->format.specifier == 'c') {
-
     } else if (st->format.specifier == 'n') {
-
+        _write_bytes_scanned(arg_ptr, st);
     } else if (st->format.specifier == 'c') {
-
+        _parse_char(str, arg_ptr, st);
     } else if (st->format.specifier == 's') {
-
-    } else if (st->format.specifier == 'n') {
-
+        _parse_str(str, arg_ptr, st);
     }
-    st->correct_writes++;
 }
 
-void *_parse_by_order(va_list args) {
+void* _parse_by_order(va_list args) {
     return va_arg(args, void*);
 }
 
-void *_parse_by_index(va_list args, int index) {
+void* _parse_by_index(va_list args, int index) {
     va_list cursor;
-    void *arg_ptr;
+    void *arg_ptr = S21_NULL;
     va_copy(cursor, args);
     while (index--)
         arg_ptr = va_arg(args, void*);
@@ -306,23 +312,27 @@ void *_parse_by_index(va_list args, int index) {
 
 void _parse_int(const char **str, void *ptr, struct scan_state *st) {
     _ignore_space_chars(str);
-    if (is_dec(**str) || _is_neg_num_starts(*str, st->format.width))  {
+    if (is_dec(**str) || _is_signed_num_starts(*str, st->format.width))  {
         char buffer[512];
         _read_number(buffer, str, st->format.width, &is_dec);
+        st->bytes_scanned += s21_strlen(buffer);
 
-        long long parsed_num = s21_atoi(buffer);
-        if (st->format.length == LLONG) {
-            long long *llptr = ptr;
-            *llptr = parsed_num;
-        } else if (st->format.length == LONG) {
-            long *lptr = ptr;
-            *lptr = parsed_num;
-        } else if (st->format.length == SHORT) {
-            short *sptr = ptr;
-            *sptr = parsed_num;
-        } else {
-            int *cptr = ptr;
-            *cptr = parsed_num;
+        if (!st->format.supress) {
+            long long parsed_num = s21_atoi(buffer);
+            if (st->format.length == LLONG) {
+                long long *llptr = ptr;
+                *llptr = parsed_num;
+            } else if (st->format.length == LONG) {
+                long *lptr = ptr;
+                *lptr = parsed_num;
+            } else if (st->format.length == SHORT) {
+                short *sptr = ptr;
+                *sptr = parsed_num;
+            } else {
+                int *cptr = ptr;
+                *cptr = parsed_num;
+            }
+            st->correct_writes++;
         }
     } else {
         st->failure = true;
@@ -337,6 +347,7 @@ void _parse_uint(const char **str, void *ptr, struct scan_state *st, struct uint
         if (is_prefix) (*str) += utils->prefix_len;
         char buffer[512];
         _read_number(buffer, str, st->format.width, utils->num_check);
+        st->bytes_scanned += s21_strlen(buffer);
 
         long long unsigned parsed_num;
 
@@ -346,18 +357,21 @@ void _parse_uint(const char **str, void *ptr, struct scan_state *st, struct uint
         else
             parsed_num = s21_atou(buffer, utils->base);
 
-        if (st->format.length == LLONG) {
-            long long unsigned *llptr = ptr;
-            *llptr = parsed_num;
-        } else if (st->format.length == LONG) {
-            long unsigned *lptr = ptr;
-            *lptr = parsed_num;
-        } else if (st->format.length == SHORT) {
-            short unsigned *sptr = ptr;
-            *sptr = parsed_num;
-        } else {
-            unsigned *cptr = ptr;
-            *cptr = parsed_num;
+        if (!st->format.supress) {
+            if (st->format.length == LONG || st->format.specifier == 'p') {
+                long unsigned *lptr = ptr;
+                *lptr = parsed_num;
+            } else if (st->format.length == LLONG) {
+                long long unsigned *llptr = ptr;
+                *llptr = parsed_num;
+            } else if (st->format.length == SHORT) {
+                short unsigned *sptr = ptr;
+                *sptr = parsed_num;
+            } else {
+                unsigned *cptr = ptr;
+                *cptr = parsed_num;
+            }
+            st->correct_writes++;
         }
     } else {
         st->failure = true;
@@ -367,23 +381,88 @@ void _parse_uint(const char **str, void *ptr, struct scan_state *st, struct uint
 void _parse_float(const char **str, void *ptr, struct scan_state *st) {
     _ignore_space_chars(str);
     if (is_dec(**str) ||
-            _is_neg_num_starts(*str, st->format.width) ||
+            _is_signed_num_starts(*str, st->format.width) ||
             _is_float_starts_with_point(*str, st->format.width)) {
         char buffer[1024];
-        _read_float(buffer, str, st->format.width);
+        int width = st->format.width;
+        _read_float(buffer, str, width);
 
-        long double parsed_num = s21_strtod(buffer);
-        if (st->format.length == LLONG) {
-            long double *llptr = ptr;
-            *llptr = parsed_num;
-        } else if (st->format.length == LONG ) {
-            double *lptr = ptr;
-            *lptr = parsed_num;
-        } else {
-            float *cptr = ptr;
-            *cptr = parsed_num;
+        int exponent = 0;
+        s21_size_t buffer_len = s21_strlen(buffer);
+        st->bytes_scanned += buffer_len;
+        if (st->format.specifier == 'e' || st->format.specifier == 'g')
+            exponent = _read_exponent(str, st, buffer_len);
+
+        if (!st->format.supress) {
+            long double parsed_num = s21_strtod(buffer) * powl(10.0L, exponent);
+            if (st->format.length == LLONG) {
+                long double *llptr = ptr;
+                *llptr = parsed_num;
+            } else if (st->format.length == LONG) {
+                double *lptr = ptr;
+                *lptr = parsed_num;
+            } else {
+                float *cptr = ptr;
+                *cptr = parsed_num;
+            }
+            st->correct_writes++;
         }
     } else {
         st->failure = 1;
     }
+}
+
+void _parse_char(const char **str, void *ptr, struct scan_state *st) {
+    _ignore_space_chars(str);
+    if (st->format.length == LONG) {
+        wchar_t *wcptr = ptr;
+        *wcptr = **str;
+    } else {
+        char *cptr = ptr;
+        *cptr = **str;
+    }
+    st->bytes_scanned++;
+    st->correct_writes++;
+    (*str)++;
+}
+
+void _parse_str(const char **str, void *ptr, struct scan_state *st) {
+    _ignore_space_chars(str);
+    if (st->format.length == LONG) {
+        wchar_t *wsptr = ptr;
+        _read_wstr(wsptr, str, st);
+    } else {
+        char *sptr = ptr;
+        _read_str(sptr, str, st);
+    }
+    st->correct_writes++;
+}
+
+void _read_str(char *buffer, const char **str, struct scan_state *st) {
+    const char *scan_set = st->format.scanset;
+    const char *cursor = *str;
+    int width = st->format.width;
+    while (!is_space(*cursor) && (!*scan_set || s21_strchr(scan_set, *cursor)) && width--) {
+        *buffer++ = *cursor++;
+        st->bytes_scanned++;
+    }
+    *buffer = '\0';
+    *str = cursor;
+}
+
+void _read_wstr(wchar_t *buffer, const char **str, struct scan_state *st) {
+    const char *scan_set = st->format.scanset;
+    const char *cursor = *str;
+    int width = st->format.width;
+    while (!is_space(*cursor) && (!*scan_set || s21_strchr(scan_set, *cursor)) && width--) {
+        *buffer++ = *cursor++;
+        st->bytes_scanned++;
+    }
+    *buffer = '\0';
+    *str = cursor;
+}
+
+void _write_bytes_scanned(void *ptr, struct scan_state *st) {
+    int *num_ptr = (int*) ptr;
+    *num_ptr = st->bytes_scanned;
 }
