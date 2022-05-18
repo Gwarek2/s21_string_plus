@@ -67,6 +67,11 @@ void _read_len(const char **format, struct scan_state *st);
 void _read_specifier(const char **format, struct scan_state *st);
 void _read_scanset(const char **format, struct scan_state *st);
 void _read_number(char *buffer, const char **src, int width, bool (*num_check)(char));
+void _read_float(char *buffer, const char **src, int len);
+int _read_exponent(const char **str, struct scan_state *st, int consumed_width);
+void _read_str(char *buffer, const char **str, struct scan_state *st);
+void _read_wstr(wchar_t *buffer, const char **str, struct scan_state *st);
+void _write_bytes_scanned(void *ptr, struct scan_state *st);
 
 void _parse_arg(va_list args, const char **str, struct scan_state *st);
 void* _parse_by_order(va_list args);
@@ -76,6 +81,4 @@ void _parse_uint(const char **str, void *ptr, struct scan_state *st, struct uint
 void _parse_float(const char **str, void *ptr, struct scan_state *st);
 void _parse_char(const char **str, void *ptr, struct scan_state *st);
 void _parse_str(const char **str, void *ptr, struct scan_state *st);
-void _write_str_to_static_buffer(char *buffer, const char **str, struct scan_state *st);
-void _write_str_to_heap_buffer(char **buffer, const char **str, struct scan_state *st);
 #endif  // S21_SSCANF
