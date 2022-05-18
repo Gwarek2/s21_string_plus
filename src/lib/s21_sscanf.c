@@ -19,19 +19,22 @@ int s21_sscanf(const char *str, const char *format, ...) {
         if (*format == '%') {
             format++;
             _read_format(&format, &state);
+            if (!*state.format.scanset)
+                _ignore_space_chars(&str, &state);
             if (!state.failure && state.format.specifier != '%') {
                 _parse_arg(args, &str, &state);
             } else if (state.format.specifier == '%') {
-                _ignore_space_chars(&str);
                 if (*str != '%')
                     state.failure = true;
                 str++;
+                state.bytes_scanned++;
             }
             _reset_format(&state);
         } else if (!is_space(*format)) {
-            _ignore_space_chars(&str);
+            _ignore_space_chars(&str, &state);
             if (*str != *format)
                 state.failure = 1;
+            state.bytes_scanned++;
             str++;
             format++;
         } else {
@@ -61,8 +64,11 @@ void _reset_format(struct scan_state *st) {
     st->format.scanset[0] = '\0';
 }
 
-void _ignore_space_chars(const char **str) {
-    while (is_space(**str) && **str) (*str)++;
+void _ignore_space_chars(const char **str, struct scan_state *st) {
+    while (is_space(**str) && **str) {
+        (*str)++;
+        st->bytes_scanned++;
+    }
 }
 
 bool is_space(char ch) {
@@ -203,10 +209,11 @@ int _read_exponent(const char **str, struct scan_state *st, int consumed_width) 
     char buffer[5];
     char *buff_cursor = buffer;
     const char *cursor = *str;
-    if (_is_scientific_notation_starts(cursor) && (width == -1 || width - consumed_width > 3)) {
+    if (_is_scientific_notation_starts(cursor) && (width == -1 || width - consumed_width >= 3)) {
         cursor++;
-        st->bytes_scanned++;
+        st->bytes_scanned += 2;
         *buff_cursor++ = *cursor++;
+        width -= consumed_width + 2;
         while (is_dec(*cursor) && *cursor && width--) {
             *buff_cursor++ = *cursor++;
             st->bytes_scanned++;
@@ -251,7 +258,7 @@ void _read_specifier(const char **format, struct scan_state *st) {
         (*format)++;
     } else if (**format == SCANSET_START) {
         st->format.specifier = 's';
-        (*format)++;
+        _read_scanset(format, st);
     } else {
         st->failure = true;
     }
@@ -268,11 +275,13 @@ void _read_scanset(const char **format, struct scan_state *st) {
 }
 
 void _parse_arg(va_list args, const char **str, struct scan_state *st) {
-    void *arg_ptr;
-    if (st->num_args_flag)
-        arg_ptr = _parse_by_index(args, st->format.arg_num);
-    else
-        arg_ptr = _parse_by_order(args);
+    void *arg_ptr = S21_NULL;
+    if (!st->format.supress) {
+        if (st->num_args_flag)
+            arg_ptr = _parse_by_index(args, st->format.arg_num);
+        else
+            arg_ptr = _parse_by_order(args);
+    }
 
     if (st->format.specifier == 'i' || st->format.specifier == 'd') {
         _parse_int(str, arg_ptr, st);
@@ -311,13 +320,12 @@ void* _parse_by_index(va_list args, int index) {
 }
 
 void _parse_int(const char **str, void *ptr, struct scan_state *st) {
-    _ignore_space_chars(str);
     if (is_dec(**str) || _is_signed_num_starts(*str, st->format.width))  {
         char buffer[512];
         _read_number(buffer, str, st->format.width, &is_dec);
         st->bytes_scanned += s21_strlen(buffer);
 
-        if (!st->format.supress) {
+        if (!st->format.supress && *buffer && ptr != S21_NULL) {
             long long parsed_num = s21_atoi(buffer);
             if (st->format.length == LLONG) {
                 long long *llptr = ptr;
@@ -340,7 +348,6 @@ void _parse_int(const char **str, void *ptr, struct scan_state *st) {
 }
 
 void _parse_uint(const char **str, void *ptr, struct scan_state *st, struct uint_utils* utils) {
-    _ignore_space_chars(str);
 
     bool is_prefix = utils->prefix_check(*str, st->format.width);
     if (utils->num_check(**str) || is_prefix) {
@@ -357,7 +364,7 @@ void _parse_uint(const char **str, void *ptr, struct scan_state *st, struct uint
         else
             parsed_num = s21_atou(buffer, utils->base);
 
-        if (!st->format.supress) {
+        if (!st->format.supress && *buffer && ptr != S21_NULL) {
             if (st->format.length == LONG || st->format.specifier == 'p') {
                 long unsigned *lptr = ptr;
                 *lptr = parsed_num;
@@ -379,7 +386,6 @@ void _parse_uint(const char **str, void *ptr, struct scan_state *st, struct uint
 }
 
 void _parse_float(const char **str, void *ptr, struct scan_state *st) {
-    _ignore_space_chars(str);
     if (is_dec(**str) ||
             _is_signed_num_starts(*str, st->format.width) ||
             _is_float_starts_with_point(*str, st->format.width)) {
@@ -393,7 +399,7 @@ void _parse_float(const char **str, void *ptr, struct scan_state *st) {
         if (st->format.specifier == 'e' || st->format.specifier == 'g')
             exponent = _read_exponent(str, st, buffer_len);
 
-        if (!st->format.supress) {
+        if (!st->format.supress && *buffer && ptr != S21_NULL) {
             long double parsed_num = s21_strtod(buffer) * powl(10.0L, exponent);
             if (st->format.length == LLONG) {
                 long double *llptr = ptr;
@@ -413,53 +419,62 @@ void _parse_float(const char **str, void *ptr, struct scan_state *st) {
 }
 
 void _parse_char(const char **str, void *ptr, struct scan_state *st) {
-    _ignore_space_chars(str);
-    if (st->format.length == LONG) {
-        wchar_t *wcptr = ptr;
-        *wcptr = **str;
-    } else {
-        char *cptr = ptr;
-        *cptr = **str;
+    if (!st->format.supress && ptr != S21_NULL) {
+        if (st->format.length == LONG) {
+            wchar_t *wcptr = ptr;
+            *wcptr = **str;
+        } else {
+            char *cptr = ptr;
+            *cptr = **str;
+        }
+        st->bytes_scanned++;
+        st->correct_writes++;
     }
-    st->bytes_scanned++;
-    st->correct_writes++;
     (*str)++;
 }
 
 void _parse_str(const char **str, void *ptr, struct scan_state *st) {
-    _ignore_space_chars(str);
-    if (st->format.length == LONG) {
-        wchar_t *wsptr = ptr;
-        _read_wstr(wsptr, str, st);
-    } else {
-        char *sptr = ptr;
-        _read_str(sptr, str, st);
+    int *buffer = _read_str(str, st);
+    if (!st->format.supress && buffer != S21_NULL) {
+        if (st->format.length == LONG) {
+            wchar_t *wsptr = ptr;
+            _copy_to_wstr(wsptr, buffer);
+        } else {
+            char *sptr = ptr;
+            _copy_to_str(sptr, buffer);
+        }
+        st->correct_writes++;
     }
-    st->correct_writes++;
+    if (buffer != S21_NULL) free(buffer);
 }
 
-void _read_str(char *buffer, const char **str, struct scan_state *st) {
+int* _read_str(const char **str, struct scan_state *st) {
+    int *buffer = malloc(sizeof(int));
+    int i = 0;
     const char *scan_set = st->format.scanset;
     const char *cursor = *str;
     int width = st->format.width;
-    while (!is_space(*cursor) && (!*scan_set || s21_strchr(scan_set, *cursor)) && width--) {
-        *buffer++ = *cursor++;
+    while (!is_space(*cursor) && (!*scan_set || s21_strchr(scan_set, *cursor)) && width-- && buffer != S21_NULL) {
+        buffer[i++] = *cursor++;
+        buffer = realloc(buffer, (i + 1) * sizeof(int));
         st->bytes_scanned++;
     }
-    *buffer = '\0';
+    if (buffer != S21_NULL)
+        buffer[i] = '\0';
     *str = cursor;
+    return buffer;
 }
 
-void _read_wstr(wchar_t *buffer, const char **str, struct scan_state *st) {
-    const char *scan_set = st->format.scanset;
-    const char *cursor = *str;
-    int width = st->format.width;
-    while (!is_space(*cursor) && (!*scan_set || s21_strchr(scan_set, *cursor)) && width--) {
-        *buffer++ = *cursor++;
-        st->bytes_scanned++;
-    }
-    *buffer = '\0';
-    *str = cursor;
+void _copy_to_str(char *dest, int *src) {
+    while (*src != '\0')
+        *dest++ = *src++;
+    *dest = '\0';
+}
+
+void _copy_to_wstr(wchar_t *dest, int *src) {
+    while (*src != '\0')
+        *dest++ = *src++;
+    *dest = '\0';
 }
 
 void _write_bytes_scanned(void *ptr, struct scan_state *st) {
