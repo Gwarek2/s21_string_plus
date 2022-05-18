@@ -486,8 +486,10 @@ int _fetoa(char *buffer, long double value, int exponent, struct f_params params
 int _fgtoa(char *buffer, long double value, int exponent, struct f_params params) {
     int i = 0;
     if (params.precision > exponent && exponent >= -4) {
-        if (params.precision == 0) params.precision = fabs((double) exponent);
-        else params.precision -= exponent + 1;
+        if (params.precision == 0)
+            params.precision = fabs((double) exponent);
+        else
+            params.precision -= exponent + 1;
         i += _fntoa(buffer, value, params);
     } else {
         if (params.precision != 0) params.precision -= 1;
