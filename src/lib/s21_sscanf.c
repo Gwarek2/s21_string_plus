@@ -458,7 +458,7 @@ int* _read_str(const char **str, struct scan_state *st) {
             width-- &&
             buffer != S21_NULL) {
         buffer[i++] = *cursor++;
-        char *temp_buffer = realloc(buffer, (i + 1) * sizeof(int));
+        int *temp_buffer = realloc(buffer, (i + 1) * sizeof(int));
         if (temp_buffer == NULL)
             free(buffer);
         buffer = temp_buffer;
