@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <locale.h>
 
-#include "../lib/s21_string.h"
+#include "../s21_string.h"
 START_TEST(test_insert_zero_index) {
     char* str1 = "123456\0";
     char* str2 = "AB\0";
@@ -58,7 +58,7 @@ START_TEST(test_insert_neg_index) {
     char* str2 = "AB\0";
     s21_size_t index = -1;
     char* result_insert = s21_insert(str1, str2, index);
-    ck_assert_ptr_eq(result_insert, NULL);
+    ck_assert_pstr_eq(result_insert, NULL);
 }
 END_TEST
 
@@ -67,7 +67,7 @@ START_TEST(test_insert_null_strings) {
     char *str2 = NULL;
     s21_size_t index = 0;
     char* result_insert = s21_insert(str1, str2, index);
-    ck_assert_ptr_eq(result_insert, NULL);
+    ck_assert_pstr_eq(result_insert, NULL);
 }
 END_TEST
 
@@ -76,7 +76,7 @@ START_TEST(test_insert_null_src) {
     char *str2 = "string";
     s21_size_t index = 0;
     char* result_insert = s21_insert(str1, str2, index);
-    ck_assert_ptr_eq(result_insert, NULL);
+    ck_assert_pstr_eq(result_insert, NULL);
 }
 END_TEST
 
@@ -85,7 +85,7 @@ START_TEST(test_insert_null_dest) {
     char *str2 = NULL;
     s21_size_t index = 1;
     char* result_insert = s21_insert(str1, str2, index);
-    ck_assert_str_eq(result_insert, str1);
+    ck_assert_pstr_eq(result_insert, str1);
     free(result_insert);
 }
 END_TEST
