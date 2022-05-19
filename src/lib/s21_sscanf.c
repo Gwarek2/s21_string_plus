@@ -19,7 +19,7 @@ int s21_sscanf(const char *str, const char *format, ...) {
         if (*format == '%') {
             format++;
             _read_format(&format, &state);
-            if (!*state.format.scanset)
+            if (!*state.format.scanset && !_is_char_format_after_no_space(&state))
                 _ignore_space_chars(&str, &state);
             if (!state.failure && state.format.specifier != '%') {
                 _parse_arg(args, &str, &state);
@@ -30,6 +30,7 @@ int s21_sscanf(const char *str, const char *format, ...) {
                 state.bytes_scanned++;
             }
             _reset_format(&state);
+            state.space_between_format = false;
         } else if (!is_space(*format)) {
             _ignore_space_chars(&str, &state);
             if (*str != *format)
@@ -37,12 +38,14 @@ int s21_sscanf(const char *str, const char *format, ...) {
             state.bytes_scanned++;
             str++;
             format++;
+            state.space_between_format = false;
         } else {
+            state.space_between_format = true;
             format++;
         }
     }
     va_end(args);
-    return state.correct_writes;
+    return !state.failure ? state.correct_writes : S21_EOF;
 }
 
 void _initialize_state(struct scan_state *st) {
@@ -113,6 +116,10 @@ bool _is_oct_prefix(const char *str, int width) {
 bool _is_hex_prefix(const char *str, int width) {
     return *str == '0' && (str[1] == 'x' || str[1] == 'X') &&
            is_hex(str[2])  && (width == -1 || width > 2);
+}
+
+bool _is_char_format_after_no_space(struct scan_state *st) {
+    return st->format.specifier == 'c' && !st->space_between_format;
 }
 
 void _read_format(const char **format, struct scan_state *st) {

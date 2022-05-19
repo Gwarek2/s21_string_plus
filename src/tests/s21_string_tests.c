@@ -542,6 +542,23 @@ START_TEST(test_s21_sscanf_chars) {
 }
 END_TEST
 
+START_TEST(test_s21_sscanf_chars_format_no_space) {
+    char *str = "a ^ 1";
+    char s21_n1 = '\0';
+    char s21_n2 = '\0';
+    char s21_n3 = '\0';
+    char n1 = '\0';
+    char n2 = '\0';
+    char n3 = '\0';
+    int c1 = s21_sscanf(str, "%c%c%c", &s21_n1, &s21_n2, &s21_n3);
+    int c2 = sscanf(str, "%c%c%c", &n1, &n2, &n3);
+    ck_assert_int_eq(s21_n1, n1);
+    ck_assert_int_eq(s21_n2, n2);
+    ck_assert_int_eq(s21_n3, n3);
+    ck_assert_int_eq(c1, c2);
+}
+END_TEST
+
 START_TEST(test_s21_sscanf_string) {
     char *str = "string string STRING";
     char s21_buffer1[100];
@@ -1830,6 +1847,7 @@ int main(void) {
     tcase_add_test(tc1_1, test_s21_sprintf_float_g_format);
     tcase_add_test(tc1_1, test_s21_sscaf_bytes_read);
     tcase_add_test(tc1_1, test_s21_sscanf_chars);
+    tcase_add_test(tc1_1, test_s21_sscanf_chars_format_no_space);
     tcase_add_test(tc1_1, test_s21_sscanf_string);
     tcase_add_test(tc1_1, test_s21_sscanf_wide_string);
     tcase_add_test(tc1_1, test_s21_sscanf_hex);
