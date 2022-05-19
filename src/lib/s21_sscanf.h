@@ -9,16 +9,16 @@
 #define SCANSET_END ']'
 
 enum length {
-    SHORT=1,
-    COMMON=2,
-    LONG=3,
-    LLONG=4,
+    SHORT = 1,
+    COMMON = 2,
+    LONG = 3,
+    LLONG = 4,
 };
 
 enum number_system {
-    OCT=8,
-    DEC=10,
-    HEX=16,
+    OCT = 8,
+    DEC = 10,
+    HEX = 16,
 };
 
 struct scan_state {
@@ -27,6 +27,7 @@ struct scan_state {
     bool num_args_flag;
     bool ordered_args_flag;
     bool failure;
+    bool space_between_format;
     struct {
         bool supress;
         int arg_num;
@@ -55,6 +56,7 @@ bool _is_float_starts_with_point(const char *str, int width);
 bool _is_scientific_notation_starts(const char *str);
 bool _is_oct_prefix(const char *str, int width);
 bool _is_hex_prefix(const char *str, int width);
+bool _is_char_format_after_no_space(struct scan_state *st);
 void _ignore_space_chars(const char **str, struct scan_state *st);
 void _initialize_state(struct scan_state *st);
 void _reset_format(struct scan_state *st);

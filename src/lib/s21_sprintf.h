@@ -35,14 +35,14 @@ int _read_format_params(struct f_params* params, const char *format, va_list arg
 int _convert_arg(char *str, va_list args, struct f_params params);
 int _itoa(long long unsigned value, char* result, int base, int neg, struct f_params params);
 int _ftoa(long double value, char *result, struct f_params params);
-int _fntoa(char *buffer, long double value, struct f_params params); 
+int _fntoa(char *buffer, long double value, struct f_params params);
 int _fetoa(char *buffer, long double value, int exp, struct f_params params);
-int _fgtoa(char *buffer, long double value, int exp, struct f_params params); 
+int _fgtoa(char *buffer, long double value, int exp, struct f_params params);
 
 int _int_to_str(char *buffer, va_list args, struct f_params params, int base);
 int _uint_to_str(char *buffer, va_list args, struct f_params params, int base);
 int _ptr_to_str(char *buffer, va_list args);
-int _float_to_str(char *buffer,struct f_params params, va_list args);
+int _float_to_str(char *buffer, struct f_params params, va_list args);
 int _chr_to_str(char *buffer, va_list args);
 int _str_to_str(char *buffer, va_list args, struct f_params params);
 void _get_printed_chars_num(va_list args, struct f_params params);
