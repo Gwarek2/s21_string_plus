@@ -3,14 +3,8 @@ FLAGS=-Wall -Werror -Wextra -std=c11 #-g -fsanitize=address
 CHECKMK=checkmk clean_mode=1
 OUT_DIR=obj
 COV_DIR=coverage_info
-
-UNAME = $(shell uname -s)
-ifeq ($(UNAME),Darwin)
-	CHECK_FLAGS=-lcheck -lm -lpthread
-endif
-ifeq ($(UNAME),Linux)
-	CHECK_FLAGS=-lcheck -lm -lpthread -lrt -lsubunit
-endif
+ALL_C=`find . -name "*.c"`
+CHECK_FLAGS=`pkg-config --cflags --libs check`
 
 .PHONY: all
 all: test gcov_report
@@ -43,6 +37,12 @@ s21_string.a: create_out_dirs
 	@-mv *.o $(OUT_DIR)
 	ar -rc s21_string.a $(OUT_DIR)/*.o
 	ranlib s21_string.a
+
+static_analysis:
+	@-cp ../materials/linters/* .
+	python3 cpplint.py --extensions=c $(ALL_C)
+	@-rm cpplint.py CPPLINT.cfg
+	cppcheck $(ALL_C)
 
 create_out_dirs:
 	@-mkdir $(OUT_DIR)
