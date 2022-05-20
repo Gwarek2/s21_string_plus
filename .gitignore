@@ -63,6 +63,7 @@ dkms.conf
 cpplint.py
 
 # unittest files
+coverage_info
 *.gcda
 *.gcno
 *.info

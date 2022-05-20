@@ -54,6 +54,7 @@ void _initialize_state(struct scan_state *st) {
     st->num_args_flag = 0;
     st->ordered_args_flag = 0;
     st->failure = 0;
+    st->space_between_format = true;
     _reset_format(st);
 }
 
@@ -301,7 +302,7 @@ void _parse_arg(va_list args, const char **str, struct scan_state *st) {
     } else if (st->format.specifier == 'x' || st->format.specifier == 'p') {
         struct uint_utils utils = { HEX, &is_hex, &_is_hex_prefix, 2 };
         _parse_uint(str, arg_ptr, st, &utils);
-    } else if (s21_strchr("feg", st->format.specifier)) {
+    } else if (s21_strchr("feg", st->format.specifier) != S21_NULL) {
         _parse_float(str, arg_ptr, st);
     } else if (st->format.specifier == 'n') {
         _write_bytes_scanned(arg_ptr, st);
